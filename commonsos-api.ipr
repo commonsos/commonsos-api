@@ -78,7 +78,10 @@
       <option name="PASS_PARENT_ENVS" value="true" />
       <module name="commonsos-api" />
       <envs />
-      <method />
+      <method>
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
   </component>
   <component name="SvnBranchConfigurationManager">
@@ -86,6 +89,7 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../commonsos-web" vcs="Git" />
   </component>
   <component name="masterDetails">
     <states>
