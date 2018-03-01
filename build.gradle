@@ -47,5 +47,5 @@ task bundle(type: Zip, dependsOn: [jar, copyCompileDependencies]) {
   from new File(buildDir, "libs")
   from ('start.sh')
   from ('stop.sh')
-  into "commosos-api"
+  into "commonsos-api"
 }
