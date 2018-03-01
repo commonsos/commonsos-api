@@ -5,9 +5,47 @@ repositories {
   mavenCentral()
 }
 
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sourceSets {
+  main {
+    java { srcDir "src" }
+    resources { srcDirs "resources" }
+  }
+  test {
+    java { srcDir "test" }
+    resources { srcDirs "test" }
+  }
+}
+
 dependencies {
   compile 'com.sparkjava:spark-core:2.7.1'
   compile 'com.google.code.gson:gson:2.8.2'
-  compile 'junit:junit:4.12'
   compile 'org.projectlombok:lombok:1.16.18'
+
+  testCompile 'junit:junit:4.12'
+}
+
+jar {
+  archiveName "commonsos-api.jar"
+  manifest {
+    attributes 'Main-Class': 'commonsos.Server', 'Application-Version': "$System.env.GIT_REVISION", 'Class-Path': configurations.compile.collect {it.getName()}.join(' ')
+  }
+}
+
+task copyCompileDependencies(type: Sync) {
+  from configurations.compile
+  into "build/libs"
+}
+
+task bundle(type: Zip, dependsOn: [jar, copyCompileDependencies]) {
+  archiveName "commonsos-api.zip"
+  from new File(buildDir, "libs")
+  from ('start.sh')
+  from ('stop.sh')
+  into "commosos-api"
 }
