@@ -23,9 +23,14 @@ sourceSets {
 }
 
 dependencies {
-  compile 'com.sparkjava:spark-core:2.7.1'
+  compile ('com.sparkjava:spark-core:2.7.1') {
+    exclude group: 'org.slf4j'
+  }
   compile 'com.google.code.gson:gson:2.8.2'
   compile 'org.projectlombok:lombok:1.16.18'
+
+  runtime 'ch.qos.logback:logback-classic:1.2.3'
+  runtime 'org.codehaus.janino:janino:3.0.6'
 
   testCompile 'junit:junit:4.12'
 }
@@ -39,6 +44,7 @@ jar {
 
 task copyCompileDependencies(type: Sync) {
   from configurations.compile
+  from configurations.runtime
   into "build/libs"
 }
 

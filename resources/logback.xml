@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+  <property name="defaultPattern"
+            value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - [%X{userInfo}][%X{sessionId}][%X{requestId}] %msg%n"/>
+
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="app" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>../logs/app.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>../logs/app.log.%d.gz</fileNamePattern>
+    </rollingPolicy>
+    <encoder>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.google.inject.internal.ProxyFactory" level="ERROR"/>
+
+  <root level="info">
+    <if condition='property("mode").equals("development")'>
+      <then><appender-ref ref="stdout"/></then>
+      <else><appender-ref ref="app"/></else>
+    </if>
+  </root>
+</configuration>
