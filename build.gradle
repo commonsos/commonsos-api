@@ -29,8 +29,8 @@ dependencies {
   compile 'com.google.code.gson:gson:2.8.2'
   compile 'org.projectlombok:lombok:1.16.18'
 
-  runtime 'ch.qos.logback:logback-classic:1.2.3'
-  runtime 'org.codehaus.janino:janino:3.0.6'
+  compile 'ch.qos.logback:logback-classic:1.2.3'
+  compile 'org.codehaus.janino:janino:3.0.6'
 
   testCompile 'junit:junit:4.12'
 }
