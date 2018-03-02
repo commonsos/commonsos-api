@@ -9,7 +9,7 @@ public class JobService {
 
   private List<Job> jobs = new ArrayList<>();
 
-  { jobs.add(new Job().setTitle("House cleaning").setDescription("Vacuum cleaning, moist cleaning, floors etc").setPrice(new BigDecimal("1299.01")).setLocation("Kaga city")); }
+  { jobs.add(new Job().setTitle("House cleaning").setDescription("Vacuum cleaning, moist cleaning, floors etc").setPoints(new BigDecimal("1299.01")).setLocation("Kaga city")); }
 
   public void create(Job job) {
     jobs.add(job);

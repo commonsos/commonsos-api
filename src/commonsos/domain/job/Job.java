@@ -10,6 +10,6 @@ import java.math.BigDecimal;
 public class Job {
   private String title;
   private String description;
-  private BigDecimal price;
+  private BigDecimal points;
   private String location;
 }
