@@ -44,7 +44,6 @@ jar {
 
 task copyCompileDependencies(type: Sync) {
   from configurations.compile
-  from configurations.runtime
   into "build/libs"
 }
 
