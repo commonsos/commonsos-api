@@ -1,10 +1,10 @@
-package commonsos.controller.job;
+package commonsos.controller.ad;
 
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-public class JobListControllerTest {
+public class AdListControllerTest {
 
   @Test
   public void handle() {

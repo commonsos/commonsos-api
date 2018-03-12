@@ -1,10 +1,10 @@
-package commonsos.domain.job;
+package commonsos.domain.ad;
 
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-public class JobServiceTest {
+public class AdServiceTest {
 
   @Test
   public void create() {

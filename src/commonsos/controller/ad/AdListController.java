@@ -1,12 +1,12 @@
-package commonsos.controller.job;
+package commonsos.controller.ad;
 
-import commonsos.domain.job.JobService;
+import commonsos.domain.ad.AdService;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class JobListController implements Route {
-  private JobService service = JobService.instance;
+public class AdListController implements Route {
+  private AdService service = AdService.instance;
 
   @Override public Object handle(Request request, Response response) throws Exception {
     return service.list();
