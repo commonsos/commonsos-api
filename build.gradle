@@ -28,6 +28,7 @@ dependencies {
   }
   compile 'com.google.code.gson:gson:2.8.2'
   compile 'org.projectlombok:lombok:1.16.18'
+  compile 'com.google.inject:guice:4.2.0'
 
   compile 'ch.qos.logback:logback-classic:1.2.3'
   compile 'org.codehaus.janino:janino:3.0.6'

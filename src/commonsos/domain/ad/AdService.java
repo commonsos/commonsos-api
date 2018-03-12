@@ -1,12 +1,12 @@
 package commonsos.domain.ad;
 
+import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 public class AdService {
-  static public AdService instance = new AdService();
-
   private List<Ad> ads = new ArrayList<>();
 
   {
