@@ -9,6 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,9 +24,10 @@ public class AdServiceTest {
   public void create() {
     Ad ad = new Ad();
 
-    service.create(ad);
+    service.create("user id", ad);
 
     verify(repository).create(ad);
+    assertEquals("user id", ad.getUserId());
   }
 
   @Test

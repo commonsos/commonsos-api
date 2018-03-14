@@ -8,7 +8,8 @@ import java.util.List;
 public class AdService {
   @Inject AdRepository repository;
 
-  public void create(Ad ad) {
+  public void create(String userId, Ad ad) {
+    ad.setUserId(userId);
     repository.create(ad);
   }
 

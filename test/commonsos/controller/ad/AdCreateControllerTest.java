@@ -15,6 +15,7 @@ import spark.Request;
 import java.math.BigDecimal;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,15 +33,17 @@ public class AdCreateControllerTest {
 
   @Test
   public void handle() throws Exception {
+    when(request.headers("userId")).thenReturn("user id");
     when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"points\": \"123.456\", \"location\": \"location\"}");
 
     controller.handle(request, null);
 
     ArgumentCaptor<Ad> captor = ArgumentCaptor.forClass(Ad.class);
-    verify(service).create(captor.capture());
-    assertEquals("title", captor.getValue().getTitle());
-    assertEquals("description", captor.getValue().getDescription());
-    assertEquals(new BigDecimal("123.456"), captor.getValue().getPoints());
-    assertEquals("location", captor.getValue().getLocation());
+    verify(service).create(eq("user id"), captor.capture());
+    Ad ad = captor.getValue();
+    assertEquals("title", ad.getTitle());
+    assertEquals("description", ad.getDescription());
+    assertEquals(new BigDecimal("123.456"), ad.getPoints());
+    assertEquals("location", ad.getLocation());
   }
 }

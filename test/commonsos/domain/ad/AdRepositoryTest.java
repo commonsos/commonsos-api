@@ -15,7 +15,7 @@ public class AdRepositoryTest {
 
   @Test
   public void create() {
-    repository.create(new Ad().setTitle("title").setDescription("description").setPoints(new BigDecimal("123.456")).setLocation("location"));
+    repository.create(new Ad().setTitle("title").setDescription("description").setPoints(new BigDecimal("123.456")).setLocation("location").setUserId("user id"));
   }
 
   @Test
