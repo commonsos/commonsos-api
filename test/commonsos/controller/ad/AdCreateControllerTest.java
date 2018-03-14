@@ -33,7 +33,7 @@ public class AdCreateControllerTest {
 
   @Test
   public void handle() throws Exception {
-    when(request.headers("userId")).thenReturn("user id");
+    when(request.headers("X-UserId")).thenReturn("user id");
     when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"points\": \"123.456\", \"location\": \"location\"}");
 
     controller.handle(request, null);

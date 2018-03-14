@@ -16,7 +16,7 @@ public class AdCreateController implements Route {
 
   @Override public Object handle(Request request, Response response) throws Exception {
     Ad ad = gson.fromJson(request.body(), Ad.class);
-    service.create(request.headers("userId"), ad);
+    service.create(request.headers("X-UserId"), ad);
     return "";
   }
 }
