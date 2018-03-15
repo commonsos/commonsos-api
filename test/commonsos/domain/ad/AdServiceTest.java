@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,8 +38,7 @@ public class AdServiceTest {
 
     List<Ad> result = service.list();
 
-    assertSame(1, result.size());
-    assertSame(notAcceptedAd, result.get(0));
+    assertThat(result).containsExactly(notAcceptedAd);
   }
 
   @Test
