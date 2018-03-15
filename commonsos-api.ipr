@@ -31,6 +31,9 @@
     </profile>
     <version value="1.0" />
   </component>
+  <component name="JavaScriptLibraryMappings">
+    <file url="PROJECT" libraries="{jasmine-DefinitelyTyped}" />
+  </component>
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
   </component>
@@ -224,7 +227,10 @@
       <envs />
       <dir value="$PROJECT_DIR$/test" />
       <patterns />
-      <method />
+      <method>
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration default="false" name="WEB tests" type="JavaScriptTestRunnerKarma" factoryName="Karma">
       <config-file value="$PROJECT_DIR$/../commonsos-web/test/unit/karma.conf.js" />
