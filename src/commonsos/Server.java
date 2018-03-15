@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
 
@@ -33,6 +34,7 @@ public class Server {
 
   private void initRoutes(Injector injector) {
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
+    post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
   }
 

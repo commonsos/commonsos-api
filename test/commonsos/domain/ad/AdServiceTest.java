@@ -6,9 +6,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.verify;
@@ -27,14 +28,28 @@ public class AdServiceTest {
     service.create("user id", ad);
 
     verify(repository).create(ad);
-    assertEquals("user id", ad.getUserId());
+    assertEquals("user id", ad.getCreatedBy());
   }
 
   @Test
-  public void list() {
-    List<Ad> ads = new ArrayList<>();
-    when(repository.list()).thenReturn(ads);
+  public void list_filters_out_accepted_ads() {
+    Ad notAcceptedAd = new Ad();
+    when(repository.list()).thenReturn(asList(notAcceptedAd, new Ad().setAcceptedBy("john")));
 
-    assertSame(ads, service.list());
+    List<Ad> result = service.list();
+
+    assertSame(1, result.size());
+    assertSame(notAcceptedAd, result.get(0));
+  }
+
+  @Test
+  public void accept() {
+    Ad ad = new Ad();
+    when(repository.find("adId")).thenReturn(Optional.of(ad));
+
+    service.accept("userId", "adId");
+
+    assertEquals("userId", ad.getAcceptedBy());
+    verify(repository).save(ad);
   }
 }
