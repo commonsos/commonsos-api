@@ -8,6 +8,7 @@ import com.google.inject.Injector;
 import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
+import commonsos.controller.ad.MyAdListController;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -36,6 +37,7 @@ public class Server {
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
+    get("/my-ads", injector.getInstance(MyAdListController.class), toJson);
   }
 
   public static void main(String[] args) {

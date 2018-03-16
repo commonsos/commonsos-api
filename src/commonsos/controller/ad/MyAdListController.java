@@ -7,10 +7,10 @@ import spark.Route;
 
 import javax.inject.Inject;
 
-public class AdListController implements Route {
+public class MyAdListController implements Route {
   @Inject AdService service;
 
   @Override public Object handle(Request request, Response response) throws Exception {
-    return service.all();
+    return service.acceptedBy(request.headers("X-UserId"));
   }
 }

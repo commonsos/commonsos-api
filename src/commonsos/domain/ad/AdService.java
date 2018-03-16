@@ -4,6 +4,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Singleton
 public class AdService {
   @Inject AdRepository repository;
@@ -13,8 +15,12 @@ public class AdService {
     repository.create(ad);
   }
 
-  public List<Ad> list() {
+  public List<Ad> all() {
     return repository.list();
+  }
+
+  public List<Ad> acceptedBy(String userId) {
+    return repository.list().stream().filter(a -> userId.equals(a.getAcceptedBy())).collect(toList());
   }
 
   public Ad accept(String userId, String id) {
@@ -23,5 +29,4 @@ public class AdService {
     repository.save(ad);
     return ad;
   }
-
 }
