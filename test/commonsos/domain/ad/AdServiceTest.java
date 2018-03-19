@@ -40,7 +40,6 @@ public class AdServiceTest {
 
     verify(agreementService).create("userId", ad);
     assertThat(result).isSameAs(ad);
-    assertThat(ad.getAcceptedBy()).isEqualTo("userId");
     verify(repository).save(ad);
   }
 }

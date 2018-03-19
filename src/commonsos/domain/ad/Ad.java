@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 public class Ad {
   private String id;
   private String createdBy;
-  private String acceptedBy;
   private String title;
   private String description;
   private BigDecimal points;
