@@ -1,5 +1,7 @@
 package commonsos.domain.ad;
 
+import commonsos.domain.agreement.AgreementService;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
@@ -9,6 +11,7 @@ import static java.util.stream.Collectors.toList;
 @Singleton
 public class AdService {
   @Inject AdRepository repository;
+  @Inject AgreementService agreementService;
 
   public void create(String userId, Ad ad) {
     ad.setCreatedBy(userId);
@@ -27,6 +30,7 @@ public class AdService {
     Ad ad = repository.find(id).orElseThrow(RuntimeException::new);
     ad.setAcceptedBy(userId);
     repository.save(ad);
+    agreementService.create(userId, ad);
     return ad;
   }
 }

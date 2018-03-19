@@ -1,5 +1,6 @@
 package commonsos.domain.ad;
 
+import commonsos.domain.agreement.AgreementService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,13 +18,14 @@ import static org.mockito.Mockito.when;
 public class AdServiceTest {
 
   @Mock AdRepository repository;
-  @InjectMocks AdService service;
+  @Mock AgreementService agreementService;
+  @InjectMocks AdService adService;
 
   @Test
   public void create() {
     Ad ad = new Ad();
 
-    service.create("user id", ad);
+    adService.create("user id", ad);
 
     verify(repository).create(ad);
     assertEquals("user id", ad.getCreatedBy());
@@ -34,8 +36,9 @@ public class AdServiceTest {
     Ad ad = new Ad();
     when(repository.find("adId")).thenReturn(Optional.of(ad));
 
-    Ad result = service.accept("userId", "adId");
+    Ad result = adService.accept("userId", "adId");
 
+    verify(agreementService).create("userId", ad);
     assertThat(result).isSameAs(ad);
     assertThat(ad.getAcceptedBy()).isEqualTo("userId");
     verify(repository).save(ad);
