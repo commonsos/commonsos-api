@@ -1,14 +1,16 @@
 package commonsos;
 
 import com.google.gson.Gson;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
+import com.google.inject.*;
 import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
 import commonsos.controller.ad.AgreementListController;
+
+import java.time.OffsetDateTime;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -22,10 +24,16 @@ public class Server {
   }
 
   private Injector initDependencies() {
-    AbstractModule module = new AbstractModule() {
+    Module module = new AbstractModule() {
       @Override protected void configure() {
-        bind(Gson.class).toInstance(new Gson());
       }
+
+      @Provides @Singleton Gson createGson() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(OffsetDateTime.class, (JsonSerializer<OffsetDateTime>)(src, typeOfSrc, context) -> new Gson().toJsonTree(src.toString()));
+        builder.registerTypeAdapter(OffsetDateTime.class, (JsonDeserializer<OffsetDateTime>)(src, typeOfSrc, context) -> OffsetDateTime.parse(src.getAsString()));
+        return builder.create();
+     }
     };
 
     Injector injector = Guice.createInjector(module);
