@@ -1,7 +1,7 @@
 package commonsos.controller.ad;
 
-import commonsos.domain.ad.Ad;
-import commonsos.domain.ad.AdService;
+import commonsos.domain.agreement.Agreement;
+import commonsos.domain.agreement.AgreementService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,18 +15,18 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MyAdListControllerTest {
+public class AgreementListControllerTest {
 
-  @Mock AdService service;
+  @Mock AgreementService service;
   @Mock Request request;
-  @InjectMocks MyAdListController controller;
+  @InjectMocks AgreementListController controller;
 
   @Test
-  public void handle() throws Exception {
+  public void handle() {
     when(request.headers("X-UserId")).thenReturn("userId");
-    ArrayList<Ad> ads = new ArrayList<>();
-    when(service.acceptedBy("userId")).thenReturn(ads);
+    ArrayList<Agreement> agreements = new ArrayList<>();
+    when(service.list("userId")).thenReturn(agreements);
 
-    assertSame(ads, controller.handle(request, null));
+    assertSame(agreements, controller.handle(request, null));
   }
 }

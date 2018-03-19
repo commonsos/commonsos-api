@@ -5,11 +5,12 @@ import commonsos.domain.ad.Ad;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Singleton
 public class AgreementService {
 
-  @Inject AgreementRepository repository;
+  @Inject private AgreementRepository repository;
 
   public void create(String userId, Ad ad) {
     repository.create(instanceFor(userId, ad));
@@ -25,5 +26,9 @@ public class AgreementService {
       .setPoints(ad.getPoints())
       .setDescription(ad.getDescription())
       .setCreatedAt(OffsetDateTime.now());
+  }
+
+  public List<Agreement> list(String userId) {
+    return repository.consumedBy(userId);
   }
 }
