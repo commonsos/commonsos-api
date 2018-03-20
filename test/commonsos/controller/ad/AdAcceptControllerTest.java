@@ -17,14 +17,15 @@ import static org.mockito.Mockito.when;
 public class AdAcceptControllerTest {
   @Mock Request request;
   @Mock AdService service;
+  User user = new User();
   @InjectMocks AdAcceptController controller = new AdAcceptController();
 
   @Test
   public void handle() throws Exception {
     when(request.params("id")).thenReturn("adId");
     Ad ad = new Ad();
-    when(service.accept("userId", "adId")).thenReturn(ad);
+    when(service.accept(user, "adId")).thenReturn(ad);
 
-    assertThat(controller.handle(new User().setId("userId"), request, null)).isSameAs(ad);
+    assertThat(controller.handle(user, request, null)).isSameAs(ad);
   }
 }

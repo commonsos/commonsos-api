@@ -40,7 +40,7 @@ public class AdCreateControllerTest {
     controller.handle(user, request, null);
 
     ArgumentCaptor<Ad> captor = ArgumentCaptor.forClass(Ad.class);
-    verify(service).create(eq("user id"), captor.capture());
+    verify(service).create(eq(user), captor.capture());
     Ad ad = captor.getValue();
     assertEquals("title", ad.getTitle());
     assertEquals("description", ad.getDescription());

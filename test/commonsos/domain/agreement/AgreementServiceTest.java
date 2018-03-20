@@ -1,6 +1,7 @@
 package commonsos.domain.agreement;
 
 import commonsos.ForbiddenException;
+import commonsos.User;
 import commonsos.domain.ad.Ad;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +31,9 @@ public class AgreementServiceTest {
 
   @Test
   public void create() {
-    service.create("elderly", new Ad().setId("adId").setCreatedBy("worker").setLocation("home").setDescription("description").setTitle("title").setPoints(ONE));
+    service.create(
+      new User().setId("elderly"),
+      new Ad().setId("adId").setCreatedBy("worker").setLocation("home").setDescription("description").setTitle("title").setPoints(ONE));
 
     ArgumentCaptor<Agreement> captor = forClass(Agreement.class);
     verify(repository).create(captor.capture());
@@ -57,7 +60,7 @@ public class AgreementServiceTest {
       .setProviderId("worker");
     when(repository.find("agreement id")).thenReturn(Optional.of(agreement));
 
-    AgreementViewModel result = service.details("elderly", "agreement id");
+    AgreementViewModel result = service.details(new User().setId("elderly"), "agreement id");
 
     assertThat(result.getId()).isEqualTo("agreement id");
     assertThat(result.getTitle()).isEqualTo("title");
@@ -71,13 +74,13 @@ public class AgreementServiceTest {
   public void details_agreementNotFound() {
     when(repository.find("unknown agreement")).thenReturn(Optional.empty());
 
-    service.details("user id", "unknown agreement");
+    service.details(new User().setId("user id"), "unknown agreement");
   }
 
   @Test(expected = ForbiddenException.class)
   public void details_isAvailableForAgreementParty() {
     when(repository.find("agreement id")).thenReturn(Optional.of(new Agreement().setConsumerId("someone")));
 
-    service.details("user id", "agreement id");
+    service.details(new User().setId("user id"), "agreement id");
   }
 }

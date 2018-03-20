@@ -12,6 +12,6 @@ public class AgreementListController extends Controller {
   @Inject AgreementService service;
 
   @Override public Object handle(User user, Request request, Response response) {
-    return service.list(user.getId());
+    return service.list(user);
   }
 }

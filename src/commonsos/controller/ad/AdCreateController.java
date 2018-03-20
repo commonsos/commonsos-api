@@ -17,7 +17,7 @@ public class AdCreateController extends Controller {
 
   @Override public Object handle(User user, Request request, Response response) {
     Ad ad = gson.fromJson(request.body(), Ad.class);
-    service.create(user.getId(), ad);
+    service.create(user, ad);
     return "";
   }
 }

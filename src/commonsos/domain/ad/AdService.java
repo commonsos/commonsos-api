@@ -1,5 +1,6 @@
 package commonsos.domain.ad;
 
+import commonsos.User;
 import commonsos.domain.agreement.AgreementService;
 
 import javax.inject.Inject;
@@ -11,8 +12,8 @@ public class AdService {
   @Inject AdRepository repository;
   @Inject AgreementService agreementService;
 
-  public void create(String userId, Ad ad) {
-    ad.setCreatedBy(userId);
+  public void create(User user, Ad ad) {
+    ad.setCreatedBy(user.getId());
     repository.create(ad);
   }
 
@@ -20,10 +21,10 @@ public class AdService {
     return repository.list();
   }
 
-  public Ad accept(String userId, String id) {
+  public Ad accept(User user, String id) {
     Ad ad = repository.find(id).orElseThrow(RuntimeException::new);
     repository.save(ad);
-    agreementService.create(userId, ad);
+    agreementService.create(user, ad);
     return ad;
   }
 }

@@ -1,5 +1,6 @@
 package commonsos.controller.agreement;
 
+import commonsos.User;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.agreement.AgreementViewModel;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AgreementControllerTest {
 
+  @Mock User user;
   @Mock AgreementService service;
   @Mock Request request;
   @InjectMocks AgreementController controller;
@@ -22,10 +24,9 @@ public class AgreementControllerTest {
   @Test
   public void handle() {
     AgreementViewModel result = new AgreementViewModel();
-    when(service.details("user id", "agreement id")).thenReturn(result);
-    when(request.headers("X-UserId")).thenReturn("user id");
+    when(service.details(user,  "agreement id")).thenReturn(result);
     when(request.params("id")).thenReturn("agreement id");
 
-    assertThat(controller.handle(request, null)).isEqualTo(result);
+    assertThat(controller.handle(user, request, null)).isEqualTo(result);
   }
 }

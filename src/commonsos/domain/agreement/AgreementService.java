@@ -1,6 +1,7 @@
 package commonsos.domain.agreement;
 
 import commonsos.ForbiddenException;
+import commonsos.User;
 import commonsos.domain.ad.Ad;
 
 import javax.inject.Inject;
@@ -13,14 +14,14 @@ public class AgreementService {
 
   @Inject private AgreementRepository repository;
 
-  public void create(String userId, Ad ad) {
-    repository.create(instanceFor(userId, ad));
+  public void create(User user, Ad ad) {
+    repository.create(instanceFor(user, ad));
   }
 
-  private Agreement instanceFor(String userId, Ad ad) {
+  private Agreement instanceFor(User user, Ad ad) {
     return new Agreement()
       .setAdId(ad.getId())
-      .setConsumerId(userId)
+      .setConsumerId(user.getId())
       .setProviderId(ad.getCreatedBy())
       .setLocation(ad.getLocation())
       .setTitle(ad.getTitle())
@@ -29,14 +30,14 @@ public class AgreementService {
       .setCreatedAt(OffsetDateTime.now());
   }
 
-  public List<Agreement> list(String userId) {
-    return repository.consumedBy(userId);
+  public List<Agreement> list(User user) {
+    return repository.consumedBy(user.getId());
   }
 
-  public AgreementViewModel details(String userId, String agreementId) {
+  public AgreementViewModel details(User user, String agreementId) {
     Agreement agreement = repository.find(agreementId).orElseThrow(RuntimeException::new);
 
-    if (!userId.equals(agreement.getConsumerId())) throw new ForbiddenException();
+    if (!user.getId().equals(agreement.getConsumerId())) throw new ForbiddenException();
 
     return new AgreementViewModel()
       .setId(agreementId)

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AgreementListControllerTest {
 
+  @Mock User user;
   @Mock AgreementService service;
   @Mock Request request;
   @InjectMocks AgreementListController controller;
@@ -26,8 +27,8 @@ public class AgreementListControllerTest {
   @Test
   public void handle() {
     ArrayList<Agreement> agreements = new ArrayList<>();
-    when(service.list("userId")).thenReturn(agreements);
+    when(service.list(user)).thenReturn(agreements);
 
-    assertThat(controller.handle(new User().setId("userId"), request, null)).isSameAs(agreements);
+    assertThat(controller.handle(user, request, null)).isSameAs(agreements);
   }
 }

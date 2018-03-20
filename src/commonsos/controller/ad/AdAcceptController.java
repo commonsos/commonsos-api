@@ -12,6 +12,6 @@ public class AdAcceptController extends Controller {
   @Inject AdService service;
 
   @Override public Object handle(User user,  Request request, Response response) {
-    return service.accept(user.getId(), request.params("id"));
+    return service.accept(user, request.params("id"));
   }
 }

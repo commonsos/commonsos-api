@@ -1,5 +1,6 @@
 package commonsos.domain.ad;
 
+import commonsos.User;
 import commonsos.domain.agreement.AgreementService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +26,7 @@ public class AdServiceTest {
   public void create() {
     Ad ad = new Ad();
 
-    adService.create("user id", ad);
+    adService.create(new User().setId("user id"), ad);
 
     verify(repository).create(ad);
     assertEquals("user id", ad.getCreatedBy());
@@ -35,10 +36,11 @@ public class AdServiceTest {
   public void accept() {
     Ad ad = new Ad();
     when(repository.find("adId")).thenReturn(Optional.of(ad));
+    User user = new User();
 
-    Ad result = adService.accept("userId", "adId");
+    Ad result = adService.accept(user, "adId");
 
-    verify(agreementService).create("userId", ad);
+    verify(agreementService).create(user, ad);
     assertThat(result).isSameAs(ad);
     verify(repository).save(ad);
   }
