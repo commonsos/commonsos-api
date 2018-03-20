@@ -31,6 +31,8 @@ public class Server {
   }
 
   private void initRoutes(Injector injector) {
+    before(new AuthenticationFilter());
+
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
