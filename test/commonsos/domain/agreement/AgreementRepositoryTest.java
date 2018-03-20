@@ -19,6 +19,7 @@ public class AgreementRepositoryTest {
     repository.create(agreement);
 
     assertThat(repository.agreements).contains(agreement);
+    assertThat(agreement.getId()).isEqualTo("0");
   }
 
   @Test
@@ -27,5 +28,13 @@ public class AgreementRepositoryTest {
     repository.agreements = asList(agreement, new Agreement().setConsumerId("other user"));
 
     assertThat(repository.consumedBy("user")).containsExactly(agreement);
+  }
+
+  @Test
+  public void find() {
+    Agreement agreement = new Agreement().setId("agreement id");
+    repository.agreements = asList(agreement, new Agreement().setId("other agreement id"));
+
+    assertThat(repository.find("agreement id")).contains(agreement);
   }
 }

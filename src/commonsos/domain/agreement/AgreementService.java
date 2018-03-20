@@ -1,5 +1,6 @@
 package commonsos.domain.agreement;
 
+import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
 
 import javax.inject.Inject;
@@ -30,5 +31,19 @@ public class AgreementService {
 
   public List<Agreement> list(String userId) {
     return repository.consumedBy(userId);
+  }
+
+  public AgreementViewModel details(String userId, String agreementId) {
+    Agreement agreement = repository.find(agreementId).orElseThrow(RuntimeException::new);
+
+    if (!userId.equals(agreement.getConsumerId())) throw new ForbiddenException();
+
+    return new AgreementViewModel()
+      .setId(agreementId)
+      .setTitle(agreement.getTitle())
+      .setDescription(agreement.getDescription())
+      .setLocation(agreement.getLocation())
+      .setAmount(agreement.getPoints())
+      .setTransactionData(String.format("amount:%s|from:%s|to:%s", agreement.getPoints(), agreement.getConsumerId(), agreement.getProviderId()));
   }
 }

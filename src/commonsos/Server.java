@@ -5,10 +5,10 @@ import com.google.inject.*;
 import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
+import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
 
-import static spark.Spark.get;
-import static spark.Spark.post;
+import static spark.Spark.*;
 
 public class Server {
   @Inject private JsonTransformer toJson;
@@ -35,6 +35,9 @@ public class Server {
     post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
     get("/agreements", injector.getInstance(AgreementListController.class), toJson);
+    get("/agreements/:id", injector.getInstance(AgreementController.class), toJson);
+
+    exception(ForbiddenException.class, (exception, request, response) -> response.status(403));
   }
 
   public static void main(String[] args) {

@@ -9,6 +9,7 @@ import java.time.OffsetDateTime;
 
 @Getter @Setter @Accessors(chain = true)
 public class Agreement {
+  private String id;
   private String adId;
   private String providerId;
   private String consumerId;
