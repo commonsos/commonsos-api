@@ -1,5 +1,6 @@
 package commonsos.controller.ad;
 
+import commonsos.controller.agreement.AgreementListController;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import org.junit.Test;

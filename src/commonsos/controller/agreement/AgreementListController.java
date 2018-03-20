@@ -1,4 +1,4 @@
-package commonsos.controller.ad;
+package commonsos.controller.agreement;
 
 import commonsos.domain.agreement.AgreementService;
 import spark.Request;

@@ -8,7 +8,7 @@ import com.google.inject.*;
 import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
-import commonsos.controller.ad.AgreementListController;
+import commonsos.controller.agreement.AgreementListController;
 
 import java.time.OffsetDateTime;
 
