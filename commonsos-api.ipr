@@ -239,6 +239,16 @@
       <envs />
       <method />
     </configuration>
+    <configuration default="false" name="WEB" type="js.build_tools.npm" factoryName="npm">
+      <package-json value="$PROJECT_DIR$/../commonsos-web/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
   </component>
   <component name="SvnBranchConfigurationManager">
     <option name="mySupportsUserInfoFilter" value="true" />
