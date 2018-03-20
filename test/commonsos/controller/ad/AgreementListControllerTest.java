@@ -1,5 +1,6 @@
 package commonsos.controller.ad;
 
+import commonsos.User;
 import commonsos.controller.agreement.AgreementListController;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
@@ -12,7 +13,7 @@ import spark.Request;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -24,10 +25,9 @@ public class AgreementListControllerTest {
 
   @Test
   public void handle() {
-    when(request.headers("X-UserId")).thenReturn("userId");
     ArrayList<Agreement> agreements = new ArrayList<>();
     when(service.list("userId")).thenReturn(agreements);
 
-    assertSame(agreements, controller.handle(request, null));
+    assertThat(controller.handle(new User().setId("userId"), request, null)).isSameAs(agreements);
   }
 }

@@ -1,6 +1,7 @@
 package commonsos.controller.ad;
 
 import com.google.gson.Gson;
+import commonsos.User;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
 import org.junit.Before;
@@ -33,10 +34,10 @@ public class AdCreateControllerTest {
 
   @Test
   public void handle() throws Exception {
-    when(request.headers("X-UserId")).thenReturn("user id");
     when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"points\": \"123.456\", \"location\": \"location\"}");
+    User user = new User().setId("user id");
 
-    controller.handle(request, null);
+    controller.handle(user, request, null);
 
     ArgumentCaptor<Ad> captor = ArgumentCaptor.forClass(Ad.class);
     verify(service).create(eq("user id"), captor.capture());

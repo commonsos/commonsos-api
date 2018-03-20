@@ -1,5 +1,6 @@
 package commonsos.controller.ad;
 
+import commonsos.User;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
 import org.junit.Test;
@@ -24,6 +25,6 @@ public class AdListControllerTest {
     ArrayList<Ad> ads = new ArrayList<>();
     when(service.all()).thenReturn(ads);
 
-    assertSame(ads, controller.handle(null, null));
+    assertSame(ads, controller.handle(new User(), null, null));
   }
 }

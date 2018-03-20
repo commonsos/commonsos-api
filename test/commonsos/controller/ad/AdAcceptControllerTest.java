@@ -1,5 +1,6 @@
 package commonsos.controller.ad;
 
+import commonsos.User;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
 import org.junit.Test;
@@ -20,11 +21,10 @@ public class AdAcceptControllerTest {
 
   @Test
   public void handle() throws Exception {
-    when(request.headers("X-UserId")).thenReturn("userId");
     when(request.params("id")).thenReturn("adId");
     Ad ad = new Ad();
     when(service.accept("userId", "adId")).thenReturn(ad);
 
-    assertThat(controller.handle(request, null)).isSameAs(ad);
+    assertThat(controller.handle(new User().setId("userId"), request, null)).isSameAs(ad);
   }
 }
