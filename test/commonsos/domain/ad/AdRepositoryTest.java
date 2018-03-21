@@ -1,6 +1,5 @@
 package commonsos.domain.ad;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -12,7 +11,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.*;
 
-@RunWith(MockitoJUnitRunner.class) @Ignore("Until database integration is implemented")
+@RunWith(MockitoJUnitRunner.class)
 public class AdRepositoryTest {
 
   @InjectMocks AdRepository repository;
@@ -24,7 +23,7 @@ public class AdRepositoryTest {
     repository.create(ad);
 
     assertTrue(repository.ads.contains(ad));
-    assertEquals("4", ad.getId());
+    assertEquals("3", ad.getId());
   }
 
   @Test
