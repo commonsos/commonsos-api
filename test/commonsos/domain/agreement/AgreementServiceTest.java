@@ -52,6 +52,7 @@ public class AgreementServiceTest {
   @Test
   public void details() {
     Agreement agreement = new Agreement()
+      .setId("agreement id")
       .setTitle("title")
       .setDescription("description")
       .setLocation("home")
@@ -67,7 +68,7 @@ public class AgreementServiceTest {
     assertThat(result.getDescription()).isEqualTo("description");
     assertThat(result.getLocation()).isEqualTo("home");
     assertThat(result.getAmount()).isEqualTo(TEN);
-    assertThat(result.getTransactionData()).isEqualTo("amount:10|from:elderly|to:worker");
+    assertThat(result.getTransactionData()).isEqualTo("c2FsdGFncmVlbWVudCBpZA==");
   }
 
   @Test(expected = RuntimeException.class)

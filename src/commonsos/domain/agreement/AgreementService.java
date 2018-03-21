@@ -7,6 +7,7 @@ import commonsos.domain.ad.Ad;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.OffsetDateTime;
+import java.util.Base64;
 import java.util.List;
 
 @Singleton
@@ -40,11 +41,15 @@ public class AgreementService {
     if (!user.getId().equals(agreement.getConsumerId())) throw new ForbiddenException();
 
     return new AgreementViewModel()
-      .setId(agreementId)
+      .setId(agreement.getId())
       .setTitle(agreement.getTitle())
       .setDescription(agreement.getDescription())
       .setLocation(agreement.getLocation())
       .setAmount(agreement.getPoints())
-      .setTransactionData(String.format("amount:%s|from:%s|to:%s", agreement.getPoints(), agreement.getConsumerId(), agreement.getProviderId()));
+      .setTransactionData(transactionData(agreement));
+  }
+
+  private String transactionData(Agreement agreement) {
+    return Base64.getEncoder().encodeToString(("salt"+agreement.getId()).getBytes());
   }
 }
