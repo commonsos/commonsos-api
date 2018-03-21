@@ -18,4 +18,5 @@ public class Agreement {
   private BigDecimal points;
   private String location;
   private OffsetDateTime createdAt;
+  private OffsetDateTime rewardClaimedAt;
 }

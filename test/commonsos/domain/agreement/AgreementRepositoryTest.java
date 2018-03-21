@@ -5,8 +5,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+
+import static java.time.OffsetDateTime.now;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AgreementRepositoryTest {
@@ -36,5 +41,14 @@ public class AgreementRepositoryTest {
     repository.agreements = asList(agreement, new Agreement().setId("other agreement id"));
 
     assertThat(repository.find("agreement id")).contains(agreement);
+  }
+
+  @Test
+  public void update() {
+    repository.agreements = new ArrayList<>(asList(new Agreement().setId("agreement id")));
+
+    repository.update(new Agreement().setId("agreement id").setRewardClaimedAt(now()));
+
+    assertThat(repository.agreements.get(0).getRewardClaimedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 }

@@ -7,6 +7,7 @@ import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
 import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
+import commonsos.controller.reward.ClaimRewardController;
 
 import static spark.Spark.*;
 
@@ -38,8 +39,10 @@ public class Server {
     get("/ads", injector.getInstance(AdListController.class), toJson);
     get("/agreements", injector.getInstance(AgreementListController.class), toJson);
     get("/agreements/:id", injector.getInstance(AgreementController.class), toJson);
+    post("/claim-reward", injector.getInstance(ClaimRewardController.class), toJson);
 
     exception(ForbiddenException.class, (exception, request, response) -> response.status(403));
+    exception(BadRequestException.class, (exception, request, response) -> response.status(400));
   }
 
   public static void main(String[] args) {

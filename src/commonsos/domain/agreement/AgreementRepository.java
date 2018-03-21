@@ -22,4 +22,10 @@ public class AgreementRepository {
   public Optional<Agreement> find(String id) {
     return agreements.stream().filter(a -> a.getId().equals(id)).findAny();
   }
+
+  public void update(Agreement agreement) {
+    int index = agreements.indexOf(find(agreement.getId()).get());
+    agreements.remove(index);
+    agreements.add(index, agreement);
+  }
 }
