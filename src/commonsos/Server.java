@@ -41,8 +41,14 @@ public class Server {
     get("/agreements/:id", injector.getInstance(AgreementController.class), toJson);
     post("/claim-reward", injector.getInstance(ClaimRewardController.class), toJson);
 
-    exception(ForbiddenException.class, (exception, request, response) -> response.status(403));
-    exception(BadRequestException.class, (exception, request, response) -> response.status(400));
+    exception(ForbiddenException.class, (exception, request, response) -> {
+      response.status(403);
+      response.body("");
+    });
+    exception(BadRequestException.class, (exception, request, response) -> {
+      response.status(400);
+      response.body("");
+    });
   }
 
   public static void main(String[] args) {
