@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -35,7 +36,9 @@ public class AgreementService {
   }
 
   public List<Agreement> list(User user) {
-    return repository.consumedBy(user.getId());
+    List<Agreement> agreements = repository.consumedBy(user.getId());
+    Collections.sort(agreements, (a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()));
+    return agreements;
   }
 
   public AgreementViewModel details(User user, String agreementId) {

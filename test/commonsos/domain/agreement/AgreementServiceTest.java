@@ -12,12 +12,16 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -101,5 +105,17 @@ public class AgreementServiceTest {
     when(repository.find("agreement id")).thenReturn(Optional.empty());
 
     service.findByTransactionData("c2FsdGFncmVlbWVudCBpZA==");
+  }
+
+  @Test
+  public void list() {
+    Agreement agreement3 = new Agreement().setCreatedAt(OffsetDateTime.of(2010, 3, 30, 0, 0, 0, 0, ZoneOffset.UTC));
+    Agreement agreement1 = new Agreement().setCreatedAt(OffsetDateTime.of(2010, 3, 10, 0, 0, 0, 0, ZoneOffset.UTC));
+    Agreement agreement2 = new Agreement().setCreatedAt(OffsetDateTime.of(2010, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC));
+    when(repository.consumedBy("user id")).thenReturn(asList(agreement3, agreement1, agreement2));
+
+    List<Agreement> result = service.list(new User().setId("user id"));
+
+    assertThat(result).containsExactly(agreement3, agreement2, agreement1);
   }
 }
