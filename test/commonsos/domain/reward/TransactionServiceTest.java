@@ -33,10 +33,9 @@ public class TransactionServiceTest {
     Agreement agreement = new Agreement().setPoints(TEN).setId("123").setProviderId("worker").setConsumerId("elderly");
     when(agreementService.findByTransactionData("transactionData")).thenReturn(agreement);
 
-    transactionService.claim(new User().setId("worker"), "transactionData");
+    Transaction result = transactionService.claim(new User().setId("worker"), "transactionData");
 
     verify(agreementService).rewardClaimed(agreement);
-
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
     assertThat(transaction.getAgreementId()).isEqualTo("123");
@@ -44,6 +43,7 @@ public class TransactionServiceTest {
     assertThat(transaction.getBeneficiaryId()).isEqualTo("worker");
     assertThat(transaction.getRemitterId()).isEqualTo("elderly");
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+    assertThat(transaction).isEqualTo(result);
   }
 
   @Test(expected = ForbiddenException.class)

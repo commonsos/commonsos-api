@@ -14,7 +14,7 @@ public class TransactionService {
   @Inject AgreementService agreementService;
   @Inject TransactionRepository repository;
 
-  public void claim(User user, String transactionData) {
+  public Transaction claim(User user, String transactionData) {
     Agreement agreement = agreementService.findByTransactionData(transactionData);
 
     if (!user.getId().equals(agreement.getProviderId())) throw new ForbiddenException();
@@ -29,5 +29,7 @@ public class TransactionService {
 
     repository.create(transaction);
     agreementService.rewardClaimed(agreement);
+
+    return transaction;
   }
 }

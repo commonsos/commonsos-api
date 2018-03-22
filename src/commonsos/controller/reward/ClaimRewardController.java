@@ -19,7 +19,6 @@ public class ClaimRewardController extends Controller {
   @Override protected Object handle(User user, Request request, Response response) {
     Map json = gson.fromJson(request.body(), Map.class);
     if (json == null) throw new BadRequestException();
-    service.claim(user, String.valueOf(json.getOrDefault("code", "")));
-    return "";
+    return service.claim(user, String.valueOf(json.getOrDefault("code", "")));
   }
 }

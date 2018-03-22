@@ -3,6 +3,7 @@ package commonsos.controller.reward;
 import commonsos.BadRequestException;
 import commonsos.GsonProvider;
 import commonsos.User;
+import commonsos.domain.reward.Transaction;
 import commonsos.domain.reward.TransactionService;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import spark.Request;
 import spark.Response;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,11 +31,14 @@ public class ClaimRewardControllerTest {
 
   @Test
   public void claim() {
-    when(request.body()).thenReturn(json("{'code': '12345'}"));
-
     User user = new User();
-    controller.handle(user, request, mock(Response.class));
+    Transaction transaction = new Transaction();
+    when(request.body()).thenReturn(json("{'code': '12345'}"));
+    when(service.claim(user, "12345")).thenReturn(transaction);
 
+    Transaction result = (Transaction)controller.handle(user, request, mock(Response.class));
+
+    assertThat(result).isEqualTo(transaction);
     verify(service).claim(user, "12345");
   }
 
