@@ -7,10 +7,14 @@ import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
 import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
+import commonsos.controller.authentication.LoginController;
 import commonsos.controller.reward.ClaimRewardController;
+import lombok.extern.slf4j.Slf4j;
 
+import static java.util.Arrays.asList;
 import static spark.Spark.*;
 
+@Slf4j
 public class Server {
   @Inject private JsonTransformer toJson;
 
@@ -32,7 +36,9 @@ public class Server {
   }
 
   private void initRoutes(Injector injector) {
-    before(new AuthenticationFilter());
+    post("/login", injector.getInstance(LoginController.class), toJson);
+
+    before(new AuthenticationFilter(asList("/login")));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);
@@ -45,8 +51,17 @@ public class Server {
       response.status(403);
       response.body("");
     });
+    exception(AuthenticationException.class, (exception, request, response) -> {
+      response.status(401);
+      response.body("");
+    });
     exception(BadRequestException.class, (exception, request, response) -> {
       response.status(400);
+      response.body("");
+    });
+    exception(Exception.class, (exception, request, response) -> {
+      log.error("Processing failed", exception);
+      response.status(500);
       response.body("");
     });
   }
