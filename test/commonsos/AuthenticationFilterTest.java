@@ -54,7 +54,7 @@ public class AuthenticationFilterTest {
   @Test
   public void ignoresExcludedPaths() {
     when(request.headers("X-UserId")).thenReturn(null);
-    when(request.contextPath()).thenReturn("no-auth-check-needed");
+    when(request.pathInfo()).thenReturn("no-auth-check-needed");
 
     new AuthenticationFilter(singletonList("no-auth-check-needed"), userService).handle(request, null);
 
