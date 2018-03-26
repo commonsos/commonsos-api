@@ -8,6 +8,7 @@ import commonsos.controller.ad.AdListController;
 import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
 import commonsos.controller.auth.LoginController;
+import commonsos.controller.auth.LogoutController;
 import commonsos.controller.reward.ClaimRewardController;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +38,7 @@ public class Server {
 
   private void initRoutes(Injector injector) {
     post("/login", injector.getInstance(LoginController.class), toJson);
+    post("/logout", injector.getInstance(LogoutController.class), toJson);
 
     before((request, response) -> log.info(request.pathInfo()));
     before(new AuthenticationFilter(asList("/login")));
