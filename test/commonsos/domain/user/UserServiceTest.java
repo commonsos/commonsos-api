@@ -13,6 +13,7 @@ public class UserServiceTest {
   public void login_withValidUser() {
     Session session = service.login("worker", "secret");
 
+    assertThat(session.getToken()).isEqualTo("worker");
     assertThat(session.getUsername()).isEqualTo("worker");
   }
 

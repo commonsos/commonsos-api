@@ -29,12 +29,12 @@ public class LoginControllerTest {
 
   @Test
   public void handle() throws Exception {
-    when(service.login("user", "pwd")).thenReturn(new Session().setUsername("user id"));
+    when(service.login("user", "pwd")).thenReturn(new Session().setToken("auth token"));
     when(request.body()).thenReturn("{\"username\": \"user\", \"password\": \"pwd\"}");
 
     Session session = controller.handle(request, null);
 
-    assertThat(session.getUsername()).isEqualTo("user id");
+    assertThat(session.getToken()).isEqualTo("auth token");
   }
 
   @Test(expected = AuthenticationException.class)

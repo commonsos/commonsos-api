@@ -15,6 +15,6 @@ public class UserService {
   public Session login(String username, String password) {
     if (!password.equals(users.get(username))) throw new AuthenticationException();
 
-    return new Session().setUsername(username);
+    return new Session().setToken(username).setUsername(username);
   }
 }
