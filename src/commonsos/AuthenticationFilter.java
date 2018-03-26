@@ -1,6 +1,6 @@
 package commonsos;
 
-import commonsos.domain.user.User;
+import commonsos.domain.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import spark.Filter;
 import spark.Request;
@@ -13,9 +13,11 @@ import static spark.Spark.halt;
 @Slf4j
 public class AuthenticationFilter implements Filter {
 
+  private UserService userService;
   private List<String> exclusionPaths;
 
-  public AuthenticationFilter(List<String> exclusionPaths) {
+  public AuthenticationFilter(List<String> exclusionPaths, UserService userService) {
+    this.userService = userService;
     this.exclusionPaths = exclusionPaths;
   }
 
@@ -27,11 +29,11 @@ public class AuthenticationFilter implements Filter {
 
     log.info("Verifying path " + request.contextPath());
 
-    String userId = request.headers("X-UserId");
-    if (userId == null) {
+    String token = request.headers("X-UserId");
+    if (token == null) {
       halt(401);
       return;
     }
-    request.session().attribute("user", new User().setId(userId));
+    request.session().attribute("user", userService.userByToken(token));
   }
 }

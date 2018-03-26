@@ -9,6 +9,7 @@ import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
 import commonsos.controller.authentication.LoginController;
 import commonsos.controller.reward.ClaimRewardController;
+import commonsos.domain.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Arrays.asList;
@@ -38,7 +39,7 @@ public class Server {
   private void initRoutes(Injector injector) {
     post("/login", injector.getInstance(LoginController.class), toJson);
 
-    before(new AuthenticationFilter(asList("/login")));
+    before(new AuthenticationFilter(asList("/login"), injector.getInstance(UserService.class)));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);

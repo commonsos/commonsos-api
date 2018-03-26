@@ -1,6 +1,7 @@
 package commonsos;
 
 import commonsos.domain.user.User;
+import commonsos.domain.user.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import spark.HaltException;
@@ -19,6 +20,7 @@ public class AuthenticationFilterTest {
   Request request = mock(Request.class);
   Session session = mock(Session.class);
   Response response = mock(Response.class);
+  UserService userService = mock(UserService.class);
 
   @Before
   public void setUp() throws Exception {
@@ -30,7 +32,7 @@ public class AuthenticationFilterTest {
     when(request.headers("X-UserId")).thenReturn(null);
 
     try {
-      new AuthenticationFilter(emptyList()).handle(request, response);
+      new AuthenticationFilter(emptyList(), userService).handle(request, response);
       failBecauseExceptionWasNotThrown(HaltException.class);
     }
     catch (HaltException e) {
@@ -40,11 +42,13 @@ public class AuthenticationFilterTest {
 
   @Test
   public void storesUserInSession() throws Exception {
-    when(request.headers("X-UserId")).thenReturn("user id");
+    when(request.headers("X-UserId")).thenReturn("auth token");
+    User user = new User();
+    when(userService.userByToken("auth token")).thenReturn(user);
 
-    new AuthenticationFilter(emptyList()).handle(request, null);
+    new AuthenticationFilter(emptyList(), userService).handle(request, null);
 
-    verify(session).attribute("user", new User().setId("user id"));
+    verify(session).attribute("user", user);
   }
 
   @Test
@@ -52,7 +56,7 @@ public class AuthenticationFilterTest {
     when(request.headers("X-UserId")).thenReturn(null);
     when(request.contextPath()).thenReturn("no-auth-check-needed");
 
-    new AuthenticationFilter(singletonList("no-auth-check-needed")).handle(request, null);
+    new AuthenticationFilter(singletonList("no-auth-check-needed"), userService).handle(request, null);
 
     verifyZeroInteractions(session);
   }

@@ -26,4 +26,16 @@ public class UserServiceTest {
   public void login_withInvalidUser() {
     service.login("wrong user", "password");
   }
+
+  @Test
+  public void userByToken() {
+    service.users.put("token", null);
+
+    assertThat(service.userByToken("token").getId()).isEqualTo("token");
+  }
+
+  @Test(expected = AuthenticationException.class)
+  public void userByToken_notFound() {
+    assertThat(service.userByToken("non valid token").getId()).isEqualTo("worker");
+  }
 }
