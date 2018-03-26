@@ -9,7 +9,30 @@ sudo apt-get install oracle-java8-installer
 
 sudo apt-get install gradle 
 
-``` 
+```
+## Apache configuration
+
+Proxy API and Web to corresponding servers
+```
+<VirtualHost *:80>
+        DocumentRoot /path/to/folder/containing/index.html
+
+        <Directory /path/to/folder/containing/index.html/>
+          Require all granted
+         	Allow from all
+        </Directory>
+
+        ProxyPreserveHost On
+
+        <Location /api>
+          ProxyPass http://localhost:4567 retry=0
+          ProxyPassReverse http://localhost:4567
+        </Location>
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
 
 ## Building
 
@@ -23,4 +46,4 @@ sudo apt-get install gradle
 ./start.sh
 ./stop.sh
 
-``` 
+```
