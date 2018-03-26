@@ -1,8 +1,9 @@
 package commonsos.controller.auth;
 
 import com.google.gson.Gson;
-import commonsos.domain.auth.Session;
+import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
+import commonsos.domain.auth.UserView;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -15,9 +16,11 @@ public class LoginController implements Route {
   @Inject Gson gson;
   @Inject UserService userService;
 
-  @Override public Session handle(Request request, Response response) {
+  @Override public UserView handle(Request request, Response response) {
     Map map = gson.fromJson(request.body(), Map.class);
 
-    return userService.login(String.valueOf(map.get("username")), String.valueOf(map.get("password")));
+    User user = userService.login(String.valueOf(map.get("username")), String.valueOf(map.get("password")));
+    request.session().attribute("user", user);
+    return userService.view(user);
   }
 }

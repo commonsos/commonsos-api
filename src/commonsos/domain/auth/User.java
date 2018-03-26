@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode
 public class User {
-
   String id;
+  String username;
+  String passwordHash;
 }

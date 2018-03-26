@@ -2,8 +2,9 @@ package commonsos.controller.auth;
 
 import commonsos.AuthenticationException;
 import commonsos.GsonProvider;
-import commonsos.domain.auth.Session;
+import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
+import commonsos.domain.auth.UserView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,34 +12,42 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import spark.Request;
+import spark.Session;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoginControllerTest {
 
   @Mock Request request;
+  @Mock Session session;
   @Mock UserService service;
   @InjectMocks LoginController controller;
 
   @Before
   public void setUp() throws Exception {
     controller.gson = new GsonProvider().get();
+    when(request.session()).thenReturn(session);
   }
 
   @Test
   public void handle() throws Exception {
-    when(service.login("user", "pwd")).thenReturn(new Session().setToken("auth token"));
+    User user = new User();
+    when(service.login("user", "pwd")).thenReturn(user);
     when(request.body()).thenReturn("{\"username\": \"user\", \"password\": \"pwd\"}");
+    UserView userView = new UserView();
+    when(service.view(user)).thenReturn(userView);
 
-    Session session = controller.handle(request, null);
+    UserView result = controller.handle(request, null);
 
-    assertThat(session.getToken()).isEqualTo("auth token");
+    verify(session).attribute("user", user);
+    assertThat(result).isSameAs(userView);
   }
 
   @Test(expected = AuthenticationException.class)
-  public void handleNoContent() throws Exception {
+  public void handle_loginFails() throws Exception {
     when(service.login("user", "pwd")).thenThrow(new AuthenticationException());
     when(request.body()).thenReturn("{\"username\": \"user\", \"password\": \"pwd\"}");
 

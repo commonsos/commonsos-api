@@ -14,15 +14,19 @@ public class UserService {
     this.put("elderly2", "secret2");
   }};
 
-  public Session login(String username, String password) {
-    if (!password.equals(users.get(username))) throw new AuthenticationException();
+  public User login(String username, String password) {
+    User user = userByUsername(username);
+    if (!user.getPasswordHash().equals(password)) throw new AuthenticationException();
 
-    return new Session().setToken(username).setUsername(username);
+    return user;
   }
 
-  public User userByToken(String token) {
-   if (!users.containsKey(token)) throw new AuthenticationException();
+  public UserView view(User user) {
+    return new UserView().setUsername(user.getUsername());
+  }
 
-   return new User().setId(token);
+  private User userByUsername(String username) {
+    if (!users.containsKey(username)) throw new AuthenticationException();
+    return new User().setId(username).setUsername(username).setPasswordHash(users.get(username));
   }
 }

@@ -11,10 +11,11 @@ public class UserServiceTest {
 
   @Test
   public void login_withValidUser() {
-    Session session = service.login("worker", "secret");
+    User user = service.login("worker", "secret");
 
-    assertThat(session.getToken()).isEqualTo("worker");
-    assertThat(session.getUsername()).isEqualTo("worker");
+    assertThat(user.getId()).isEqualTo("worker");
+    assertThat(user.getUsername()).isEqualTo("worker");
+    assertThat(user.getPasswordHash()).isEqualTo("secret");
   }
 
   @Test(expected = AuthenticationException.class)
@@ -28,14 +29,8 @@ public class UserServiceTest {
   }
 
   @Test
-  public void userByToken() {
-    service.users.put("token", null);
-
-    assertThat(service.userByToken("token").getId()).isEqualTo("token");
-  }
-
-  @Test(expected = AuthenticationException.class)
-  public void userByToken_notFound() {
-    assertThat(service.userByToken("non valid token").getId()).isEqualTo("worker");
+  public void view() {
+    User user = new User().setUsername("username");
+    assertThat(service.view(user).getUsername()).isEqualTo("username");
   }
 }
