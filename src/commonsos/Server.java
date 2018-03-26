@@ -7,9 +7,9 @@ import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
 import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
-import commonsos.controller.authentication.LoginController;
+import commonsos.controller.auth.LoginController;
 import commonsos.controller.reward.ClaimRewardController;
-import commonsos.domain.user.UserService;
+import commonsos.domain.auth.UserService;
 import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Arrays.asList;

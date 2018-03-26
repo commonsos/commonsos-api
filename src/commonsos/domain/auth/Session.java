@@ -1,4 +1,4 @@
-package commonsos.domain.user;
+package commonsos.domain.auth;
 
 import lombok.Getter;
 import lombok.Setter;

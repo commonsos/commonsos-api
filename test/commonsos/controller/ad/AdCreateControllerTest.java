@@ -3,7 +3,7 @@ package commonsos.controller.ad;
 import com.google.gson.Gson;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,4 +1,4 @@
-package commonsos.domain.user;
+package commonsos.domain.auth;
 
 import commonsos.AuthenticationException;
 

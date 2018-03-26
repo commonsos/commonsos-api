@@ -1,8 +1,8 @@
-package commonsos.controller.authentication;
+package commonsos.controller.auth;
 
 import com.google.gson.Gson;
-import commonsos.domain.user.Session;
-import commonsos.domain.user.UserService;
+import commonsos.domain.auth.Session;
+import commonsos.domain.auth.UserService;
 import spark.Request;
 import spark.Response;
 import spark.Route;

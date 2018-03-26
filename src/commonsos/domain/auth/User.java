@@ -1,4 +1,4 @@
-package commonsos.domain.user;
+package commonsos.domain.auth;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

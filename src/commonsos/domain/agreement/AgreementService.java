@@ -3,7 +3,7 @@ package commonsos.domain.agreement;
 import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

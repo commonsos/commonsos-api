@@ -2,7 +2,7 @@ package commonsos.controller.agreement;
 
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.agreement.AgreementViewModel;
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

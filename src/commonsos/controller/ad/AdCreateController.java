@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import commonsos.controller.Controller;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 import spark.Request;
 import spark.Response;
 

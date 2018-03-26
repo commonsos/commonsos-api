@@ -1,7 +1,7 @@
 package commonsos.domain.ad;
 
 import commonsos.domain.agreement.AgreementService;
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

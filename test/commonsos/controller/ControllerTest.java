@@ -1,6 +1,6 @@
 package commonsos.controller;
 
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

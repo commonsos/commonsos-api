@@ -3,7 +3,7 @@ package commonsos.domain.reward;
 import commonsos.ForbiddenException;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;

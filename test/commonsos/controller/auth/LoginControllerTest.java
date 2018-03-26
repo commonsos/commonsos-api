@@ -1,9 +1,9 @@
-package commonsos.controller.authentication;
+package commonsos.controller.auth;
 
 import commonsos.AuthenticationException;
 import commonsos.GsonProvider;
-import commonsos.domain.user.Session;
-import commonsos.domain.user.UserService;
+import commonsos.domain.auth.Session;
+import commonsos.domain.auth.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

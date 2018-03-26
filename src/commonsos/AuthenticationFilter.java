@@ -1,6 +1,6 @@
 package commonsos;
 
-import commonsos.domain.user.UserService;
+import commonsos.domain.auth.UserService;
 import lombok.extern.slf4j.Slf4j;
 import spark.Filter;
 import spark.Request;

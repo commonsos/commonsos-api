@@ -1,7 +1,7 @@
 package commonsos;
 
-import commonsos.domain.user.User;
-import commonsos.domain.user.UserService;
+import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import spark.HaltException;

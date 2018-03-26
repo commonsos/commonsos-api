@@ -2,7 +2,7 @@ package commonsos.controller.ad;
 
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

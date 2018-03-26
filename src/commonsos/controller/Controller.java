@@ -1,6 +1,6 @@
 package commonsos.controller;
 
-import commonsos.domain.user.User;
+import commonsos.domain.auth.User;
 import spark.Request;
 import spark.Response;
 import spark.Route;
