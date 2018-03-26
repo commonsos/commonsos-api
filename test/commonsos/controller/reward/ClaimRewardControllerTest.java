@@ -2,9 +2,9 @@ package commonsos.controller.reward;
 
 import commonsos.BadRequestException;
 import commonsos.GsonProvider;
-import commonsos.User;
 import commonsos.domain.reward.Transaction;
 import commonsos.domain.reward.TransactionService;
+import commonsos.domain.user.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

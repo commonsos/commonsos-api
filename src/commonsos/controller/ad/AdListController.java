@@ -1,8 +1,8 @@
 package commonsos.controller.ad;
 
-import commonsos.User;
 import commonsos.controller.Controller;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.user.User;
 import spark.Request;
 import spark.Response;
 

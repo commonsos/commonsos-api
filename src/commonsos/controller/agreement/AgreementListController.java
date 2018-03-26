@@ -1,8 +1,8 @@
 package commonsos.controller.agreement;
 
-import commonsos.User;
 import commonsos.controller.Controller;
 import commonsos.domain.agreement.AgreementService;
+import commonsos.domain.user.User;
 import spark.Request;
 import spark.Response;
 

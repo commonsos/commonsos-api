@@ -2,8 +2,8 @@ package commonsos.domain.agreement;
 
 import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
-import commonsos.User;
 import commonsos.domain.ad.Ad;
+import commonsos.domain.user.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;

@@ -1,7 +1,7 @@
 package commonsos.domain.ad;
 
-import commonsos.User;
 import commonsos.domain.agreement.AgreementService;
+import commonsos.domain.user.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

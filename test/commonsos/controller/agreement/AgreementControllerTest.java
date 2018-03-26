@@ -1,8 +1,8 @@
 package commonsos.controller.agreement;
 
-import commonsos.User;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.agreement.AgreementViewModel;
+import commonsos.domain.user.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

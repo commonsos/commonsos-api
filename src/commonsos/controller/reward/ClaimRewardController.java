@@ -2,9 +2,9 @@ package commonsos.controller.reward;
 
 import com.google.gson.Gson;
 import commonsos.BadRequestException;
-import commonsos.User;
 import commonsos.controller.Controller;
 import commonsos.domain.reward.TransactionService;
+import commonsos.domain.user.User;
 import spark.Request;
 import spark.Response;
 

@@ -1,5 +1,6 @@
 package commonsos;
 
+import commonsos.domain.user.User;
 import org.junit.Before;
 import org.junit.Test;
 import spark.HaltException;
