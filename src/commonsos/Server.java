@@ -39,6 +39,7 @@ public class Server {
   private void initRoutes(Injector injector) {
     post("/login", injector.getInstance(LoginController.class), toJson);
 
+    before((request, response) -> log.info(request.pathInfo()));
     before(new AuthenticationFilter(asList("/login"), injector.getInstance(UserService.class)));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
@@ -48,16 +49,19 @@ public class Server {
     get("/agreements/:id", injector.getInstance(AgreementController.class), toJson);
     post("/claim-reward", injector.getInstance(ClaimRewardController.class), toJson);
 
-    exception(ForbiddenException.class, (exception, request, response) -> {
-      response.status(403);
+    exception(BadRequestException.class, (exception, request, response) -> {
+      log.error("Bad request", exception);
+      response.status(400);
       response.body("");
     });
     exception(AuthenticationException.class, (exception, request, response) -> {
+      log.error("Not authenticated", exception);
       response.status(401);
       response.body("");
     });
-    exception(BadRequestException.class, (exception, request, response) -> {
-      response.status(400);
+    exception(ForbiddenException.class, (exception, request, response) -> {
+      log.error("Access denied", exception);
+      response.status(403);
       response.body("");
     });
     exception(Exception.class, (exception, request, response) -> {

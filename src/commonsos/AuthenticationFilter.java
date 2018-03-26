@@ -1,14 +1,14 @@
 package commonsos;
 
 import commonsos.domain.auth.UserService;
+import lombok.extern.slf4j.Slf4j;
 import spark.Filter;
 import spark.Request;
 import spark.Response;
 
 import java.util.List;
 
-import static spark.Spark.halt;
-
+@Slf4j
 public class AuthenticationFilter implements Filter {
 
   private UserService userService;
@@ -23,10 +23,7 @@ public class AuthenticationFilter implements Filter {
     if (exclusionPaths.contains(request.pathInfo())) return;
 
     String token = request.headers("X-UserId");
-    if (token == null) {
-      halt(401);
-      return;
-    }
+    if (token == null) throw new AuthenticationException();
     request.session().attribute("user", userService.userByToken(token));
   }
 }

@@ -4,15 +4,12 @@ import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import org.junit.Before;
 import org.junit.Test;
-import spark.HaltException;
 import spark.Request;
 import spark.Response;
 import spark.Session;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class AuthenticationFilterTest {
@@ -27,17 +24,11 @@ public class AuthenticationFilterTest {
     when(request.session()).thenReturn(session);
   }
 
-  @Test
+  @Test(expected=AuthenticationException.class)
   public void requiresUserHeader() throws Exception {
     when(request.headers("X-UserId")).thenReturn(null);
 
-    try {
-      new AuthenticationFilter(emptyList(), userService).handle(request, response);
-      failBecauseExceptionWasNotThrown(HaltException.class);
-    }
-    catch (HaltException e) {
-      assertThat(e.statusCode()).isEqualTo(401);
-    }
+    new AuthenticationFilter(emptyList(), userService).handle(request, response);
   }
 
   @Test
