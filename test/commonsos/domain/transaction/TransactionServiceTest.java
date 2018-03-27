@@ -1,4 +1,4 @@
-package commonsos.domain.reward;
+package commonsos.domain.transaction;
 
 import commonsos.ForbiddenException;
 import commonsos.domain.agreement.Agreement;

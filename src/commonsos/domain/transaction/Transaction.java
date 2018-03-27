@@ -1,4 +1,4 @@
-package commonsos.domain.reward;
+package commonsos.domain.transaction;
 
 import lombok.Getter;
 import lombok.Setter;

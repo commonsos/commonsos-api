@@ -2,7 +2,7 @@ package commonsos.controller.transaction;
 
 import commonsos.controller.Controller;
 import commonsos.domain.auth.User;
-import commonsos.domain.reward.TransactionService;
+import commonsos.domain.transaction.TransactionService;
 import spark.Request;
 import spark.Response;
 

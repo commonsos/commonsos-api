@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import commonsos.BadRequestException;
 import commonsos.controller.Controller;
 import commonsos.domain.auth.User;
-import commonsos.domain.reward.TransactionService;
+import commonsos.domain.transaction.TransactionService;
 import spark.Request;
 import spark.Response;
 
