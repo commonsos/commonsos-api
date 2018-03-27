@@ -38,7 +38,13 @@ public class TransactionService {
   }
 
   public BigDecimal balance(User user) {
-    return repository.transactions(user).stream().map(Transaction::getAmount).reduce(ZERO, BigDecimal::add);
+    return repository.transactions(user).stream()
+      .map(transaction -> isDebit(user, transaction) ? transaction.getAmount().negate() : transaction.getAmount())
+      .reduce(ZERO, BigDecimal::add);
+  }
+
+  private boolean isDebit(User user, Transaction transaction) {
+    return transaction.getRemitterId().equals(user.getId());
   }
 
   public List<Transaction> transactions(User user) {

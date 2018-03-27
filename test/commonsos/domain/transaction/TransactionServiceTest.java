@@ -69,12 +69,14 @@ public class TransactionServiceTest {
   @Test
   public void balance() {
     User user = new User().setId("worker");
-    List<Transaction> transactions = asList(new Transaction().setAmount(ONE), new Transaction().setAmount(TEN));
+    List<Transaction> transactions = asList(
+      new Transaction().setRemitterId("worker").setBeneficiaryId("elderly").setAmount(ONE),
+      new Transaction().setRemitterId("elderly").setBeneficiaryId("worker").setAmount(TEN));
     when(repository.transactions(user)).thenReturn(transactions);
 
     BigDecimal balance = transactionService.balance(user);
 
-    assertThat(balance).isEqualTo(new BigDecimal("11"));
+    assertThat(balance).isEqualTo(new BigDecimal("9"));
   }
 
   @Test
