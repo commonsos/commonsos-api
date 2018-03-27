@@ -9,6 +9,7 @@ import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
 import commonsos.controller.auth.LoginController;
 import commonsos.controller.auth.LogoutController;
+import commonsos.controller.auth.UserController;
 import commonsos.controller.transaction.BalanceController;
 import commonsos.controller.transaction.ClaimRewardController;
 import commonsos.controller.transaction.TransactionListController;
@@ -41,6 +42,7 @@ public class Server {
   private void initRoutes(Injector injector) {
     post("/login", injector.getInstance(LoginController.class), toJson);
     post("/logout", injector.getInstance(LogoutController.class), toJson);
+    get("/user", injector.getInstance(UserController.class), toJson);
 
     before((request, response) -> log.info(request.pathInfo()));
     before(new AuthenticationFilter(asList("/login")));
