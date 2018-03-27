@@ -6,9 +6,11 @@ import commonsos.domain.transaction.TransactionService;
 import spark.Request;
 import spark.Response;
 
+import javax.inject.Inject;
+
 public class TransactionListController extends Controller {
 
-  private TransactionService service;
+  @Inject private TransactionService service;
 
   @Override protected Object handle(User user, Request request, Response response) {
     return service.transactions(user);
