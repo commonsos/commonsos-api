@@ -12,9 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.mockito.Mockito.verify;
@@ -59,5 +64,27 @@ public class TransactionServiceTest {
     when(agreementService.findByTransactionData("transactionData")).thenReturn(agreement);
 
     transactionService.claim(new User().setId("worker"), "transactionData");
+  }
+
+  @Test
+  public void balance() {
+    User user = new User().setId("worker");
+    List<Transaction> transactions = asList(new Transaction().setAmount(ONE), new Transaction().setAmount(TEN));
+    when(repository.transactions(user)).thenReturn(transactions);
+
+    BigDecimal balance = transactionService.balance(user);
+
+    assertThat(balance).isEqualTo(new BigDecimal("11"));
+  }
+
+  @Test
+  public void transactions() {
+    User user = new User().setId("worker");
+    List<Transaction> transactions = asList(new Transaction().setBeneficiaryId("worker"));
+    when(repository.transactions(user)).thenReturn(transactions);
+
+    List<Transaction> result = transactionService.transactions(user);
+
+    assertThat(result).isEqualTo(transactions);
   }
 }

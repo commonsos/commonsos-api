@@ -9,7 +9,9 @@ import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
 import commonsos.controller.auth.LoginController;
 import commonsos.controller.auth.LogoutController;
-import commonsos.controller.reward.ClaimRewardController;
+import commonsos.controller.transaction.BalanceController;
+import commonsos.controller.transaction.ClaimRewardController;
+import commonsos.controller.transaction.TransactionListController;
 import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Arrays.asList;
@@ -49,6 +51,9 @@ public class Server {
     get("/agreements", injector.getInstance(AgreementListController.class), toJson);
     get("/agreements/:id", injector.getInstance(AgreementController.class), toJson);
     post("/claim-reward", injector.getInstance(ClaimRewardController.class), toJson);
+
+    get("/balance", injector.getInstance(BalanceController.class), toJson);
+    get("/transactions", injector.getInstance(TransactionListController.class), toJson);
 
     exception(BadRequestException.class, (exception, request, response) -> {
       log.error("Bad request", exception);

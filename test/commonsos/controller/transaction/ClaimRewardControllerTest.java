@@ -1,10 +1,10 @@
-package commonsos.controller.reward;
+package commonsos.controller.transaction;
 
 import commonsos.BadRequestException;
 import commonsos.GsonProvider;
+import commonsos.domain.auth.User;
 import commonsos.domain.reward.Transaction;
 import commonsos.domain.reward.TransactionService;
-import commonsos.domain.auth.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

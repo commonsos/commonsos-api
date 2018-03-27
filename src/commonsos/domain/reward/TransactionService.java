@@ -7,7 +7,11 @@ import commonsos.domain.auth.User;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
+
+import static java.math.BigDecimal.ZERO;
 
 @Singleton
 public class TransactionService {
@@ -31,5 +35,13 @@ public class TransactionService {
     agreementService.rewardClaimed(agreement);
 
     return transaction;
+  }
+
+  public BigDecimal balance(User user) {
+    return repository.transactions(user).stream().map(Transaction::getAmount).reduce(ZERO, BigDecimal::add);
+  }
+
+  public List<Transaction> transactions(User user) {
+    return repository.transactions(user);
   }
 }
