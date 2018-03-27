@@ -1,13 +1,19 @@
 package commonsos.domain.auth;
 
 import commonsos.AuthenticationException;
+import commonsos.domain.transaction.TransactionService;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 @Singleton
 public class UserService {
+
+  @Inject TransactionService transactionService;
+
   protected Map<String, String> users = new HashMap<String, String>() {{
     this.put("worker", "secret");
     this.put("elderly1", "secret1");
@@ -22,7 +28,8 @@ public class UserService {
   }
 
   public UserView view(User user) {
-    return new UserView().setUsername(user.getUsername());
+    BigDecimal balance = transactionService.balance(user);
+    return new UserView().setUsername(user.getUsername()).setBalance(balance);
   }
 
   private User userByUsername(String username) {

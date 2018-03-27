@@ -1,13 +1,23 @@
 package commonsos.domain.auth;
 
 import commonsos.AuthenticationException;
+import commonsos.domain.transaction.TransactionService;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
-  UserService service = new UserService();
+  @Mock TransactionService transactionService;
+  @InjectMocks UserService service;
 
   @Test
   public void login_withValidUser() {
@@ -31,6 +41,11 @@ public class UserServiceTest {
   @Test
   public void view() {
     User user = new User().setUsername("username");
-    assertThat(service.view(user).getUsername()).isEqualTo("username");
+    when(transactionService.balance(user)).thenReturn(BigDecimal.TEN);
+
+    UserView view = service.view(user);
+
+    assertThat(view.getUsername()).isEqualTo("username");
+    assertThat(view.getBalance()).isEqualTo(BigDecimal.TEN);
   }
 }
