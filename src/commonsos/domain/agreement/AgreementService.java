@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.OffsetDateTime;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ public class AgreementService {
 
   public List<Agreement> list(User user) {
     List<Agreement> agreements = repository.consumedBy(user.getId());
-    Collections.sort(agreements, (a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()));
+    agreements.sort((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()));
     return agreements;
   }
 
@@ -60,8 +59,17 @@ public class AgreementService {
   }
 
   public Optional<Agreement> findByTransactionData(String transactionData) {
-    String agreementId = new String(Base64.getDecoder().decode(transactionData), UTF_8).replace("salt", "");
-    return repository.find(agreementId);
+    try {
+      String agreementId = decodeCode(transactionData);
+      return repository.find(agreementId);
+    }
+    catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  private String decodeCode(String transactionData) {
+    return new String(Base64.getDecoder().decode(transactionData), UTF_8).replace("salt", "");
   }
 
   public void rewardClaimed(Agreement agreement) {

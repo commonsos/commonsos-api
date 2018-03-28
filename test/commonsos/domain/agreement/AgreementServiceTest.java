@@ -100,10 +100,15 @@ public class AgreementServiceTest {
   }
 
   @Test
-  public void findByTransactionData_failsForUnknownData() {
+  public void findByTransactionData_unknownData() {
     when(repository.find("agreement id")).thenReturn(Optional.empty());
 
-    service.findByTransactionData("c2FsdGFncmVlbWVudCBpZA==");
+    assertThat(service.findByTransactionData("c2FsdGFncmVlbWVudCBpZA==")).isEmpty();
+  }
+
+  @Test
+  public void findByTransactionData_shouldNotFail() {
+    assertThat(service.findByTransactionData("invalidBase64")).isEmpty();
   }
 
   @Test
