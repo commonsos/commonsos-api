@@ -1,6 +1,5 @@
 package commonsos.domain.agreement;
 
-import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.auth.User;
@@ -11,6 +10,7 @@ import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -59,9 +59,9 @@ public class AgreementService {
     return Base64.getEncoder().encodeToString(("salt"+agreement.getId()).getBytes(UTF_8));
   }
 
-  public Agreement findByTransactionData(String transactionData) {
+  public Optional<Agreement> findByTransactionData(String transactionData) {
     String agreementId = new String(Base64.getDecoder().decode(transactionData), UTF_8).replace("salt", "");
-    return repository.find(agreementId).orElseThrow(BadRequestException::new);
+    return repository.find(agreementId);
   }
 
   public void rewardClaimed(Agreement agreement) {

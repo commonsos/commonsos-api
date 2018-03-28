@@ -8,7 +8,7 @@ import javax.inject.Inject;
 public class JsonTransformer implements ResponseTransformer {
   @Inject Gson gson;
 
-  @Override public String render(Object model) throws Exception {
+  @Override public String render(Object model) {
     return gson.toJson(model);
   }
 }

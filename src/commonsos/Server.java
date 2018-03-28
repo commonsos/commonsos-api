@@ -1,5 +1,6 @@
 package commonsos;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.inject.*;
 import commonsos.controller.ad.AdAcceptController;
@@ -71,6 +72,11 @@ public class Server {
       log.error("Access denied", exception);
       response.status(403);
       response.body("");
+    });
+    exception(DisplayableException.class, (exception, request, response) -> {
+      log.error("Displayable error", exception);
+      response.status(468);
+      response.body(toJson.render(ImmutableMap.of("key", exception.getMessage())));
     });
     exception(Exception.class, (exception, request, response) -> {
       log.error("Processing failed", exception);

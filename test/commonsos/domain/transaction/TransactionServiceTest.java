@@ -1,6 +1,6 @@
 package commonsos.domain.transaction;
 
-import commonsos.ForbiddenException;
+import commonsos.DisplayableException;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
@@ -14,14 +14,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +36,7 @@ public class TransactionServiceTest {
   @Test
   public void claim() {
     Agreement agreement = new Agreement().setPoints(TEN).setId("123").setProviderId("worker").setConsumerId("elderly");
-    when(agreementService.findByTransactionData("transactionData")).thenReturn(agreement);
+    when(agreementService.findByTransactionData("transactionData")).thenReturn(Optional.of(agreement));
 
     Transaction result = transactionService.claim(new User().setId("worker"), "transactionData");
 
@@ -51,19 +51,23 @@ public class TransactionServiceTest {
     assertThat(transaction).isEqualTo(result);
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void claim_onlyProviderCanClaimReward() {
-    when(agreementService.findByTransactionData("otherUserTransactionData")).thenReturn(new Agreement().setProviderId("worker"));
+    when(agreementService.findByTransactionData("otherUserTransactionData")).thenReturn(Optional.of(new Agreement().setProviderId("worker")));
 
-    transactionService.claim(new User().setId("other user id"), "otherUserTransactionData");
+    DisplayableException thrown = catchThrowableOfType(() -> transactionService.claim(new User().setId("other user id"), "otherUserTransactionData"), DisplayableException.class);
+
+    assertThat(thrown).hasMessage("Only service provider can claim this code");
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void claim_onlyOnceAllowed() {
     Agreement agreement = new Agreement().setPoints(TEN).setId("123").setProviderId("worker").setConsumerId("elderly").setRewardClaimedAt(now());
-    when(agreementService.findByTransactionData("transactionData")).thenReturn(agreement);
+    when(agreementService.findByTransactionData("transactionData")).thenReturn(Optional.of(agreement));
 
-    transactionService.claim(new User().setId("worker"), "transactionData");
+    DisplayableException thrown = catchThrowableOfType(() -> transactionService.claim(new User().setId("worker"), "transactionData"), DisplayableException.class);
+
+    assertThat(thrown).hasMessage("This code has been already claimed");
   }
 
   @Test

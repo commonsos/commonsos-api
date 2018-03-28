@@ -1,6 +1,5 @@
 package commonsos.domain.agreement;
 
-import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.auth.User;
@@ -95,12 +94,12 @@ public class AgreementServiceTest {
     Agreement agreement = new Agreement();
     when(repository.find("agreement id")).thenReturn(Optional.of(agreement));
 
-    Agreement result = service.findByTransactionData("c2FsdGFncmVlbWVudCBpZA==");
+    Optional<Agreement> result = service.findByTransactionData("c2FsdGFncmVlbWVudCBpZA==");
 
-    assertThat(result).isSameAs(agreement);
+    assertThat(result).contains(agreement);
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void findByTransactionData_failsForUnknownData() {
     when(repository.find("agreement id")).thenReturn(Optional.empty());
 

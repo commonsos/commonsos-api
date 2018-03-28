@@ -1,6 +1,6 @@
 package commonsos.domain.transaction;
 
-import commonsos.ForbiddenException;
+import commonsos.DisplayableException;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
@@ -19,10 +19,10 @@ public class TransactionService {
   @Inject TransactionRepository repository;
 
   public Transaction claim(User user, String transactionData) {
-    Agreement agreement = agreementService.findByTransactionData(transactionData);
+    Agreement agreement = agreementService.findByTransactionData(transactionData).orElseThrow(() -> new DisplayableException("Code not found"));
 
-    if (!user.getId().equals(agreement.getProviderId())) throw new ForbiddenException();
-    if (agreement.getRewardClaimedAt() != null) throw new ForbiddenException();
+    if (!user.getId().equals(agreement.getProviderId())) throw new DisplayableException("Only service provider can claim this code");
+    if (agreement.getRewardClaimedAt() != null) throw new DisplayableException("This code has been already claimed");
 
     Transaction transaction = new Transaction()
       .setAmount(agreement.getPoints())
