@@ -1,7 +1,7 @@
 package commonsos.controller.ad;
 
-import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.ad.AdView;
 import commonsos.domain.auth.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +22,9 @@ public class AdListControllerTest {
 
   @Test
   public void handle() throws Exception {
-    ArrayList<Ad> ads = new ArrayList<>();
-    when(service.all()).thenReturn(ads);
+    ArrayList<AdView> ads = new ArrayList<>();
+    when(service.all(new User().setId("userid"))).thenReturn(ads);
 
-    assertSame(ads, controller.handle(new User(), null, null));
+    assertSame(ads, controller.handle(new User().setId("userid"), null, null));
   }
 }

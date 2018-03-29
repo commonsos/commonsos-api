@@ -12,6 +12,6 @@ public class AdListController extends Controller {
   @Inject AdService service;
 
   @Override public Object handle(User user, Request request, Response response) {
-    return service.all();
+    return service.all(user);
   }
 }
