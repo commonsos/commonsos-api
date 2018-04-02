@@ -258,7 +258,9 @@
         <script value="dev" />
       </scripts>
       <node-interpreter value="project" />
-      <envs />
+      <envs>
+        <env name="PORT" value="8080" />
+      </envs>
       <method />
     </configuration>
   </component>
