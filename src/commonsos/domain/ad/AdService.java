@@ -1,5 +1,6 @@
 package commonsos.domain.ad;
 
+import commonsos.ForbiddenException;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
 
@@ -40,6 +41,7 @@ public class AdService {
 
   public Ad accept(User user, String id) {
     Ad ad = repository.find(id).orElseThrow(RuntimeException::new);
+    if (!isAcceptable(ad, user)) throw new ForbiddenException();
     repository.save(ad);
     agreementService.create(user, ad);
     return ad;

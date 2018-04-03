@@ -1,11 +1,13 @@
 package commonsos.domain.ad;
 
+import commonsos.ForbiddenException;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
@@ -22,7 +24,7 @@ public class AdServiceTest {
 
   @Mock AdRepository repository;
   @Mock AgreementService agreementService;
-  @InjectMocks AdService adService;
+  @InjectMocks @Spy AdService adService;
 
   @Test
   public void create() {
@@ -39,12 +41,23 @@ public class AdServiceTest {
     Ad ad = new Ad();
     when(repository.find("adId")).thenReturn(Optional.of(ad));
     User user = new User();
+    doReturn(true).when(adService).isAcceptable(ad, user);
 
     Ad result = adService.accept(user, "adId");
 
     verify(agreementService).create(user, ad);
     assertThat(result).isSameAs(ad);
     verify(repository).save(ad);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void accept_forbidden() {
+    Ad ad = new Ad();
+    when(repository.find("adId")).thenReturn(Optional.of(ad));
+    User user = new User();
+    doReturn(false).when(adService).isAcceptable(ad, user);
+
+    adService.accept(user, "adId");
   }
 
   @Test
