@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 @Getter @Setter @Accessors(chain=true)
 public class UserView {
+  private String id;
   private String username;
   private BigDecimal balance;
 }

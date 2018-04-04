@@ -40,11 +40,12 @@ public class UserServiceTest {
 
   @Test
   public void view() {
-    User user = new User().setUsername("username");
+    User user = new User().setUsername("username").setId("user id");
     when(transactionService.balance(user)).thenReturn(BigDecimal.TEN);
 
     UserView view = service.view(user);
 
+    assertThat(view.getId()).isEqualTo("user id");
     assertThat(view.getUsername()).isEqualTo("username");
     assertThat(view.getBalance()).isEqualTo(BigDecimal.TEN);
   }

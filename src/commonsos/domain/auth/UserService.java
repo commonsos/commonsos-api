@@ -29,7 +29,7 @@ public class UserService {
 
   public UserView view(User user) {
     BigDecimal balance = transactionService.balance(user);
-    return new UserView().setUsername(user.getUsername()).setBalance(balance);
+    return new UserView().setId(user.getId()).setUsername(user.getUsername()).setBalance(balance);
   }
 
   private User userByUsername(String username) {
