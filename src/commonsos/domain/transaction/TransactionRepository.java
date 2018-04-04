@@ -2,18 +2,21 @@ package commonsos.domain.transaction;
 
 import commonsos.domain.auth.User;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.TEN;
 import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.stream.Collectors.toList;
 
 public class TransactionRepository {
   public List<Transaction> transactions = new ArrayList<Transaction>() {{
-    add(new Transaction().setBeneficiaryId("worker").setRemitterId("elderly1").setAmount(BigDecimal.TEN).setCreatedAt(now().minus(1, HOURS)));
-    add(new Transaction().setBeneficiaryId("elderly1").setRemitterId("worker").setAmount(BigDecimal.ONE).setCreatedAt(now()));
+    add(new Transaction().setBeneficiaryId("worker").setRemitterId("elderly1").setAmount(TEN).setCreatedAt(now().minus(1, HOURS)));
+    add(new Transaction().setBeneficiaryId("elderly1").setRemitterId("worker").setAmount(ONE).setCreatedAt(now()));
+    add(new Transaction().setBeneficiaryId("elderly2").setRemitterId("elderly1").setAmount(ONE.add(ONE)).setCreatedAt(now().minus(3, HOURS)));
+    add(new Transaction().setBeneficiaryId("worker").setRemitterId("elderly2").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(51, HOURS)));
   }};
 
   public void create(Transaction transaction) {
