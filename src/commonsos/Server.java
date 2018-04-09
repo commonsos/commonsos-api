@@ -6,6 +6,7 @@ import com.google.inject.*;
 import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
+import commonsos.controller.ad.MyAdsController;
 import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
 import commonsos.controller.auth.LoginController;
@@ -51,6 +52,7 @@ public class Server {
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
+    get("/my-ads", injector.getInstance(MyAdsController.class), toJson);
     get("/agreements", injector.getInstance(AgreementListController.class), toJson);
     get("/agreements/:id", injector.getInstance(AgreementController.class), toJson);
     post("/claim-reward", injector.getInstance(ClaimRewardController.class), toJson);

@@ -75,6 +75,20 @@ public class AdServiceTest {
   }
 
   @Test
+  public void adsByOwner() {
+    User user = new User().setId("worker");
+    Ad ad = new Ad().setCreatedBy("worker");
+    AdView adView = new AdView();
+    AdService service = spy(adService);
+    when(repository.list()).thenReturn(asList(ad, new Ad().setCreatedBy("elderly")));
+    doReturn(adView).when(service).view(ad, user);
+
+    List<AdView> result = service.adsByOwner(user);
+
+    assertThat(result).containsExactly(adView);
+  }
+
+  @Test
   public void view() {
     Ad ad = new Ad()
       .setPoints(TEN)
