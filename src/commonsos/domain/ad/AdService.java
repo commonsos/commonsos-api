@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
+import static java.time.OffsetDateTime.now;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -17,6 +18,7 @@ public class AdService {
 
   public void create(User user, Ad ad) {
     ad.setCreatedBy(user.getId());
+    ad.setCreatedAt(now());
     repository.create(ad);
   }
 
@@ -36,7 +38,8 @@ public class AdService {
       .setDescription(ad.getDescription())
       .setPoints(ad.getPoints())
       .setLocation(ad.getLocation())
-      .setAcceptable(isAcceptable(ad, user));
+      .setAcceptable(isAcceptable(ad, user))
+      .setCreatedAt(ad.getCreatedAt());
   }
 
   boolean isAcceptable(Ad ad, User user) {

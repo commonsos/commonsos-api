@@ -10,12 +10,16 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static java.math.BigDecimal.TEN;
+import static java.time.OffsetDateTime.now;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -34,6 +38,7 @@ public class AdServiceTest {
 
     verify(repository).create(ad);
     assertEquals("user id", ad.getCreatedBy());
+    assertThat(ad.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 
   @Test
@@ -90,13 +95,15 @@ public class AdServiceTest {
 
   @Test
   public void view() {
+    OffsetDateTime createdAt = now();
     Ad ad = new Ad()
       .setPoints(TEN)
       .setLocation("home")
       .setDescription("description")
       .setCreatedBy("worker")
       .setId("11")
-      .setTitle("title");
+      .setTitle("title")
+      .setCreatedAt(createdAt);
 
     AdView view = adService.view(ad, new User().setId("worker"));
 
@@ -107,6 +114,7 @@ public class AdServiceTest {
     assertThat(view.getPoints()).isEqualTo(TEN);
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.isAcceptable()).isEqualTo(false);
+    assertThat(view.getCreatedAt()).isEqualTo(createdAt);
   }
 
   @Test

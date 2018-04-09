@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 @Getter @Setter @Accessors(chain=true)
 public class AdView {
@@ -15,4 +16,5 @@ public class AdView {
   private BigDecimal points;
   private String location;
   private boolean acceptable;
+  private OffsetDateTime createdAt;
 }
