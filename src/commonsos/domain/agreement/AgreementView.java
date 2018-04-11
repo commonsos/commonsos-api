@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 import java.math.BigDecimal;
 
 @Getter @Setter @Accessors(chain = true)
-public class AgreementViewModel {
+public class AgreementView {
   String id;
   String title;
   String description;

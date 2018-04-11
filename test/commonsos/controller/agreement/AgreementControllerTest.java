@@ -1,7 +1,7 @@
 package commonsos.controller.agreement;
 
 import commonsos.domain.agreement.AgreementService;
-import commonsos.domain.agreement.AgreementViewModel;
+import commonsos.domain.agreement.AgreementView;
 import commonsos.domain.auth.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ public class AgreementControllerTest {
 
   @Test
   public void handle() {
-    AgreementViewModel result = new AgreementViewModel();
+    AgreementView result = new AgreementView();
     when(service.details(user,  "agreement id")).thenReturn(result);
     when(request.params("id")).thenReturn("agreement id");
 

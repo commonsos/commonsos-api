@@ -40,12 +40,12 @@ public class AgreementService {
     return agreements;
   }
 
-  public AgreementViewModel details(User user, String agreementId) {
+  public AgreementView details(User user, String agreementId) {
     Agreement agreement = repository.find(agreementId).orElseThrow(RuntimeException::new);
 
     if (!user.getId().equals(agreement.getConsumerId())) throw new ForbiddenException();
 
-    return new AgreementViewModel()
+    return new AgreementView()
       .setId(agreement.getId())
       .setTitle(agreement.getTitle())
       .setDescription(agreement.getDescription())

@@ -65,7 +65,7 @@ public class AgreementServiceTest {
       .setProviderId("worker");
     when(repository.find("agreement id")).thenReturn(Optional.of(agreement));
 
-    AgreementViewModel result = service.details(new User().setId("elderly"), "agreement id");
+    AgreementView result = service.details(new User().setId("elderly"), "agreement id");
 
     assertThat(result.getId()).isEqualTo("agreement id");
     assertThat(result.getTitle()).isEqualTo("title");
