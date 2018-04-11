@@ -9,6 +9,7 @@ import commonsos.controller.ad.AdListController;
 import commonsos.controller.ad.MyAdsController;
 import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
+import commonsos.controller.auth.AccountCreateController;
 import commonsos.controller.auth.LoginController;
 import commonsos.controller.auth.LogoutController;
 import commonsos.controller.auth.UserController;
@@ -43,11 +44,12 @@ public class Server {
 
   private void initRoutes(Injector injector) {
     post("/login", injector.getInstance(LoginController.class), toJson);
+    post("/create-account", injector.getInstance(AccountCreateController.class), toJson);
     post("/logout", injector.getInstance(LogoutController.class), toJson);
     get("/user", injector.getInstance(UserController.class), toJson);
 
     before((request, response) -> log.info(request.pathInfo()));
-    before(new AuthenticationFilter(asList("/login")));
+    before(new AuthenticationFilter(asList("/login", "/create-account")));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);

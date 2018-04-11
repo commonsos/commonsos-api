@@ -1,6 +1,8 @@
 package commonsos.domain.auth;
 
 import commonsos.AuthenticationException;
+import commonsos.DisplayableException;
+import commonsos.domain.agreement.AccountCreateCommand;
 import commonsos.domain.transaction.TransactionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +14,9 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,5 +58,35 @@ public class UserServiceTest {
     assertThat(view.getId()).isEqualTo("user id");
     assertThat(view.getUsername()).isEqualTo("username");
     assertThat(view.getBalance()).isEqualTo(BigDecimal.TEN);
+  }
+
+  @Test
+  public void create() {
+    User createdUser = new User();
+    when(repository.create(any())).thenReturn(createdUser);
+
+    User result = service.create(new AccountCreateCommand()
+      .setUsername("user name")
+      .setPassword("secret")
+      .setFirstName("first")
+      .setLastName("last")
+    );
+
+    assertThat(result).isEqualTo(createdUser);
+    verify(repository).create(new User().setUsername("user name").setPasswordHash("secret").setFirstName("first").setLastName("last"));
+  }
+
+  @Test
+  public void create_usernameAlreadyTaken() {
+    when(repository.find("worker")).thenReturn(Optional.of(new User()));
+
+    AccountCreateCommand command = new AccountCreateCommand()
+      .setUsername("worker")
+      .setPassword("secret")
+      .setFirstName("first")
+      .setLastName("last");
+    DisplayableException thrown = catchThrowableOfType(()-> service.create(command), DisplayableException.class);
+
+    assertThat(thrown).hasMessage("Username is already taken");
   }
 }

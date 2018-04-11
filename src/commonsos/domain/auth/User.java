@@ -10,4 +10,6 @@ public class User {
   String id;
   String username;
   String passwordHash;
+  String firstName;
+  String lastName;
 }

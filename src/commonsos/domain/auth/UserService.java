@@ -1,6 +1,8 @@
 package commonsos.domain.auth;
 
 import commonsos.AuthenticationException;
+import commonsos.DisplayableException;
+import commonsos.domain.agreement.AccountCreateCommand;
 import commonsos.domain.transaction.TransactionService;
 
 import javax.inject.Inject;
@@ -21,5 +23,17 @@ public class UserService {
   public UserView view(User user) {
     BigDecimal balance = transactionService.balance(user);
     return new UserView().setId(user.getId()).setUsername(user.getUsername()).setBalance(balance);
+  }
+
+  public User create(AccountCreateCommand command) {
+    User user = new User()
+      .setUsername(command.getUsername())
+      .setPasswordHash(command.getPassword())
+      .setFirstName(command.getFirstName())
+      .setLastName(command.getLastName());
+
+    if (repository.find(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
+
+    return repository.create(user);
   }
 }
