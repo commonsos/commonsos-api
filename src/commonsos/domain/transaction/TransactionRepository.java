@@ -13,10 +13,10 @@ import static java.util.stream.Collectors.toList;
 
 public class TransactionRepository {
   public List<Transaction> transactions = new ArrayList<Transaction>() {{
-    add(new Transaction().setBeneficiaryId("worker").setRemitterId("elderly1").setAmount(TEN).setCreatedAt(now().minus(1, HOURS)));
-    add(new Transaction().setBeneficiaryId("elderly1").setRemitterId("worker").setAmount(ONE).setCreatedAt(now()));
-    add(new Transaction().setBeneficiaryId("elderly2").setRemitterId("elderly1").setAmount(ONE.add(ONE)).setCreatedAt(now().minus(3, HOURS)));
-    add(new Transaction().setBeneficiaryId("worker").setRemitterId("elderly2").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(51, HOURS)));
+    add(new Transaction().setBeneficiaryId("0").setRemitterId("1").setAmount(TEN).setCreatedAt(now().minus(1, HOURS)));
+    add(new Transaction().setBeneficiaryId("1").setRemitterId("0").setAmount(ONE).setCreatedAt(now()));
+    add(new Transaction().setBeneficiaryId("2").setRemitterId("1").setAmount(ONE.add(ONE)).setCreatedAt(now().minus(3, HOURS)));
+    add(new Transaction().setBeneficiaryId("0").setRemitterId("2").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(51, HOURS)));
   }};
 
   public void create(Transaction transaction) {

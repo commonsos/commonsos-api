@@ -22,7 +22,11 @@ public class UserService {
 
   public UserView view(User user) {
     BigDecimal balance = transactionService.balance(user);
-    return new UserView().setId(user.getId()).setUsername(user.getUsername()).setBalance(balance);
+    return new UserView()
+      .setId(user.getId())
+      .setUsername(user.getUsername())
+      .setBalance(balance)
+      .setFullName(String.format("%s %s", user.getLastName(), user.getFirstName()));
   }
 
   public User create(AccountCreateCommand command) {
