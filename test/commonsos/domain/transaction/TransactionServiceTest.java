@@ -4,15 +4,15 @@ import commonsos.DisplayableException;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserService;
+import commonsos.domain.auth.UserView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,23 +22,23 @@ import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionServiceTest {
 
-  @Mock TransactionRepository repository;
   @Mock AgreementService agreementService;
-  @InjectMocks TransactionService transactionService;
+  @Mock UserService userService;
   @Captor ArgumentCaptor<Transaction> captor;
+  @Mock TransactionRepository repository;
+  @InjectMocks @Spy TransactionService service;
 
   @Test
   public void claim() {
     Agreement agreement = new Agreement().setPoints(TEN).setId("123").setProviderId("worker").setConsumerId("elderly");
     when(agreementService.findByTransactionData("transactionData")).thenReturn(Optional.of(agreement));
 
-    Transaction result = transactionService.claim(new User().setId("worker"), "transactionData");
+    Transaction result = service.claim(new User().setId("worker"), "transactionData");
 
     verify(agreementService).rewardClaimed(agreement);
     verify(repository).create(captor.capture());
@@ -55,7 +55,7 @@ public class TransactionServiceTest {
   public void claim_onlyProviderCanClaimReward() {
     when(agreementService.findByTransactionData("otherUserTransactionData")).thenReturn(Optional.of(new Agreement().setProviderId("worker")));
 
-    DisplayableException thrown = catchThrowableOfType(() -> transactionService.claim(new User().setId("other user id"), "otherUserTransactionData"), DisplayableException.class);
+    DisplayableException thrown = catchThrowableOfType(() -> service.claim(new User().setId("other user id"), "otherUserTransactionData"), DisplayableException.class);
 
     assertThat(thrown).hasMessage("Only service provider can claim this code");
   }
@@ -65,7 +65,7 @@ public class TransactionServiceTest {
     Agreement agreement = new Agreement().setPoints(TEN).setId("123").setProviderId("worker").setConsumerId("elderly").setRewardClaimedAt(now());
     when(agreementService.findByTransactionData("transactionData")).thenReturn(Optional.of(agreement));
 
-    DisplayableException thrown = catchThrowableOfType(() -> transactionService.claim(new User().setId("worker"), "transactionData"), DisplayableException.class);
+    DisplayableException thrown = catchThrowableOfType(() -> service.claim(new User().setId("worker"), "transactionData"), DisplayableException.class);
 
     assertThat(thrown).hasMessage("This code has been already claimed");
   }
@@ -78,19 +78,41 @@ public class TransactionServiceTest {
       new Transaction().setRemitterId("elderly").setBeneficiaryId("worker").setAmount(TEN));
     when(repository.transactions(user)).thenReturn(transactions);
 
-    BigDecimal balance = transactionService.balance(user);
+    BigDecimal balance = service.balance(user);
 
     assertThat(balance).isEqualTo(new BigDecimal("9"));
   }
 
   @Test
+  public void view() {
+    UserView beneficiary = new UserView();
+    UserView remitter = new UserView();
+    when(userService.view("beneficiary id")).thenReturn(beneficiary);
+    when(userService.view("remitter id")).thenReturn(remitter);
+
+    TransactionView view = service.view(new Transaction()
+      .setBeneficiaryId("beneficiary id")
+      .setRemitterId("remitter id")
+      .setAmount(TEN)
+      .setCreatedAt(OffsetDateTime.MAX)
+    );
+
+    assertThat(view.getBeneficiary()).isEqualTo(beneficiary);
+    assertThat(view.getRemitter()).isEqualTo(remitter);
+    assertThat(view.getAmount()).isEqualTo(TEN);
+    assertThat(view.getCreatedAt()).isEqualTo(OffsetDateTime.MAX);
+  }
+
+  @Test
   public void transactions() {
-    User user = new User().setId("worker");
-    List<Transaction> transactions = asList(new Transaction().setBeneficiaryId("worker"));
-    when(repository.transactions(user)).thenReturn(transactions);
+    User user = new User();
+    Transaction transaction = new Transaction();
+    when(repository.transactions(user)).thenReturn(asList(transaction));
+    TransactionView transactionView = new TransactionView();
+    doReturn(transactionView).when(service).view(transaction);
 
-    List<Transaction> result = transactionService.transactions(user);
+    List<TransactionView> result = service.transactions(user);
 
-    assertThat(result).isEqualTo(transactions);
+    assertThat(result).isEqualTo(asList(transactionView));
   }
 }

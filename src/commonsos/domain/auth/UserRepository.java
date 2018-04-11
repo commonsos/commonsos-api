@@ -15,7 +15,7 @@ public class UserRepository {
     create(new User().setUsername("elderly2").setPasswordHash("secret2").setFirstName("Haru").setLastName("Takahashi"));
   }
 
-  public Optional<User> find(String username) {
+  public Optional<User> findByUsername(String username) {
     return users.stream().filter(u -> u.getUsername().equals(username)).findAny();
   }
 
@@ -23,5 +23,9 @@ public class UserRepository {
     user.setId(String.valueOf(users.size()));
     users.add(user);
     return user;
+  }
+
+  public Optional<User> findById(String id) {
+    return users.stream().filter(u -> u.getId().equals(id)).findAny();
   }
 }

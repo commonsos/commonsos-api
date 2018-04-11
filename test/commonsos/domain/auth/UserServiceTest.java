@@ -1,6 +1,7 @@
 package commonsos.domain.auth;
 
 import commonsos.AuthenticationException;
+import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.domain.agreement.AccountCreateCommand;
 import commonsos.domain.transaction.TransactionService;
@@ -8,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -16,34 +18,33 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
   @Mock UserRepository repository;
   @Mock TransactionService transactionService;
-  @InjectMocks UserService service;
+  @InjectMocks @Spy UserService service;
 
   @Test
   public void checkPassword_withValidUser() {
     User user = new User().setPasswordHash("secret");
-    when(repository.find("worker")).thenReturn(Optional.of(user));
+    when(repository.findByUsername("worker")).thenReturn(Optional.of(user));
 
     assertThat(service.checkPassword("worker", "secret")).isEqualTo(user);
   }
 
   @Test(expected = AuthenticationException.class)
   public void checkPassword_withInvalidUsername() {
-    when(repository.find("invalid")).thenReturn(Optional.empty());
+    when(repository.findByUsername("invalid")).thenReturn(Optional.empty());
 
     service.checkPassword("invalid", "secret");
   }
 
   @Test(expected = AuthenticationException.class)
   public void checkPassword_withInvalidPassword() {
-    when(repository.find("user")).thenReturn(Optional.of(new User().setPasswordHash("secret")));
+    when(repository.findByUsername("user")).thenReturn(Optional.of(new User().setPasswordHash("secret")));
 
     service.checkPassword("user", "wrong password");
   }
@@ -78,7 +79,7 @@ public class UserServiceTest {
 
   @Test
   public void create_usernameAlreadyTaken() {
-    when(repository.find("worker")).thenReturn(Optional.of(new User()));
+    when(repository.findByUsername("worker")).thenReturn(Optional.of(new User()));
 
     AccountCreateCommand command = new AccountCreateCommand()
       .setUsername("worker")
@@ -88,5 +89,22 @@ public class UserServiceTest {
     DisplayableException thrown = catchThrowableOfType(()-> service.create(command), DisplayableException.class);
 
     assertThat(thrown).hasMessage("Username is already taken");
+  }
+
+  @Test
+  public void viewByUserId() {
+    User user = new User();
+    when(repository.findById("user id")).thenReturn(Optional.of(user));
+    UserView view = new UserView();
+    doReturn(view).when(service).view(user);
+
+    assertThat(service.view("user id")).isEqualTo(view);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void viewByUserId_userNotFound() {
+    when(repository.findById("invalid id")).thenReturn(Optional.empty());
+
+    service.view("invalid id");
   }
 }

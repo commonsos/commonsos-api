@@ -1,6 +1,7 @@
 package commonsos.domain.auth;
 
 import commonsos.AuthenticationException;
+import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.domain.agreement.AccountCreateCommand;
 import commonsos.domain.transaction.TransactionService;
@@ -15,7 +16,7 @@ public class UserService {
   @Inject TransactionService transactionService;
 
   public User checkPassword(String username, String password) {
-    User user = repository.find(username).orElseThrow(AuthenticationException::new);
+    User user = repository.findByUsername(username).orElseThrow(AuthenticationException::new);
     if (!user.getPasswordHash().equals(password)) throw new AuthenticationException();
     return user;
   }
@@ -29,14 +30,22 @@ public class UserService {
   }
 
   public User create(AccountCreateCommand command) {
+    if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
+
     User user = new User()
       .setUsername(command.getUsername())
       .setPasswordHash(command.getPassword())
       .setFirstName(command.getFirstName())
       .setLastName(command.getLastName());
 
-    if (repository.find(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
-
     return repository.create(user);
+  }
+
+  public UserView view(String id) {
+    return view(user(id));
+  }
+
+  private User user(String id) {
+    return repository.findById(id).orElseThrow(BadRequestException::new);
   }
 }

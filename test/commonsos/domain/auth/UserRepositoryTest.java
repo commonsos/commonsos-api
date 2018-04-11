@@ -18,22 +18,34 @@ public class UserRepositoryTest {
   }
 
   @Test
-  public void find() {
+  public void findByUsername() {
     repository.users = asList(new User().setUsername("worker"));
 
-    assertThat(repository.find("worker")).isNotEmpty();
+    assertThat(repository.findByUsername("worker")).isNotEmpty();
   }
 
   @Test
-  public void find_notFound() {
-    assertThat(repository.find("worker")).isEmpty();
+  public void findByUsername_notFound() {
+    assertThat(repository.findByUsername("worker")).isEmpty();
+  }
+
+  @Test
+  public void findById() {
+    repository.users = asList(new User().setId("user id"));
+
+    assertThat(repository.findById("user id")).isNotEmpty();
+  }
+
+  @Test
+  public void findById_notFound() {
+    assertThat(repository.findById("invalid id")).isEmpty();
   }
 
   @Test
   public void create() {
     repository.create(new User().setUsername("worker"));
 
-    Optional<User> result = repository.find("worker");
+    Optional<User> result = repository.findByUsername("worker");
     assertThat(result).isNotEmpty();
     assertThat(result.get().getId()).isEqualTo("0");
   }

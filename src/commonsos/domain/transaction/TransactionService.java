@@ -4,6 +4,8 @@ import commonsos.DisplayableException;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserService;
+import commonsos.domain.auth.UserView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -12,11 +14,13 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import static java.math.BigDecimal.ZERO;
+import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class TransactionService {
   @Inject AgreementService agreementService;
   @Inject TransactionRepository repository;
+  @Inject UserService userService;
 
   public Transaction claim(User user, String transactionData) {
     Agreement agreement = agreementService.findByTransactionData(transactionData).orElseThrow(() -> new DisplayableException("Code not found"));
@@ -47,7 +51,17 @@ public class TransactionService {
     return transaction.getRemitterId().equals(user.getId());
   }
 
-  public List<Transaction> transactions(User user) {
-    return repository.transactions(user);
+  public List<TransactionView> transactions(User user) {
+    return repository.transactions(user).stream().map(this::view).collect(toList());
+  }
+
+  public TransactionView view(Transaction transaction) {
+    UserView remitter = userService.view(transaction.getRemitterId());
+    UserView beneficiary = userService.view(transaction.getBeneficiaryId());
+    return new TransactionView()
+      .setRemitter(remitter)
+      .setBeneficiary(beneficiary)
+      .setAmount(transaction.getAmount())
+      .setCreatedAt(transaction.getCreatedAt());
   }
 }

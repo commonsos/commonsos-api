@@ -1,8 +1,8 @@
 package commonsos.controller.transaction;
 
 import commonsos.domain.auth.User;
-import commonsos.domain.transaction.Transaction;
 import commonsos.domain.transaction.TransactionService;
+import commonsos.domain.transaction.TransactionView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ public class TransactionListControllerTest {
 
   @Test
   public void handle() {
-    ArrayList<Transaction> transactions = new ArrayList<>();
+    ArrayList<TransactionView> transactions = new ArrayList<>();
     User user = new User();
     when(service.transactions(user)).thenReturn(transactions);
     assertThat(controller.handle(user, null, null)).isSameAs(transactions);
