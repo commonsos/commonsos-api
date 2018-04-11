@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -16,26 +17,30 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
+  @Mock UserRepository repository;
   @Mock TransactionService transactionService;
   @InjectMocks UserService service;
 
   @Test
   public void login_withValidUser() {
-    User user = service.login("worker", "secret");
+    User user = new User().setPasswordHash("secret");
+    when(repository.find("worker")).thenReturn(Optional.of(user));
 
-    assertThat(user.getId()).isEqualTo("worker");
-    assertThat(user.getUsername()).isEqualTo("worker");
-    assertThat(user.getPasswordHash()).isEqualTo("secret");
+    assertThat(service.login("worker", "secret")).isEqualTo(user);
+  }
+
+  @Test(expected = AuthenticationException.class)
+  public void login_withInvalidUsername() {
+    when(repository.find("invalid")).thenReturn(Optional.empty());
+
+    service.login("invalid", "secret");
   }
 
   @Test(expected = AuthenticationException.class)
   public void login_withInvalidPassword() {
-    service.login("worker", "wrong password");
-  }
+    when(repository.find("user")).thenReturn(Optional.of(new User().setPasswordHash("secret")));
 
-  @Test(expected = AuthenticationException.class)
-  public void login_withInvalidUser() {
-    service.login("wrong user", "password");
+    service.login("user", "wrong password");
   }
 
   @Test
