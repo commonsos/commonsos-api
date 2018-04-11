@@ -24,7 +24,6 @@ public class UserService {
     BigDecimal balance = transactionService.balance(user);
     return new UserView()
       .setId(user.getId())
-      .setUsername(user.getUsername())
       .setBalance(balance)
       .setFullName(String.format("%s %s", user.getLastName(), user.getFirstName()));
   }
