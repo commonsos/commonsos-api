@@ -19,7 +19,7 @@ public class LoginController implements Route {
   @Override public UserView handle(Request request, Response response) {
     Map map = gson.fromJson(request.body(), Map.class);
 
-    User user = userService.login(String.valueOf(map.get("username")), String.valueOf(map.get("password")));
+    User user = userService.checkPassword(String.valueOf(map.get("username")), String.valueOf(map.get("password")));
     request.session().attribute("user", user);
     return userService.view(user);
   }

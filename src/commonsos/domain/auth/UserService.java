@@ -12,7 +12,7 @@ public class UserService {
   @Inject UserRepository repository;
   @Inject TransactionService transactionService;
 
-  public User login(String username, String password) {
+  public User checkPassword(String username, String password) {
     User user = repository.find(username).orElseThrow(AuthenticationException::new);
     if (!user.getPasswordHash().equals(password)) throw new AuthenticationException();
     return user;

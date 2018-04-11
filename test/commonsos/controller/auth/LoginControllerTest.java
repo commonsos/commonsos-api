@@ -35,7 +35,7 @@ public class LoginControllerTest {
   @Test
   public void handle() throws Exception {
     User user = new User();
-    when(service.login("user", "pwd")).thenReturn(user);
+    when(service.checkPassword("user", "pwd")).thenReturn(user);
     when(request.body()).thenReturn("{\"username\": \"user\", \"password\": \"pwd\"}");
     UserView userView = new UserView();
     when(service.view(user)).thenReturn(userView);
@@ -48,7 +48,7 @@ public class LoginControllerTest {
 
   @Test(expected = AuthenticationException.class)
   public void handle_loginFails() throws Exception {
-    when(service.login("user", "pwd")).thenThrow(new AuthenticationException());
+    when(service.checkPassword("user", "pwd")).thenThrow(new AuthenticationException());
     when(request.body()).thenReturn("{\"username\": \"user\", \"password\": \"pwd\"}");
 
     controller.handle(request, null);

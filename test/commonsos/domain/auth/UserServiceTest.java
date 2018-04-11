@@ -22,25 +22,25 @@ public class UserServiceTest {
   @InjectMocks UserService service;
 
   @Test
-  public void login_withValidUser() {
+  public void checkPassword_withValidUser() {
     User user = new User().setPasswordHash("secret");
     when(repository.find("worker")).thenReturn(Optional.of(user));
 
-    assertThat(service.login("worker", "secret")).isEqualTo(user);
+    assertThat(service.checkPassword("worker", "secret")).isEqualTo(user);
   }
 
   @Test(expected = AuthenticationException.class)
-  public void login_withInvalidUsername() {
+  public void checkPassword_withInvalidUsername() {
     when(repository.find("invalid")).thenReturn(Optional.empty());
 
-    service.login("invalid", "secret");
+    service.checkPassword("invalid", "secret");
   }
 
   @Test(expected = AuthenticationException.class)
-  public void login_withInvalidPassword() {
+  public void checkPassword_withInvalidPassword() {
     when(repository.find("user")).thenReturn(Optional.of(new User().setPasswordHash("secret")));
 
-    service.login("user", "wrong password");
+    service.checkPassword("user", "wrong password");
   }
 
   @Test
