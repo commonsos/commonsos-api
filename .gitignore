@@ -1,5 +1,6 @@
 build
 out
 *.iws
+.shelf
 .idea/workspace.xml
 .gradle
