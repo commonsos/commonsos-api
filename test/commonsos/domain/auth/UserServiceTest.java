@@ -80,11 +80,11 @@ public class UserServiceTest {
   public void create() {
     User createdUser = new User();
     when(repository.create(any())).thenReturn(createdUser);
-    when(passwordService.hash("secret")).thenReturn("hash");
+    when(passwordService.hash("secret78")).thenReturn("hash");
 
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
-      .setPassword("secret")
+      .setPassword("secret78")
       .setFirstName("first")
       .setLastName("last")
     );
@@ -96,15 +96,39 @@ public class UserServiceTest {
   @Test
   public void create_usernameAlreadyTaken() {
     when(repository.findByUsername("worker")).thenReturn(Optional.of(new User()));
+    AccountCreateCommand command = validCommand();
 
-    AccountCreateCommand command = new AccountCreateCommand()
-      .setUsername("worker")
-      .setPassword("secret")
-      .setFirstName("first")
-      .setLastName("last");
     DisplayableException thrown = catchThrowableOfType(()-> service.create(command), DisplayableException.class);
 
     assertThat(thrown).hasMessage("Username is already taken");
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_validates_username() {
+    service.create(validCommand().setUsername("123"));
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_validates_password() {
+    service.create(validCommand().setPassword("1234567"));
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_validates_firstName() {
+    service.create(validCommand().setFirstName(""));
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_validates_lastName() {
+    service.create(validCommand().setLastName(""));
+  }
+
+  private AccountCreateCommand validCommand() {
+    return new AccountCreateCommand()
+        .setUsername("worker")
+        .setPassword("secret78")
+        .setFirstName("first")
+        .setLastName("last");
   }
 
   @Test

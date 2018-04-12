@@ -35,6 +35,8 @@ public class UserService {
   }
 
   public User create(AccountCreateCommand command) {
+    validate(command);
+
     if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
 
     User user = new User()
@@ -44,6 +46,13 @@ public class UserService {
       .setLastName(command.getLastName());
 
     return repository.create(user);
+  }
+
+  private void validate(AccountCreateCommand command) {
+    if (command.getUsername() == null || command.getUsername().length() < 4) throw new BadRequestException();
+    if (command.getPassword() == null || command.getPassword().length() < 8) throw new BadRequestException();
+    if (command.getFirstName() == null || command.getFirstName().length() < 1) throw new BadRequestException();
+    if (command.getLastName() == null || command.getLastName().length() < 1) throw new BadRequestException();
   }
 
   public UserView view(String id) {
