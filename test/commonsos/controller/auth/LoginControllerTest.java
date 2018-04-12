@@ -4,7 +4,7 @@ import commonsos.AuthenticationException;
 import commonsos.GsonProvider;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
-import commonsos.domain.auth.UserView;
+import commonsos.domain.auth.UserPrivateView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,10 +37,10 @@ public class LoginControllerTest {
     User user = new User();
     when(service.checkPassword("user", "pwd")).thenReturn(user);
     when(request.body()).thenReturn("{\"username\": \"user\", \"password\": \"pwd\"}");
-    UserView userView = new UserView();
-    when(service.view(user)).thenReturn(userView);
+    UserPrivateView userView = new UserPrivateView();
+    when(service.privateView(user)).thenReturn(userView);
 
-    UserView result = controller.handle(request, null);
+    UserPrivateView result = controller.handle(request, null);
 
     verify(session).attribute("user", user);
     assertThat(result).isSameAs(userView);

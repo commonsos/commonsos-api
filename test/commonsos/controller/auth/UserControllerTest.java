@@ -2,7 +2,7 @@ package commonsos.controller.auth;
 
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
-import commonsos.domain.auth.UserView;
+import commonsos.domain.auth.UserPrivateView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -20,10 +20,10 @@ public class UserControllerTest {
 
   @Test
   public void handle() {
-    UserView userView = new UserView();
-    when(service.view(new User())).thenReturn(userView);
+    UserPrivateView userView = new UserPrivateView();
+    when(service.privateView(new User())).thenReturn(userView);
 
-    UserView result = controller.handle(new User(), null, null);
+    UserPrivateView result = controller.handle(new User(), null, null);
 
     assertThat(result).isEqualTo(userView);
   }

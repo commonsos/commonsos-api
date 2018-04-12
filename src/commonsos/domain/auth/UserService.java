@@ -22,12 +22,16 @@ public class UserService {
     return user;
   }
 
-  public UserView view(User user) {
+  public UserPrivateView privateView(User user) {
     BigDecimal balance = transactionService.balance(user);
-    return new UserView()
+    return new UserPrivateView()
       .setId(user.getId())
       .setBalance(balance)
-      .setFullName(String.format("%s %s", user.getLastName(), user.getFirstName()));
+      .setFullName(fullName(user));
+  }
+
+  private String fullName(User user) {
+    return String.format("%s %s", user.getLastName(), user.getFirstName());
   }
 
   public User create(AccountCreateCommand command) {
@@ -48,5 +52,9 @@ public class UserService {
 
   private User user(String id) {
     return repository.findById(id).orElseThrow(BadRequestException::new);
+  }
+
+  public UserView view(User user) {
+    return new UserView().setId(user.getId()).setFullName(fullName(user));
   }
 }
