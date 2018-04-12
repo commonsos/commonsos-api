@@ -52,16 +52,17 @@ public class TransactionService {
   }
 
   public List<TransactionView> transactions(User user) {
-    return repository.transactions(user).stream().map(this::view).collect(toList());
+    return repository.transactions(user).stream().map(transaction -> view(user, transaction)).collect(toList());
   }
 
-  public TransactionView view(Transaction transaction) {
+  public TransactionView view(User user, Transaction transaction) {
     UserView remitter = userService.view(transaction.getRemitterId());
     UserView beneficiary = userService.view(transaction.getBeneficiaryId());
     return new TransactionView()
       .setRemitter(remitter)
       .setBeneficiary(beneficiary)
       .setAmount(transaction.getAmount())
-      .setCreatedAt(transaction.getCreatedAt());
+      .setCreatedAt(transaction.getCreatedAt())
+      .setDebit(isDebit(user, transaction));
   }
 }

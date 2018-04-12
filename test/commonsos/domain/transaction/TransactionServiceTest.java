@@ -90,17 +90,19 @@ public class TransactionServiceTest {
     when(userService.view("beneficiary id")).thenReturn(beneficiary);
     when(userService.view("remitter id")).thenReturn(remitter);
 
-    TransactionView view = service.view(new Transaction()
-      .setBeneficiaryId("beneficiary id")
-      .setRemitterId("remitter id")
-      .setAmount(TEN)
-      .setCreatedAt(OffsetDateTime.MAX)
-    );
+    TransactionView view = service.view(
+      new User().setId("remitter id"),
+      new Transaction()
+        .setBeneficiaryId("beneficiary id")
+        .setRemitterId("remitter id")
+        .setAmount(TEN)
+        .setCreatedAt(OffsetDateTime.MAX));
 
     assertThat(view.getBeneficiary()).isEqualTo(beneficiary);
     assertThat(view.getRemitter()).isEqualTo(remitter);
     assertThat(view.getAmount()).isEqualTo(TEN);
     assertThat(view.getCreatedAt()).isEqualTo(OffsetDateTime.MAX);
+    assertThat(view.isDebit()).isTrue();
   }
 
   @Test
@@ -109,7 +111,7 @@ public class TransactionServiceTest {
     Transaction transaction = new Transaction();
     when(repository.transactions(user)).thenReturn(asList(transaction));
     TransactionView transactionView = new TransactionView();
-    doReturn(transactionView).when(service).view(transaction);
+    doReturn(transactionView).when(service).view(user, transaction);
 
     List<TransactionView> result = service.transactions(user);
 

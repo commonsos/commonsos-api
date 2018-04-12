@@ -14,4 +14,5 @@ public class TransactionView {
   private UserView beneficiary;
   private BigDecimal amount;
   private OffsetDateTime createdAt;
+  private boolean debit;
 }
