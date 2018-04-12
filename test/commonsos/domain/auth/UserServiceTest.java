@@ -25,11 +25,13 @@ public class UserServiceTest {
 
   @Mock UserRepository repository;
   @Mock TransactionService transactionService;
+  @Mock PasswordService passwordService;
   @InjectMocks @Spy UserService service;
 
   @Test
   public void checkPassword_withValidUser() {
-    User user = new User().setPasswordHash("secret");
+    User user = new User().setPasswordHash("hash");
+    when(passwordService.passwordMatchesHash("secret", "hash")).thenReturn(true);
     when(repository.findByUsername("worker")).thenReturn(Optional.of(user));
 
     assertThat(service.checkPassword("worker", "secret")).isEqualTo(user);
@@ -44,9 +46,12 @@ public class UserServiceTest {
 
   @Test(expected = AuthenticationException.class)
   public void checkPassword_withInvalidPassword() {
-    when(repository.findByUsername("user")).thenReturn(Optional.of(new User().setPasswordHash("secret")));
+    when(repository.findByUsername("user")).thenReturn(Optional.of(new User().setPasswordHash("hash")));
+    when(passwordService.passwordMatchesHash("wrong password", "hash")).thenReturn(false);
 
     service.checkPassword("user", "wrong password");
+
+    verify(passwordService).passwordMatchesHash("wrong password", "hash");
   }
 
   @Test
@@ -65,6 +70,7 @@ public class UserServiceTest {
   public void create() {
     User createdUser = new User();
     when(repository.create(any())).thenReturn(createdUser);
+    when(passwordService.hash("secret")).thenReturn("hash");
 
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
@@ -74,7 +80,7 @@ public class UserServiceTest {
     );
 
     assertThat(result).isEqualTo(createdUser);
-    verify(repository).create(new User().setUsername("user name").setPasswordHash("secret").setFirstName("first").setLastName("last"));
+    verify(repository).create(new User().setUsername("user name").setPasswordHash("hash").setFirstName("first").setLastName("last"));
   }
 
   @Test

@@ -14,10 +14,11 @@ import java.math.BigDecimal;
 public class UserService {
   @Inject UserRepository repository;
   @Inject TransactionService transactionService;
+  @Inject PasswordService passwordService;
 
   public User checkPassword(String username, String password) {
     User user = repository.findByUsername(username).orElseThrow(AuthenticationException::new);
-    if (!user.getPasswordHash().equals(password)) throw new AuthenticationException();
+    if (!passwordService.passwordMatchesHash(password, user.getPasswordHash())) throw new AuthenticationException();
     return user;
   }
 
@@ -34,7 +35,7 @@ public class UserService {
 
     User user = new User()
       .setUsername(command.getUsername())
-      .setPasswordHash(command.getPassword())
+      .setPasswordHash(passwordService.hash(command.getPassword()))
       .setFirstName(command.getFirstName())
       .setLastName(command.getLastName());
 

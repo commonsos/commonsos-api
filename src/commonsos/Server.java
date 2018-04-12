@@ -28,6 +28,7 @@ public class Server {
   private void start() {
     Injector injector = initDependencies();
     initRoutes(injector);
+    injector.getInstance(DemoData.class).install();
   }
 
   private Injector initDependencies() {
