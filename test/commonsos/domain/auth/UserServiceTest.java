@@ -56,7 +56,7 @@ public class UserServiceTest {
 
   @Test
   public void privateView() {
-    User user = new User().setId("user id").setFirstName("first").setLastName("last");
+    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya");
     when(transactionService.balance(user)).thenReturn(BigDecimal.TEN);
 
     UserPrivateView view = service.privateView(user);
@@ -64,6 +64,7 @@ public class UserServiceTest {
     assertThat(view.getId()).isEqualTo("user id");
     assertThat(view.getBalance()).isEqualTo(BigDecimal.TEN);
     assertThat(view.getFullName()).isEqualTo("last first");
+    assertThat(view.getLocation()).isEqualTo("Shibuya");
   }
 
   @Test
@@ -87,10 +88,17 @@ public class UserServiceTest {
       .setPassword("secret78")
       .setFirstName("first")
       .setLastName("last")
+      .setLocation("Shibuya")
     );
 
     assertThat(result).isEqualTo(createdUser);
-    verify(repository).create(new User().setUsername("user name").setPasswordHash("hash").setFirstName("first").setLastName("last"));
+    verify(repository).create(new User()
+      .setUsername("user name")
+      .setPasswordHash("hash")
+      .setFirstName("first")
+      .setLastName("last")
+      .setLocation("Shibuya")
+    );
   }
 
   @Test

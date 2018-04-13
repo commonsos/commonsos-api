@@ -27,7 +27,8 @@ public class UserService {
     return new UserPrivateView()
       .setId(user.getId())
       .setBalance(balance)
-      .setFullName(fullName(user));
+      .setFullName(fullName(user))
+      .setLocation(user.location);
   }
 
   private String fullName(User user) {
@@ -43,7 +44,8 @@ public class UserService {
       .setUsername(command.getUsername())
       .setPasswordHash(passwordService.hash(command.getPassword()))
       .setFirstName(command.getFirstName())
-      .setLastName(command.getLastName());
+      .setLastName(command.getLastName())
+      .setLocation(command.getLocation());
 
     return repository.create(user);
   }
