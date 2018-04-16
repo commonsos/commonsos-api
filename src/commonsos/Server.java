@@ -7,6 +7,7 @@ import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
 import commonsos.controller.ad.MyAdsController;
+import commonsos.controller.admin.UserSearchController;
 import commonsos.controller.agreement.AgreementController;
 import commonsos.controller.agreement.AgreementListController;
 import commonsos.controller.auth.AccountCreateController;
@@ -62,6 +63,8 @@ public class Server {
 
     get("/balance", injector.getInstance(BalanceController.class), toJson);
     get("/transactions", injector.getInstance(TransactionListController.class), toJson);
+
+    get("/users", injector.getInstance(UserSearchController.class), toJson);
 
     exception(BadRequestException.class, (exception, request, response) -> {
       log.error("Bad request", exception);

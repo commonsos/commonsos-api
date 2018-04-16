@@ -49,4 +49,17 @@ public class UserRepositoryTest {
     assertThat(result).isNotEmpty();
     assertThat(result.get().getId()).isEqualTo("0");
   }
+
+  @Test
+  public void search() {
+    User user1 = new User().setFirstName("first").setLastName("foo");
+    User user2 = new User().setFirstName("first").setLastName("bar");
+    repository.users = asList(user1, user2);
+
+    assertThat(repository.search("irs")).containsExactly(user1, user2);
+    assertThat(repository.search("foo")).containsExactly(user1);
+    assertThat(repository.search("baz")).isEmpty();
+    assertThat(repository.search(" ")).isEmpty();
+    assertThat(repository.search("")).isEmpty();
+  }
 }

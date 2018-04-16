@@ -3,6 +3,7 @@ package commonsos.domain.auth;
 import commonsos.AuthenticationException;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
+import commonsos.ForbiddenException;
 import commonsos.domain.agreement.AccountCreateCommand;
 import commonsos.domain.transaction.TransactionService;
 import org.junit.Test;
@@ -13,8 +14,10 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -154,5 +157,22 @@ public class UserServiceTest {
     when(repository.findById("invalid id")).thenReturn(Optional.empty());
 
     service.view("invalid id");
+  }
+
+  @Test(expected=ForbiddenException.class)
+  public void searchUsers_forbidden() {
+    service.searchUsers(new User().setAdmin(false), "foobar");
+  }
+
+  @Test
+  public void searchUsers() {
+    User user = new User();
+    when(repository.search("foobar")).thenReturn(asList(user));
+    UserView userView = new UserView();
+    when(service.view(user)).thenReturn(userView);
+
+    List<UserView> users = service.searchUsers(new User().setAdmin(true), "foobar");
+
+    assertThat(users).isEqualTo(asList(userView));
   }
 }

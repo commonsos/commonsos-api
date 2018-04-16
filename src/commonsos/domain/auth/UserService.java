@@ -3,12 +3,16 @@ package commonsos.domain.auth;
 import commonsos.AuthenticationException;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
+import commonsos.ForbiddenException;
 import commonsos.domain.agreement.AccountCreateCommand;
 import commonsos.domain.transaction.TransactionService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class UserService {
@@ -67,5 +71,10 @@ public class UserService {
 
   public UserView view(User user) {
     return new UserView().setId(user.getId()).setFullName(fullName(user));
+  }
+
+  public List<UserView> searchUsers(User user, String query) {
+    if (!user.isAdmin()) throw new ForbiddenException();
+    return repository.search(query).stream().map(this::view).collect(toList());
   }
 }
