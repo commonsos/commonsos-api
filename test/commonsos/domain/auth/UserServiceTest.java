@@ -59,12 +59,13 @@ public class UserServiceTest {
 
   @Test
   public void privateView() {
-    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya");
+    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya").setAdmin(true);
     when(transactionService.balance(user)).thenReturn(BigDecimal.TEN);
 
     UserPrivateView view = service.privateView(user);
 
     assertThat(view.getId()).isEqualTo("user id");
+    assertThat(view.isAdmin()).isTrue();
     assertThat(view.getBalance()).isEqualTo(BigDecimal.TEN);
     assertThat(view.getFullName()).isEqualTo("last first");
     assertThat(view.getLocation()).isEqualTo("Shibuya");

@@ -30,6 +30,7 @@ public class UserService {
     BigDecimal balance = transactionService.balance(user);
     return new UserPrivateView()
       .setId(user.getId())
+      .setAdmin(user.isAdmin())
       .setBalance(balance)
       .setFullName(fullName(user))
       .setLocation(user.location);
