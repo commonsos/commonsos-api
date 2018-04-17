@@ -30,7 +30,11 @@ public class UserRepository {
 
   public List<User> search(String query) {
     if (isBlank(query)) return emptyList();
-    return users.stream().filter(matchUser(query)).limit(10).collect(toList());
+    return users.stream()
+      .filter(matchUser(query))
+      .filter(u -> !u.isAdmin())
+      .limit(10)
+      .collect(toList());
   }
 
   private Predicate<User> matchUser(String query) {

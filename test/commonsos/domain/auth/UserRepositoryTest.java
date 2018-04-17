@@ -62,4 +62,13 @@ public class UserRepositoryTest {
     assertThat(repository.search(" ")).isEmpty();
     assertThat(repository.search("")).isEmpty();
   }
+
+  @Test
+  public void search_excludesAdminUser() {
+    User admin = new User().setFirstName("first").setAdmin(true);
+    User user = new User().setFirstName("first").setAdmin(false);
+    repository.users = asList(admin, user);
+
+    assertThat(repository.search("first")).containsExactly(user);
+  }
 }

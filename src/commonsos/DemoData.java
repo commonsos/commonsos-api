@@ -25,7 +25,7 @@ public class DemoData {
     User admin = userService.create(new AccountCreateCommand().setUsername("admin").setPassword("secret00").setFirstName("Kaito").setLastName("Kobayashi").setLocation("Kaga, Ishikawa Prefecture, Japan"))
       .setAdmin(true);
 
-    User bank = userService.create(new AccountCreateCommand().setUsername(UUID.randomUUID().toString()).setPassword(UUID.randomUUID().toString()).setFirstName("Bank").setLastName(" "));
+    User bank = userService.create(new AccountCreateCommand().setUsername(UUID.randomUUID().toString()).setPassword(UUID.randomUUID().toString()).setFirstName("Bank").setLastName(" ")).setAdmin(true);
 
     transactionService.create(new Transaction().setRemitterId(bank.getId()).setAmount(new BigDecimal("10000000")).setBeneficiaryId(admin.getId()).setCreatedAt(OffsetDateTime.now()));
     transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setCreatedAt(OffsetDateTime.now()));
