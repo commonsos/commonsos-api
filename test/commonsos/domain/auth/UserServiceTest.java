@@ -72,6 +72,35 @@ public class UserServiceTest {
   }
 
   @Test
+  public void privateView_adminAccessesOtherUser() {
+    User currentUser = new User().setId("222").setAdmin(true);
+    User foundUser = new User().setId("111");
+    when(repository.findById("111")).thenReturn(Optional.of(foundUser));
+    UserPrivateView foundUserPrivateView = new UserPrivateView();
+    doReturn(foundUserPrivateView).when(service).privateView(foundUser);
+
+    assertThat(service.privateView(currentUser, "111")).isSameAs(foundUserPrivateView);
+  }
+
+  @Test
+  public void privateView_ownUser() {
+    User currentUser = new User().setId("111").setAdmin(false);
+    User foundUser = new User().setId("111");
+    when(repository.findById("111")).thenReturn(Optional.of(foundUser));
+    UserPrivateView foundUserPrivateView = new UserPrivateView();
+    doReturn(foundUserPrivateView).when(service).privateView(foundUser);
+
+    assertThat(service.privateView(currentUser, "111")).isSameAs(foundUserPrivateView);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void privateView_requiresAdminToAccessOtherUser() {
+    User currentUser = new User().setId("222").setAdmin(false);
+
+    service.privateView(currentUser, "111");
+  }
+
+  @Test
   public void view() {
     User user = new User().setId("user id").setFirstName("first").setLastName("last");
 

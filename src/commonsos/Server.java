@@ -49,6 +49,7 @@ public class Server {
     post("/create-account", injector.getInstance(AccountCreateController.class), toJson);
     post("/logout", injector.getInstance(LogoutController.class), toJson);
     get("/user", injector.getInstance(UserController.class), toJson);
+    get("/user/:id", injector.getInstance(UserController.class), toJson);
 
     before((request, response) -> log.info(request.pathInfo()));
     before(new AuthenticationFilter(asList("/login", "/create-account")));

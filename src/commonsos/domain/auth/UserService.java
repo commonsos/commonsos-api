@@ -36,6 +36,12 @@ public class UserService {
       .setLocation(user.location);
   }
 
+  public UserPrivateView privateView(User currentUser, String userId) {
+    if (!currentUser.getId().equals(userId) && !currentUser.isAdmin()) throw new ForbiddenException();
+    User user = repository.findById(userId).orElseThrow(ForbiddenException::new);
+    return privateView(user);
+  }
+
   private String fullName(User user) {
     return String.format("%s %s", user.getLastName(), user.getFirstName());
   }
