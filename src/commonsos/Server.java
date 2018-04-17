@@ -3,6 +3,7 @@ package commonsos;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.inject.*;
+import commonsos.controller.transaction.TransactionCreateController;
 import commonsos.controller.ad.AdAcceptController;
 import commonsos.controller.ad.AdCreateController;
 import commonsos.controller.ad.AdListController;
@@ -50,6 +51,7 @@ public class Server {
     post("/logout", injector.getInstance(LogoutController.class), toJson);
     get("/user", injector.getInstance(UserController.class), toJson);
     get("/users/:id", injector.getInstance(UserController.class), toJson);
+    get("/users", injector.getInstance(UserSearchController.class), toJson);
 
     before((request, response) -> log.info(request.pathInfo()));
     before(new AuthenticationFilter(asList("/login", "/create-account")));
@@ -65,7 +67,7 @@ public class Server {
     get("/balance", injector.getInstance(BalanceController.class), toJson);
     get("/transactions", injector.getInstance(TransactionListController.class), toJson);
 
-    get("/users", injector.getInstance(UserSearchController.class), toJson);
+    post("/transaction", injector.getInstance(TransactionCreateController.class), toJson);
 
     exception(BadRequestException.class, (exception, request, response) -> {
       log.error("Bad request", exception);

@@ -69,4 +69,14 @@ public class TransactionService {
   public void create(Transaction transaction) {
     repository.create(transaction);
   }
+
+  public void create(User user, TransactionCreateCommand command) {
+    repository.create(new Transaction()
+      .setRemitterId(user.getId())
+      .setAmount(command.getAmount())
+      .setBeneficiaryId(command.getBeneficiaryId())
+      .setDescription(command.getDescription())
+      .setCreatedAt(OffsetDateTime.now())
+    );
+  }
 }

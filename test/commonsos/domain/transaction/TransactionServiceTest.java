@@ -52,6 +52,24 @@ public class TransactionServiceTest {
   }
 
   @Test
+  public void create() {
+    TransactionCreateCommand command = new TransactionCreateCommand()
+      .setBeneficiaryId("beneficiary")
+      .setAmount(new BigDecimal("10.2"))
+      .setDescription("description");
+
+    service.create(new User().setId("remitter"), command);
+
+    verify(repository).create(captor.capture());
+    Transaction transaction = captor.getValue();
+    assertThat(transaction.getAmount()).isEqualTo(new BigDecimal("10.2"));
+    assertThat(transaction.getBeneficiaryId()).isEqualTo("beneficiary");
+    assertThat(transaction.getRemitterId()).isEqualTo("remitter");
+    assertThat(transaction.getDescription()).isEqualTo("description");
+    assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+  }
+
+  @Test
   public void claim_onlyProviderCanClaimReward() {
     when(agreementService.findByTransactionData("otherUserTransactionData")).thenReturn(Optional.of(new Agreement().setProviderId("worker")));
 
