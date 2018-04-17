@@ -1,7 +1,7 @@
 package commonsos.controller.auth;
 
 import com.google.gson.Gson;
-import commonsos.domain.agreement.AccountCreateCommand;
+import commonsos.domain.auth.AccountCreateCommand;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserPrivateView;

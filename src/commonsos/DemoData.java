@@ -1,6 +1,6 @@
 package commonsos;
 
-import commonsos.domain.agreement.AccountCreateCommand;
+import commonsos.domain.auth.AccountCreateCommand;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.transaction.Transaction;

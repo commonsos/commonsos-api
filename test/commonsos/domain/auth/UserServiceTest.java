@@ -4,7 +4,6 @@ import commonsos.AuthenticationException;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
-import commonsos.domain.agreement.AccountCreateCommand;
 import commonsos.domain.transaction.TransactionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
