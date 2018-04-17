@@ -65,4 +65,8 @@ public class TransactionService {
       .setCreatedAt(transaction.getCreatedAt())
       .setDebit(isDebit(user, transaction));
   }
+
+  public void create(Transaction transaction) {
+    repository.create(transaction);
+  }
 }
