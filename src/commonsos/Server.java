@@ -66,8 +66,7 @@ public class Server {
 
     get("/balance", injector.getInstance(BalanceController.class), toJson);
     get("/transactions", injector.getInstance(TransactionListController.class), toJson);
-
-    post("/transaction", injector.getInstance(TransactionCreateController.class), toJson);
+    post("/transactions", injector.getInstance(TransactionCreateController.class), toJson);
 
     exception(BadRequestException.class, (exception, request, response) -> {
       log.error("Bad request", exception);
