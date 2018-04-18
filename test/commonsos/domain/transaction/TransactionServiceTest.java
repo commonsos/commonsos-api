@@ -57,8 +57,10 @@ public class TransactionServiceTest {
       .setBeneficiaryId("beneficiary")
       .setAmount(new BigDecimal("10.2"))
       .setDescription("description");
+    User user = new User().setId("remitter");
+    doReturn(new BigDecimal("10.20")).when(service).balance(user);
 
-    service.create(new User().setId("remitter"), command);
+    service.create(user, command);
 
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
@@ -67,6 +69,20 @@ public class TransactionServiceTest {
     assertThat(transaction.getRemitterId()).isEqualTo("remitter");
     assertThat(transaction.getDescription()).isEqualTo("description");
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+  }
+
+  @Test
+  public void create_insufficientBalance() {
+    TransactionCreateCommand command = new TransactionCreateCommand()
+      .setBeneficiaryId("beneficiary")
+      .setAmount(new BigDecimal("10.2"))
+      .setDescription("description");
+    User user = new User().setId("remitter");
+    doReturn(TEN).when(service).balance(user);
+
+    DisplayableException thrown = catchThrowableOfType(() -> service.create(user, command), DisplayableException.class);
+
+    assertThat(thrown).hasMessage("Not enough funds");
   }
 
   @Test

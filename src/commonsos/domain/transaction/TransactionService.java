@@ -71,6 +71,10 @@ public class TransactionService {
   }
 
   public void create(User user, TransactionCreateCommand command) {
+    //todo check beneficiary
+    BigDecimal balance = balance(user);
+    if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");
+    
     repository.create(new Transaction()
       .setRemitterId(user.getId())
       .setAmount(command.getAmount())
