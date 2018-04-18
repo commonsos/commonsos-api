@@ -1,5 +1,6 @@
 package commonsos.domain.ad;
 
+import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
@@ -52,5 +53,9 @@ public class AdService {
     repository.save(ad);
     agreementService.create(user, ad);
     return ad;
+  }
+
+  public AdView ad(User user, String id) {
+    return view(repository.find(id).orElseThrow(BadRequestException::new), user);
   }
 }
