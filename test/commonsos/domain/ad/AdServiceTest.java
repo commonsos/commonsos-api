@@ -117,7 +117,7 @@ public class AdServiceTest {
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.isAcceptable()).isEqualTo(false);
     assertThat(view.getCreatedAt()).isEqualTo(createdAt);
-    assertThat(view.getPhotoUrl()).isEqualTo("photoUrl");
+    assertThat(view.getPhotoUrl()).isEqualTo("photo url");
   }
 
   @Test
