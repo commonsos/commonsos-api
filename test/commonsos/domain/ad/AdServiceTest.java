@@ -104,7 +104,8 @@ public class AdServiceTest {
       .setCreatedBy("worker")
       .setId("11")
       .setTitle("title")
-      .setCreatedAt(createdAt);
+      .setCreatedAt(createdAt)
+      .setPhotoUrl("photo url");
 
     AdView view = service.view(ad, new User().setId("worker"));
 
@@ -116,6 +117,7 @@ public class AdServiceTest {
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.isAcceptable()).isEqualTo(false);
     assertThat(view.getCreatedAt()).isEqualTo(createdAt);
+    assertThat(view.getPhotoUrl()).isEqualTo("photoUrl");
   }
 
   @Test

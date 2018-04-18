@@ -17,4 +17,5 @@ public class AdView {
   private String location;
   private boolean acceptable;
   private OffsetDateTime createdAt;
+  private String photoUrl;
 }

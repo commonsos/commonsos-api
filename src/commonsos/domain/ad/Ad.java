@@ -16,4 +16,5 @@ public class Ad {
   private BigDecimal points;
   private String location;
   private OffsetDateTime createdAt;
+  private String photoUrl;
 }

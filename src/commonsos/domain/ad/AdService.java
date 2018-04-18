@@ -40,7 +40,8 @@ public class AdService {
       .setPoints(ad.getPoints())
       .setLocation(ad.getLocation())
       .setAcceptable(isAcceptable(ad, user))
-      .setCreatedAt(ad.getCreatedAt());
+      .setCreatedAt(ad.getCreatedAt())
+      .setPhotoUrl(ad.getPhotoUrl());
   }
 
   boolean isAcceptable(Ad ad, User user) {
