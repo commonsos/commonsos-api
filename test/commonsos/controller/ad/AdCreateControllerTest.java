@@ -3,6 +3,7 @@ package commonsos.controller.ad;
 import com.google.gson.Gson;
 import commonsos.domain.ad.AdCreateCommand;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.ad.AdType;
 import commonsos.domain.auth.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,7 @@ public class AdCreateControllerTest {
 
   @Test
   public void handle() throws Exception {
-    when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"amount\": \"123.456\", \"location\": \"location\"}");
+    when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"amount\": \"123.456\", \"location\": \"location\", \"type\": \"GIVE\"}");
     User user = new User().setId("user id");
 
     controller.handle(user, request, null);
@@ -46,5 +47,6 @@ public class AdCreateControllerTest {
     assertEquals("description", ad.getDescription());
     assertEquals(new BigDecimal("123.456"), ad.getAmount());
     assertEquals("location", ad.getLocation());
+    assertEquals(AdType.GIVE, ad.getType());
   }
 }
