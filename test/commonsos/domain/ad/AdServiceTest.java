@@ -57,10 +57,9 @@ public class AdServiceTest {
 
   @Test
   public void accept() {
-    Ad ad = new Ad();
+    Ad ad = new Ad().setCreatedBy("otherUserId");
     when(repository.find("adId")).thenReturn(Optional.of(ad));
-    User user = new User();
-    doReturn(true).when(service).isAcceptable(ad, user);
+    User user = new User().setId("user");
 
     Ad result = service.accept(user, "adId");
 
@@ -70,11 +69,10 @@ public class AdServiceTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void accept_forbidden() {
-    Ad ad = new Ad();
+  public void accept_forbiddenForOwnAd() {
+    Ad ad = new Ad().setCreatedBy("userId");
     when(repository.find("adId")).thenReturn(Optional.of(ad));
-    User user = new User();
-    doReturn(false).when(service).isAcceptable(ad, user);
+    User user = new User().setId("userId");
 
     service.accept(user, "adId");
   }
@@ -131,18 +129,18 @@ public class AdServiceTest {
     assertThat(view.getLocation()).isEqualTo("home");
     assertThat(view.getPoints()).isEqualTo(TEN);
     assertThat(view.getTitle()).isEqualTo("title");
-    assertThat(view.isAcceptable()).isEqualTo(false);
+    assertThat(view.isOwn()).isEqualTo(true);
     assertThat(view.getCreatedAt()).isEqualTo(createdAt);
     assertThat(view.getPhotoUrl()).isEqualTo("photo url");
     assertThat(view.getType()).isEqualTo(WANT);
   }
 
   @Test
-  public void isAcceptable() {
+  public void isOwn() {
     Ad ad = new Ad().setCreatedBy("worker");
 
-    assertThat(service.isAcceptable(ad, new User().setId("worker"))).isFalse();
-    assertThat(service.isAcceptable(ad, new User().setId("stranger"))).isTrue();
+    assertThat(service.isOwn(ad, new User().setId("worker"))).isTrue();
+    assertThat(service.isOwn(ad, new User().setId("stranger"))).isFalse();
   }
 
   @Test

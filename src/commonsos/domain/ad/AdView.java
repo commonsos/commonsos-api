@@ -16,7 +16,7 @@ public class AdView {
   private String description;
   private BigDecimal points;
   private String location;
-  private boolean acceptable;
+  private boolean own;
   private OffsetDateTime createdAt;
   private String photoUrl;
   private AdType type;

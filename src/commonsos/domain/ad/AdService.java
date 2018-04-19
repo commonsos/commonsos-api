@@ -49,18 +49,18 @@ public class AdService {
       .setDescription(ad.getDescription())
       .setPoints(ad.getPoints())
       .setLocation(ad.getLocation())
-      .setAcceptable(isAcceptable(ad, user))
+      .setOwn(isOwn(ad, user))
       .setCreatedAt(ad.getCreatedAt())
       .setPhotoUrl(ad.getPhotoUrl());
   }
 
-  boolean isAcceptable(Ad ad, User user) {
-    return !ad.getCreatedBy().equals(user.getId());
+  boolean isOwn(Ad ad, User user) {
+    return ad.getCreatedBy().equals(user.getId());
   }
 
   public Ad accept(User user, String id) {
     Ad ad = repository.find(id).orElseThrow(RuntimeException::new);
-    if (!isAcceptable(ad, user)) throw new ForbiddenException();
+    if (isOwn(ad, user)) throw new ForbiddenException();
     repository.save(ad);
     agreementService.create(user, ad);
     return ad;
