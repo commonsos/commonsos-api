@@ -5,8 +5,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.*;
@@ -17,13 +15,12 @@ public class AdRepositoryTest {
   @InjectMocks AdRepository repository;
 
   @Test
-  public void create_assings_id() {
-    Ad ad = new Ad().setTitle("title").setDescription("description").setPoints(new BigDecimal("123.456")).setLocation("location").setCreatedBy("user id");
+  public void create_assignsId() {
+    Ad newAd = new Ad();
+    repository.create(newAd);
 
-    repository.create(ad);
-
-    assertTrue(repository.ads.contains(ad));
-    assertEquals("3", ad.getId());
+    assertTrue(repository.ads.contains(newAd));
+    assertEquals("0", newAd.getId());
   }
 
   @Test
@@ -32,14 +29,14 @@ public class AdRepositoryTest {
   }
 
   @Test
-  public void findById_never_returns_null() {
+  public void findById_neverReturnsNull() {
     repository.ads = emptyList();
 
     assertFalse(repository.find("unknown").isPresent());
   }
 
   @Test
-  public void findById_wraps_with__optional() {
+  public void findById_wrapsWithOptional() {
     Ad ad = new Ad().setId("adId");
     repository.ads = asList(ad);
 
@@ -47,7 +44,7 @@ public class AdRepositoryTest {
   }
 
   @Test
-  public void save_does_nothing() {
+  public void save_doesNothing() {
     repository.ads = asList();
     Ad ad = new Ad().setId("adId");
 
