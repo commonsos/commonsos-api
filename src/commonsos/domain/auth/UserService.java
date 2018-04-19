@@ -32,7 +32,8 @@ public class UserService {
       .setAdmin(user.isAdmin())
       .setBalance(balance)
       .setFullName(fullName(user))
-      .setLocation(user.location);
+      .setLocation(user.location)
+      .setAvatarUrl(user.getAvatarUrl());
   }
 
   public UserPrivateView privateView(User currentUser, String userId) {
@@ -79,7 +80,8 @@ public class UserService {
     return new UserView()
       .setId(user.getId())
       .setFullName(fullName(user))
-      .setLocation(user.getLocation());
+      .setLocation(user.getLocation())
+      .setAvatarUrl(user.getAvatarUrl());
   }
 
   public List<UserView> searchUsers(User user, String query) {

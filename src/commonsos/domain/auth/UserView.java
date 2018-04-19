@@ -9,4 +9,5 @@ public class UserView {
   private String id;
   private String fullName;
   private String location;
+  private String avatarUrl;
 }

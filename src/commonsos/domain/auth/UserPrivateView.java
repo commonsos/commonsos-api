@@ -13,4 +13,5 @@ public class UserPrivateView {
   private String fullName;
   private BigDecimal balance;
   private String location;
+  private String avatarUrl;
 }

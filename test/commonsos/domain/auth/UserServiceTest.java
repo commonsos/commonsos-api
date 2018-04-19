@@ -58,7 +58,8 @@ public class UserServiceTest {
 
   @Test
   public void privateView() {
-    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya").setAdmin(true);
+    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya")
+      .setAvatarUrl("/avatar.png").setAdmin(true);
     when(transactionService.balance(user)).thenReturn(BigDecimal.TEN);
 
     UserPrivateView view = service.privateView(user);
@@ -68,6 +69,7 @@ public class UserServiceTest {
     assertThat(view.getBalance()).isEqualTo(BigDecimal.TEN);
     assertThat(view.getFullName()).isEqualTo("last first");
     assertThat(view.getLocation()).isEqualTo("Shibuya");
+    assertThat(view.getAvatarUrl()).isEqualTo("/avatar.png");
   }
 
   @Test
@@ -101,13 +103,14 @@ public class UserServiceTest {
 
   @Test
   public void view() {
-    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya");
+    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya").setAvatarUrl("/avatar.png");
 
     UserView view = service.view(user);
 
     assertThat(view.getId()).isEqualTo("user id");
     assertThat(view.getFullName()).isEqualTo("last first");
     assertThat(view.getLocation()).isEqualTo("Shibuya");
+    assertThat(view.getAvatarUrl()).isEqualTo("/avatar.png");
   }
 
   @Test
