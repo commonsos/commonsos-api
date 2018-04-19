@@ -4,6 +4,8 @@ import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserService;
+import commonsos.domain.auth.UserView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,6 +31,7 @@ public class AdServiceTest {
 
   @Mock AdRepository repository;
   @Mock AgreementService agreementService;
+  @Mock UserService userService;
   @InjectMocks @Spy AdService service;
 
   @Test
@@ -106,10 +109,12 @@ public class AdServiceTest {
       .setTitle("title")
       .setCreatedAt(createdAt)
       .setPhotoUrl("photo url");
+    UserView userView = new UserView();
+    when(userService.view("worker")).thenReturn(userView);
 
     AdView view = service.view(ad, new User().setId("worker"));
 
-    assertThat(view.getCreatedBy()).isEqualTo("worker");
+    assertThat(view.getCreatedBy()).isEqualTo(userView);
     assertThat(view.getDescription()).isEqualTo("description");
     assertThat(view.getId()).isEqualTo("11");
     assertThat(view.getLocation()).isEqualTo("home");

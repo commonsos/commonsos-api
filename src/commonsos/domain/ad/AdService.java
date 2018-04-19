@@ -4,6 +4,7 @@ import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,6 +17,7 @@ import static java.util.stream.Collectors.toList;
 public class AdService {
   @Inject AdRepository repository;
   @Inject AgreementService agreementService;
+  @Inject UserService userService;
 
   public void create(User user, Ad ad) {
     ad.setCreatedBy(user.getId());
@@ -34,7 +36,7 @@ public class AdService {
   protected AdView view(Ad ad, User user) {
     return new AdView()
       .setId(ad.getId())
-      .setCreatedBy(ad.getCreatedBy())
+      .setCreatedBy(userService.view(ad.getCreatedBy()))
       .setTitle(ad.getTitle())
       .setDescription(ad.getDescription())
       .setPoints(ad.getPoints())
