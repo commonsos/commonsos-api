@@ -19,9 +19,15 @@ public class AdService {
   @Inject AgreementService agreementService;
   @Inject UserService userService;
 
-  public void create(User user, Ad ad) {
-    ad.setCreatedBy(user.getId());
-    ad.setCreatedAt(now());
+  public void create(User user, AdCreateCommand command) {
+    Ad ad = new Ad()
+      .setCreatedBy(user.getId())
+      .setCreatedAt(now())
+      .setTitle(command.getTitle())
+      .setDescription(command.getDescription())
+      .setLocation(command.getLocation())
+      .setPoints(command.getAmount());
+
     repository.create(ad);
   }
 

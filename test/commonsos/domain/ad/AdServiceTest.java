@@ -8,11 +8,10 @@ import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,6 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,17 +30,27 @@ public class AdServiceTest {
   @Mock AdRepository repository;
   @Mock AgreementService agreementService;
   @Mock UserService userService;
+  @Captor ArgumentCaptor<Ad> adCaptor;
   @InjectMocks @Spy AdService service;
 
   @Test
   public void create() {
-    Ad ad = new Ad();
+    AdCreateCommand command = new AdCreateCommand()
+      .setTitle("title")
+      .setDescription("description")
+      .setAmount(BigDecimal.TEN)
+      .setLocation("location");
 
-    service.create(new User().setId("user id"), ad);
+    service.create(new User().setId("user id"), command);
 
-    verify(repository).create(ad);
-    assertEquals("user id", ad.getCreatedBy());
+    verify(repository).create(adCaptor.capture());
+    Ad ad = adCaptor.getValue();
+    assertThat(ad.getCreatedBy()).isEqualTo("user id");
     assertThat(ad.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+    assertThat(ad.getTitle()).isEqualTo(command.getTitle());
+    assertThat(ad.getDescription()).isEqualTo(command.getDescription());
+    assertThat(ad.getPoints()).isEqualTo(command.getAmount());
+    assertThat(ad.getLocation()).isEqualTo(command.getLocation());
   }
 
   @Test

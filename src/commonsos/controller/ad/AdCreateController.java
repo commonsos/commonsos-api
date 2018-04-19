@@ -2,7 +2,7 @@ package commonsos.controller.ad;
 
 import com.google.gson.Gson;
 import commonsos.controller.Controller;
-import commonsos.domain.ad.Ad;
+import commonsos.domain.ad.AdCreateCommand;
 import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.User;
 import spark.Request;
@@ -16,8 +16,8 @@ public class AdCreateController extends Controller {
   @Inject Gson gson;
 
   @Override public Object handle(User user, Request request, Response response) {
-    Ad ad = gson.fromJson(request.body(), Ad.class);
-    service.create(user, ad);
+    AdCreateCommand command = gson.fromJson(request.body(), AdCreateCommand.class);
+    service.create(user, command);
     return "";
   }
 }

@@ -1,7 +1,7 @@
 package commonsos.controller.ad;
 
 import com.google.gson.Gson;
-import commonsos.domain.ad.Ad;
+import commonsos.domain.ad.AdCreateCommand;
 import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.User;
 import org.junit.Before;
@@ -34,17 +34,17 @@ public class AdCreateControllerTest {
 
   @Test
   public void handle() throws Exception {
-    when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"points\": \"123.456\", \"location\": \"location\"}");
+    when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"amount\": \"123.456\", \"location\": \"location\"}");
     User user = new User().setId("user id");
 
     controller.handle(user, request, null);
 
-    ArgumentCaptor<Ad> captor = ArgumentCaptor.forClass(Ad.class);
+    ArgumentCaptor<AdCreateCommand> captor = ArgumentCaptor.forClass(AdCreateCommand.class);
     verify(service).create(eq(user), captor.capture());
-    Ad ad = captor.getValue();
+    AdCreateCommand ad = captor.getValue();
     assertEquals("title", ad.getTitle());
     assertEquals("description", ad.getDescription());
-    assertEquals(new BigDecimal("123.456"), ad.getPoints());
+    assertEquals(new BigDecimal("123.456"), ad.getAmount());
     assertEquals("location", ad.getLocation());
   }
 }
