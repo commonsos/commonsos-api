@@ -3,7 +3,6 @@ package commonsos.controller.auth;
 import commonsos.controller.Controller;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
-import commonsos.domain.auth.UserPrivateView;
 import spark.Request;
 import spark.Response;
 
@@ -15,9 +14,11 @@ public class UserController extends Controller {
 
   @Inject UserService userService;
 
-  @Override public UserPrivateView handle(User user, Request request, Response response) {
+  @Override public Object handle(User user, Request request, Response response) {
     String requestedUserId = request.params("id");
-    if (isNotBlank(requestedUserId)) return userService.privateView(user, requestedUserId);
+    if (isNotBlank(requestedUserId)) {
+      return user.isAdmin() ? userService.privateView(user, requestedUserId) : userService.view(requestedUserId);
+    }
     return userService.privateView(user);
   }
 }

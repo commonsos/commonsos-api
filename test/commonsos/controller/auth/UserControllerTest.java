@@ -3,6 +3,7 @@ package commonsos.controller.auth;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserPrivateView;
 import commonsos.domain.auth.UserService;
+import commonsos.domain.auth.UserView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,7 +26,7 @@ public class UserControllerTest {
     UserPrivateView userView = new UserPrivateView();
     when(service.privateView(new User())).thenReturn(userView);
 
-    UserPrivateView result = controller.handle(new User(), request, null);
+    Object result = controller.handle(new User(), request, null);
 
     assertThat(result).isEqualTo(userView);
   }
@@ -33,10 +34,22 @@ public class UserControllerTest {
   @Test
   public void handle_withOtherUserId() {
     when(request.params("id")).thenReturn("123");
-    UserPrivateView userView = new UserPrivateView();
-    when(service.privateView(new User(), "123")).thenReturn(userView);
+    UserView userView = new UserView();
+    when(service.view("123")).thenReturn(userView);
 
-    UserPrivateView result = controller.handle(new User(), request, null);
+    Object result = controller.handle(new User().setAdmin(false), request, null);
+
+    assertThat(result).isEqualTo(userView);
+  }
+
+  @Test
+  public void handle_withOtherUserId_admin() {
+    when(request.params("id")).thenReturn("123");
+    UserPrivateView userView = new UserPrivateView();
+    User user = new User().setAdmin(true);
+    when(service.privateView(user, "123")).thenReturn(userView);
+
+    Object result = controller.handle(user, request, null);
 
     assertThat(result).isEqualTo(userView);
   }
