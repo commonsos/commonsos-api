@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
+import static java.time.temporal.ChronoUnit.HOURS;
 
 @Singleton
 public class DemoData {
@@ -38,7 +39,7 @@ public class DemoData {
     User bank = userService.create(new AccountCreateCommand().setUsername(UUID.randomUUID().toString()).setPassword(UUID.randomUUID().toString()).setFirstName("Bank").setLastName(" "))
       .setAdmin(true).setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPlkwhBse_JCK37_0WA3m_PHUpFncOVLM0s0c4cCqpV27UteuJ");
 
-    transactionService.create(new Transaction().setRemitterId(bank.getId()).setAmount(new BigDecimal("10000000")).setBeneficiaryId(admin.getId()).setDescription("Initial emission to community").setCreatedAt(OffsetDateTime.now()));
+    transactionService.create(new Transaction().setRemitterId(bank.getId()).setAmount(new BigDecimal("10000000")).setBeneficiaryId(admin.getId()).setDescription("Initial emission to community").setCreatedAt(OffsetDateTime.now().minus(1, HOURS)));
     transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality").setCreatedAt(OffsetDateTime.now()));
     transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality").setCreatedAt(OffsetDateTime.now()));
 
