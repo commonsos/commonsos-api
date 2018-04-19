@@ -11,11 +11,13 @@ import commonsos.domain.transaction.TransactionService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.TEN;
+import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 @Singleton
@@ -45,9 +47,15 @@ public class DemoData {
     User bank = userService.create(new AccountCreateCommand().setUsername(UUID.randomUUID().toString()).setPassword(UUID.randomUUID().toString()).setFirstName("Bank").setLastName(" "))
       .setAdmin(true).setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPlkwhBse_JCK37_0WA3m_PHUpFncOVLM0s0c4cCqpV27UteuJ").setDescription("Not a real user.");
 
-    transactionService.create(new Transaction().setRemitterId(bank.getId()).setAmount(new BigDecimal("10000000")).setBeneficiaryId(admin.getId()).setDescription("Initial emission to community").setCreatedAt(OffsetDateTime.now().minus(1, HOURS)));
-    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality").setCreatedAt(OffsetDateTime.now()));
-    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality").setCreatedAt(OffsetDateTime.now()));
+    transactionService.create(new Transaction().setRemitterId(bank.getId()).setAmount(new BigDecimal("10000000")).setBeneficiaryId(admin.getId()).setDescription("Initial emission to community").setCreatedAt(now().minus(9, HOURS)));
+
+    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(5, HOURS)));
+    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(4, HOURS)));
+
+    transactionService.create(new Transaction().setBeneficiaryId("0").setRemitterId("1").setAmount(TEN).setCreatedAt(now().minus(1, HOURS)));
+    transactionService.create(new Transaction().setBeneficiaryId("1").setRemitterId("0").setAmount(ONE).setCreatedAt(now()));
+    transactionService.create(new Transaction().setBeneficiaryId("2").setRemitterId("1").setAmount(ONE.add(ONE)).setCreatedAt(now().minus(3, HOURS)));
+    transactionService.create(new Transaction().setBeneficiaryId("0").setRemitterId("2").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(51, HOURS)));
 
     adService.create(worker, new AdCreateCommand()
         .setType(GIVE)
