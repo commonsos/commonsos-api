@@ -71,7 +71,7 @@ public class TransactionService {
   }
 
   public void create(User user, TransactionCreateCommand command) {
-    //todo check beneficiary
+    userService.user(command.getBeneficiaryId());
     BigDecimal balance = balance(user);
     if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");
     

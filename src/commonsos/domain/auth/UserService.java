@@ -71,7 +71,7 @@ public class UserService {
     return view(user(id));
   }
 
-  private User user(String id) {
+  public User user(String id) {
     return repository.findById(id).orElseThrow(BadRequestException::new);
   }
 

@@ -1,5 +1,6 @@
 package commonsos.domain.transaction;
 
+import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
@@ -53,10 +54,7 @@ public class TransactionServiceTest {
 
   @Test
   public void create() {
-    TransactionCreateCommand command = new TransactionCreateCommand()
-      .setBeneficiaryId("beneficiary")
-      .setAmount(new BigDecimal("10.2"))
-      .setDescription("description");
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description");
     User user = new User().setId("remitter");
     doReturn(new BigDecimal("10.20")).when(service).balance(user);
 
@@ -71,18 +69,30 @@ public class TransactionServiceTest {
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 
+  private TransactionCreateCommand command(String beneficiary, String amount, String description) {
+    return new TransactionCreateCommand()
+      .setBeneficiaryId(beneficiary)
+      .setAmount(new BigDecimal(amount))
+      .setDescription(description);
+  }
+
   @Test
   public void create_insufficientBalance() {
-    TransactionCreateCommand command = new TransactionCreateCommand()
-      .setBeneficiaryId("beneficiary")
-      .setAmount(new BigDecimal("10.2"))
-      .setDescription("description");
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description");
     User user = new User().setId("remitter");
     doReturn(TEN).when(service).balance(user);
 
     DisplayableException thrown = catchThrowableOfType(() -> service.create(user, command), DisplayableException.class);
 
     assertThat(thrown).hasMessage("Not enough funds");
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_unknownBeneficiary() {
+    when(userService.user("unknown")).thenThrow(new BadRequestException());
+    TransactionCreateCommand command = command("unknown", "10.2", "description");
+
+    service.create(new User(), command);
   }
 
   @Test
