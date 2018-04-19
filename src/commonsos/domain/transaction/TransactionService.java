@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.math.BigDecimal.ZERO;
@@ -52,7 +53,10 @@ public class TransactionService {
   }
 
   public List<TransactionView> transactions(User user) {
-    return repository.transactions(user).stream().map(transaction -> view(user, transaction)).collect(toList());
+    return repository.transactions(user).stream()
+      .sorted(Comparator.comparing(Transaction::getCreatedAt).reversed())
+      .map(transaction -> view(user, transaction))
+      .collect(toList());
   }
 
   public TransactionView view(User user, Transaction transaction) {

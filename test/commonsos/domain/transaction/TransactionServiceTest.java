@@ -20,6 +20,7 @@ import java.util.Optional;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static java.time.OffsetDateTime.now;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
@@ -154,13 +155,16 @@ public class TransactionServiceTest {
   @Test
   public void transactions() {
     User user = new User();
-    Transaction transaction = new Transaction();
-    when(repository.transactions(user)).thenReturn(asList(transaction));
-    TransactionView transactionView = new TransactionView();
-    doReturn(transactionView).when(service).view(user, transaction);
+    Transaction transaction1 = new Transaction().setCreatedAt(now().minus(1, HOURS));
+    Transaction transaction2 = new Transaction().setCreatedAt(now());
+    when(repository.transactions(user)).thenReturn(asList(transaction1, transaction2));
+    TransactionView transactionView1 = new TransactionView();
+    TransactionView transactionView2 = new TransactionView();
+    doReturn(transactionView1).when(service).view(user, transaction1);
+    doReturn(transactionView2).when(service).view(user, transaction2);
 
     List<TransactionView> result = service.transactions(user);
 
-    assertThat(result).isEqualTo(asList(transactionView));
+    assertThat(result).isEqualTo(asList(transactionView2, transactionView1));
   }
 }
