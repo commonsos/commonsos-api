@@ -19,4 +19,5 @@ public class AdView {
   private boolean acceptable;
   private OffsetDateTime createdAt;
   private String photoUrl;
+  private AdType type;
 }

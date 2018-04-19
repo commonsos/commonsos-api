@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
 public class Ad {
   private String id;
   private String createdBy;
+  private AdType type;
   private String title;
   private String description;
   private BigDecimal points;
