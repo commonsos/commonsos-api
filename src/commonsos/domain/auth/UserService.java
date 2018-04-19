@@ -56,6 +56,7 @@ public class UserService {
       .setPasswordHash(passwordService.hash(command.getPassword()))
       .setFirstName(command.getFirstName())
       .setLastName(command.getLastName())
+      .setDescription(command.getDescription())
       .setLocation(command.getLocation());
 
     return repository.create(user);

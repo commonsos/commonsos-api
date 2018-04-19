@@ -12,5 +12,6 @@ public class AccountCreateCommand {
   private String password;
   private String firstName;
   private String lastName;
+  private String description;
   private String location;
 }

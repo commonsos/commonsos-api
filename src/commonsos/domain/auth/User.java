@@ -14,6 +14,7 @@ public class User {
   String passwordHash;
   String firstName;
   String lastName;
+  String description;
   String location;
   String avatarUrl;
 }

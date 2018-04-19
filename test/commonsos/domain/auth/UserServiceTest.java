@@ -124,6 +124,7 @@ public class UserServiceTest {
       .setPassword("secret78")
       .setFirstName("first")
       .setLastName("last")
+      .setDescription("description")
       .setLocation("Shibuya")
     );
 
@@ -133,6 +134,7 @@ public class UserServiceTest {
       .setPasswordHash("hash")
       .setFirstName("first")
       .setLastName("last")
+      .setDescription("description")
       .setLocation("Shibuya")
     );
   }
