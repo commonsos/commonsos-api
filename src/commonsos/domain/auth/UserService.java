@@ -76,7 +76,10 @@ public class UserService {
   }
 
   public UserView view(User user) {
-    return new UserView().setId(user.getId()).setFullName(fullName(user));
+    return new UserView()
+      .setId(user.getId())
+      .setFullName(fullName(user))
+      .setLocation(user.getLocation());
   }
 
   public List<UserView> searchUsers(User user, String query) {

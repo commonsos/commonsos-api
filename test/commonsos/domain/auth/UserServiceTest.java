@@ -101,12 +101,13 @@ public class UserServiceTest {
 
   @Test
   public void view() {
-    User user = new User().setId("user id").setFirstName("first").setLastName("last");
+    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya");
 
     UserView view = service.view(user);
 
     assertThat(view.getId()).isEqualTo("user id");
     assertThat(view.getFullName()).isEqualTo("last first");
+    assertThat(view.getLocation()).isEqualTo("Shibuya");
   }
 
   @Test
