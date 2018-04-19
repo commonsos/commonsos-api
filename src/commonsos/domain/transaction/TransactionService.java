@@ -62,6 +62,7 @@ public class TransactionService {
       .setRemitter(remitter)
       .setBeneficiary(beneficiary)
       .setAmount(transaction.getAmount())
+      .setDescription(transaction.getDescription())
       .setCreatedAt(transaction.getCreatedAt())
       .setDebit(isDebit(user, transaction));
   }

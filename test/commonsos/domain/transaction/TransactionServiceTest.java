@@ -140,11 +140,13 @@ public class TransactionServiceTest {
         .setBeneficiaryId("beneficiary id")
         .setRemitterId("remitter id")
         .setAmount(TEN)
+        .setDescription("description")
         .setCreatedAt(OffsetDateTime.MAX));
 
     assertThat(view.getBeneficiary()).isEqualTo(beneficiary);
     assertThat(view.getRemitter()).isEqualTo(remitter);
     assertThat(view.getAmount()).isEqualTo(TEN);
+    assertThat(view.getDescription()).isEqualTo("description");
     assertThat(view.getCreatedAt()).isEqualTo(OffsetDateTime.MAX);
     assertThat(view.isDebit()).isTrue();
   }

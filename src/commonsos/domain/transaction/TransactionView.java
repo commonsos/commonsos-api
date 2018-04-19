@@ -13,6 +13,7 @@ public class TransactionView {
   private UserView remitter;
   private UserView beneficiary;
   private BigDecimal amount;
+  private String description;
   private OffsetDateTime createdAt;
   private boolean debit;
 }
