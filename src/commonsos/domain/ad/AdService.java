@@ -19,7 +19,7 @@ public class AdService {
   @Inject AgreementService agreementService;
   @Inject UserService userService;
 
-  public void create(User user, AdCreateCommand command) {
+  public Ad create(User user, AdCreateCommand command) {
     Ad ad = new Ad()
       .setCreatedBy(user.getId())
       .setCreatedAt(now())
@@ -29,7 +29,7 @@ public class AdService {
       .setLocation(command.getLocation())
       .setPoints(command.getAmount());
 
-    repository.create(ad);
+    return repository.create(ad);
   }
 
   public List<AdView> all(User user) {
