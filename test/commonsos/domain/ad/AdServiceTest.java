@@ -15,8 +15,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
+import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
 import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
@@ -130,9 +133,27 @@ public class AdServiceTest {
     assertThat(view.getPoints()).isEqualTo(TEN);
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.isOwn()).isEqualTo(true);
+    assertThat(view.isPayable()).isEqualTo(false);
     assertThat(view.getCreatedAt()).isEqualTo(createdAt);
     assertThat(view.getPhotoUrl()).isEqualTo("photo url");
     assertThat(view.getType()).isEqualTo(WANT);
+  }
+
+  @Test
+  public void view_payable() {
+    OffsetDateTime createdAt = now();
+    Ad ad = new Ad()
+      .setCreatedBy("worker")
+      .setType(GIVE)
+      .setPoints(TEN);
+    UserView userView = new UserView();
+    when(userService.view("worker")).thenReturn(userView);
+
+    AdView view = service.view(ad, new User().setId("elderly"));
+
+    assertThat(view.isOwn()).isEqualTo(false);
+    assertThat(view.isPayable()).isEqualTo(true);
+    assertThat(view.getType()).isEqualTo(GIVE);
   }
 
   @Test
@@ -141,6 +162,23 @@ public class AdServiceTest {
 
     assertThat(service.isOwn(ad, new User().setId("worker"))).isTrue();
     assertThat(service.isOwn(ad, new User().setId("stranger"))).isFalse();
+  }
+
+  @Test
+  public void isPayable() {
+    User me = new User().setId("me");
+    User otherUser = new User().setId("other");
+
+    Ad buyAd = new Ad().setCreatedBy("other").setType(AdType.WANT).setPoints(ONE);
+    Ad sellAd = new Ad().setCreatedBy("other").setType(GIVE).setPoints(ONE);
+    Ad sellAdWithZeroPrice = new Ad().setCreatedBy("other").setType(GIVE).setPoints(ZERO);
+
+    assertThat(service.isPayable(sellAd, me)).isTrue();
+
+    assertThat(service.isPayable(sellAdWithZeroPrice, me)).isFalse();
+    assertThat(service.isPayable(buyAd, me)).isFalse();
+    assertThat(service.isPayable(sellAd, otherUser)).isFalse();
+    assertThat(service.isPayable(buyAd, otherUser)).isFalse();
   }
 
   @Test

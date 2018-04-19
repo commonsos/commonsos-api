@@ -10,6 +10,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
+import static commonsos.domain.ad.AdType.*;
+import static java.math.BigDecimal.ZERO;
 import static java.time.OffsetDateTime.now;
 import static java.util.stream.Collectors.toList;
 
@@ -50,12 +52,18 @@ public class AdService {
       .setPoints(ad.getPoints())
       .setLocation(ad.getLocation())
       .setOwn(isOwn(ad, user))
+      .setPayable(isPayable(ad, user))
       .setCreatedAt(ad.getCreatedAt())
       .setPhotoUrl(ad.getPhotoUrl());
   }
 
   boolean isOwn(Ad ad, User user) {
     return ad.getCreatedBy().equals(user.getId());
+  }
+
+
+  public boolean isPayable(Ad ad, User user) {
+    return ZERO.compareTo(ad.getPoints()) < 0 && !isOwn(ad, user) && GIVE == ad.getType();
   }
 
   public Ad accept(User user, String id) {
