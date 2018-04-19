@@ -33,6 +33,7 @@ public class UserService {
       .setBalance(balance)
       .setFullName(fullName(user))
       .setLocation(user.location)
+      .setDescription(user.getDescription())
       .setAvatarUrl(user.getAvatarUrl());
   }
 
@@ -82,6 +83,7 @@ public class UserService {
       .setId(user.getId())
       .setFullName(fullName(user))
       .setLocation(user.getLocation())
+      .setDescription(user.getDescription())
       .setAvatarUrl(user.getAvatarUrl());
   }
 

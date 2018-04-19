@@ -11,6 +11,7 @@ public class UserPrivateView {
   private String id;
   private boolean admin;
   private String fullName;
+  private String description;
   private BigDecimal balance;
   private String location;
   private String avatarUrl;
