@@ -75,7 +75,13 @@ public class TransactionServiceTest {
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 
-  @Test
+  @Test(expected = BadRequestException.class)
+  public void create_descriptionIsMandatory() {
+    TransactionCreateCommand command = command("beneficiary", "10.2", " ", null);
+
+    service.create(new User().setId("remitter"), command);
+  }
+
   public void create_transactionWithoutAd() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
     User user = new User().setId("remitter");

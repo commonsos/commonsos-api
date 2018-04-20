@@ -19,6 +19,7 @@ import java.util.List;
 
 import static java.math.BigDecimal.ZERO;
 import static java.util.stream.Collectors.toList;
+import static spark.utils.StringUtils.isBlank;
 
 @Singleton
 public class TransactionService {
@@ -80,6 +81,7 @@ public class TransactionService {
   }
 
   public void create(User user, TransactionCreateCommand command) {
+    if (isBlank(command.getDescription()))  throw new BadRequestException();
     if (user.getId().equals(command.getBeneficiaryId())) throw new BadRequestException();
     userService.user(command.getBeneficiaryId());
 
