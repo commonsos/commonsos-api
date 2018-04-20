@@ -141,7 +141,6 @@ public class AdServiceTest {
 
   @Test
   public void view_payable() {
-    OffsetDateTime createdAt = now();
     Ad ad = new Ad()
       .setCreatedBy("worker")
       .setType(GIVE)
@@ -184,20 +183,28 @@ public class AdServiceTest {
   @Test
   public void ad() {
     Ad ad = new Ad();
-    User user = new User();
     when(repository.find("ad id")).thenReturn(Optional.of(ad));
-    AdView adView = new AdView();
-    doReturn(adView).when(service).view(ad, user);
 
-    AdView result = service.ad(user, "ad id");
-
-    assertThat(result).isEqualTo(adView);
+    assertThat(service.ad("ad id")).isEqualTo(ad);
   }
 
-  @Test(expected= BadRequestException.class)
+  @Test(expected=BadRequestException.class)
   public void ad_notFound() {
     when(repository.find("ad id")).thenReturn(Optional.empty());
 
-    service.ad(new User(), "ad id");
+    service.ad("ad id");
+  }
+
+  @Test
+  public void viewById() {
+    User user = new User();
+    AdView adView = new AdView();
+    Ad ad = new Ad();
+    doReturn(adView).when(service).view(ad, user);
+    doReturn(ad).when(service).ad("ad id");
+
+    AdView result = service.view(user, "ad id");
+
+    assertThat(result).isEqualTo(adView);
   }
 }

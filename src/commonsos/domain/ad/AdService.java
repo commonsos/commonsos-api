@@ -57,6 +57,10 @@ public class AdService {
       .setPhotoUrl(ad.getPhotoUrl());
   }
 
+  public AdView view(User user, String adId) {
+    return view(ad(adId), user);
+  }
+
   boolean isOwn(Ad ad, User user) {
     return ad.getCreatedBy().equals(user.getId());
   }
@@ -74,7 +78,7 @@ public class AdService {
     return ad;
   }
 
-  public AdView ad(User user, String id) {
-    return view(repository.find(id).orElseThrow(BadRequestException::new), user);
+  public Ad ad(String id) {
+    return repository.find(id).orElseThrow(BadRequestException::new);
   }
 }

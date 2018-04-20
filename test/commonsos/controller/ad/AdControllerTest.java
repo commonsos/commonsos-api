@@ -25,7 +25,7 @@ public class AdControllerTest {
     when(request.params("id")).thenReturn("ad id");
     User user = new User();
     AdView adView = new AdView();
-    when(service.ad(user, "ad id")).thenReturn(adView);
+    when(service.view(user, "ad id")).thenReturn(adView);
 
     AdView result = controller.handle(user, request, null);
 

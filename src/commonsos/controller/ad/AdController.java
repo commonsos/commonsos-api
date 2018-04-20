@@ -13,6 +13,6 @@ public class AdController extends Controller {
   @Inject AdService service;
 
   @Override public AdView handle(User user, Request request, Response response) {
-    return service.ad(user, request.params("id"));
+    return service.view(user, request.params("id"));
   }
 }
