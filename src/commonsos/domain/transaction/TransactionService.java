@@ -1,7 +1,9 @@
 package commonsos.domain.transaction;
 
+import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.ad.AdView;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
@@ -79,7 +81,10 @@ public class TransactionService {
 
   public void create(User user, TransactionCreateCommand command) {
     userService.user(command.getBeneficiaryId());
-    adService.ad(user, command.getAdId());
+    if (command.getAdId() != null) {
+      AdView ad = adService.ad(user, command.getAdId());
+      if (!command.getBeneficiaryId().equals(ad.getCreatedBy().getId())) throw new BadRequestException();
+    }
     BigDecimal balance = balance(user);
     if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");
     

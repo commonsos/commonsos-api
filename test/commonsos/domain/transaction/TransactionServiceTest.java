@@ -3,6 +3,7 @@ package commonsos.domain.transaction;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.ad.AdView;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
@@ -60,6 +61,7 @@ public class TransactionServiceTest {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
     User user = new User().setId("remitter");
     doReturn(new BigDecimal("10.20")).when(service).balance(user);
+    when(adService.ad(user, "ad id")).thenReturn(new AdView().setCreatedBy(new UserView().setId("beneficiary")));
 
     service.create(user, command);
 
@@ -74,6 +76,17 @@ public class TransactionServiceTest {
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 
+  @Test
+  public void create_transactionWithoutAd() {
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
+    User user = new User().setId("remitter");
+    doReturn(new BigDecimal("10.20")).when(service).balance(user);
+
+    service.create(user, command);
+
+    verify(repository).create(any());
+  }
+
   private TransactionCreateCommand command(String beneficiary, String amount, String description, String adId) {
     return new TransactionCreateCommand()
       .setBeneficiaryId(beneficiary)
@@ -84,9 +97,10 @@ public class TransactionServiceTest {
 
   @Test
   public void create_insufficientBalance() {
-    TransactionCreateCommand command = command("beneficiary", "10.2", "description", "33");
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
     User user = new User().setId("remitter");
     doReturn(TEN).when(service).balance(user);
+    when(adService.ad(user, "ad id")).thenReturn(new AdView().setCreatedBy(new UserView().setId("beneficiary")));
 
     DisplayableException thrown = catchThrowableOfType(() -> service.create(user, command), DisplayableException.class);
 
@@ -106,6 +120,15 @@ public class TransactionServiceTest {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "unknown ad");
     User user = new User().setId("remitter");
     when(adService.ad(user, "unknown ad")).thenThrow(new BadRequestException());
+
+    service.create(user, command);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_beneficiaryDontMatchWithAdOwner() {
+    TransactionCreateCommand command = command("not ad owner", "10.2", "description", "unknown ad");
+    User user = new User().setId("remitter");
+    when(adService.ad(user, "unknown ad")).thenReturn(new AdView().setCreatedBy(new UserView().setId("ad owner")));
 
     service.create(user, command);
   }
