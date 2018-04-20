@@ -1,5 +1,6 @@
 package commonsos;
 
+import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdCreateCommand;
 import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.AccountCreateCommand;
@@ -15,9 +16,9 @@ import java.util.UUID;
 
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
-import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static java.time.OffsetDateTime.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 @Singleton
@@ -47,25 +48,20 @@ public class DemoData {
     User bank = userService.create(new AccountCreateCommand().setUsername(UUID.randomUUID().toString()).setPassword(UUID.randomUUID().toString()).setFirstName("Bank").setLastName(" "))
       .setAdmin(true).setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPlkwhBse_JCK37_0WA3m_PHUpFncOVLM0s0c4cCqpV27UteuJ").setDescription("Not a real user.");
 
-    transactionService.create(new Transaction().setRemitterId(bank.getId()).setAmount(new BigDecimal("10000000")).setBeneficiaryId(admin.getId()).setDescription("Initial emission to community").setCreatedAt(now().minus(9, HOURS)));
+    transactionService.create(new Transaction().setRemitterId(bank.getId()).setAmount(new BigDecimal("10000000")).setBeneficiaryId(admin.getId()).setDescription("Initial emission to community").setCreatedAt(now().minus(9, DAYS)));
 
-    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(5, HOURS)));
-    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(4, HOURS)));
+    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(5, DAYS)));
+    transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(4, DAYS)));
 
-    transactionService.create(new Transaction().setBeneficiaryId("0").setRemitterId("1").setAmount(TEN).setCreatedAt(now().minus(1, HOURS)));
-    transactionService.create(new Transaction().setBeneficiaryId("1").setRemitterId("0").setAmount(ONE).setCreatedAt(now()));
-    transactionService.create(new Transaction().setBeneficiaryId("2").setRemitterId("1").setAmount(ONE.add(ONE)).setCreatedAt(now().minus(3, HOURS)));
-    transactionService.create(new Transaction().setBeneficiaryId("0").setRemitterId("2").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(51, HOURS)));
+    Ad workerAd = adService.create(worker, new AdCreateCommand()
+      .setType(GIVE)
+      .setTitle("House cleaning")
+      .setDescription("Vacuum cleaning, moist cleaning, floors etc")
+      .setAmount(new BigDecimal("1299.01"))
+      .setLocation("Kaga city")
+    ).setPhotoUrl("/static/temp/sample-photo-apartment1.jpg");
 
-    adService.create(worker, new AdCreateCommand()
-        .setType(GIVE)
-        .setTitle("House cleaning")
-        .setDescription("Vacuum cleaning, moist cleaning, floors etc")
-        .setAmount(new BigDecimal("1299.01"))
-        .setLocation("Kaga city")
-      ).setPhotoUrl("/static/temp/sample-photo-apartment1.jpg");
-
-    adService.create(elderly1, new AdCreateCommand()
+    Ad elderly1Ad = adService.create(elderly1, new AdCreateCommand()
         .setType(WANT)
         .setTitle("Shopping agent")
         .setDescription("Thank you for reading this article. I had traffic accident last year and chronic pain on left leg\uD83D\uDE22 I want anyone to help me by going shopping to a grocery shop once a week.")
@@ -73,12 +69,17 @@ public class DemoData {
         .setLocation("Kumasakamachi 熊坂町")
       ).setPhotoUrl("/static/temp/shop.jpeg");
 
-    adService.create(elderly2, new AdCreateCommand()
+    Ad elderly2Ad = adService.create(elderly2, new AdCreateCommand()
         .setType(WANT)
         .setTitle("小川くん、醤油かってきて")
         .setDescription("刺し身買ってきたから")
-        .setAmount(new BigDecimal("1"))
+        .setAmount(new BigDecimal("20"))
         .setLocation("kaga")
       ).setPhotoUrl("/static/temp/soy.jpeg");
+
+    transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly1.getId()).setAdId(workerAd.getId()).setDescription("Ad: House cleaning (agreed price)").setAmount(new BigDecimal("999.99")).setCreatedAt(now().minus(2, DAYS)));
+    transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(workerAd.getId()).setDescription("Ad: House cleaning").setAmount(new BigDecimal("1299.01")).setCreatedAt(now().minus(1, DAYS)));
+    transactionService.create(new Transaction().setBeneficiaryId(elderly2.getId()).setRemitterId(elderly1.getId()).setAdId(elderly1Ad.getId()).setDescription("Ad: Shopping agent").setAmount(new BigDecimal("300")).setCreatedAt(now().minus(3, HOURS)));
+    transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(elderly2Ad.getId()).setDescription("Ad: 小川くん、醤油かってきて").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(1, HOURS)));
   }
 }
