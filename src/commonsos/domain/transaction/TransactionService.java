@@ -80,7 +80,9 @@ public class TransactionService {
   }
 
   public void create(User user, TransactionCreateCommand command) {
+    if (user.getId().equals(command.getBeneficiaryId())) throw new BadRequestException();
     userService.user(command.getBeneficiaryId());
+
     if (command.getAdId() != null) {
       AdView ad = adService.ad(user, command.getAdId());
       if (!command.getBeneficiaryId().equals(ad.getCreatedBy().getId())) throw new BadRequestException();

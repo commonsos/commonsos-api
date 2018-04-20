@@ -112,7 +112,7 @@ public class TransactionServiceTest {
     when(userService.user("unknown")).thenThrow(new BadRequestException());
     TransactionCreateCommand command = command("unknown", "10.2", "description", "33");
 
-    service.create(new User(), command);
+    service.create(new User().setId("remitter"), command);
   }
 
   @Test(expected = BadRequestException.class)
@@ -120,6 +120,14 @@ public class TransactionServiceTest {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "unknown ad");
     User user = new User().setId("remitter");
     when(adService.ad(user, "unknown ad")).thenThrow(new BadRequestException());
+
+    service.create(user, command);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_canNotPayYourself() {
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
+    User user = new User().setId("beneficiary");
 
     service.create(user, command);
   }
