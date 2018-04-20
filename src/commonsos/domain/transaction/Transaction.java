@@ -13,6 +13,7 @@ public class Transaction {
   private String remitterId;
   private String beneficiaryId;
   private String description;
+  private String adId;
   private BigDecimal amount;
   private OffsetDateTime createdAt;
 }

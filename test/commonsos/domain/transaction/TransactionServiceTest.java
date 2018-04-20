@@ -2,6 +2,7 @@ package commonsos.domain.transaction;
 
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
+import commonsos.domain.ad.AdService;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.*;
 public class TransactionServiceTest {
 
   @Mock AgreementService agreementService;
+  @Mock AdService adService;
   @Mock UserService userService;
   @Captor ArgumentCaptor<Transaction> captor;
   @Mock TransactionRepository repository;
@@ -55,31 +57,34 @@ public class TransactionServiceTest {
 
   @Test
   public void create() {
-    TransactionCreateCommand command = command("beneficiary", "10.2", "description");
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
     User user = new User().setId("remitter");
     doReturn(new BigDecimal("10.20")).when(service).balance(user);
 
     service.create(user, command);
 
+    verify(adService).ad(user, "ad id");
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
     assertThat(transaction.getAmount()).isEqualTo(new BigDecimal("10.2"));
     assertThat(transaction.getBeneficiaryId()).isEqualTo("beneficiary");
     assertThat(transaction.getRemitterId()).isEqualTo("remitter");
     assertThat(transaction.getDescription()).isEqualTo("description");
+    assertThat(transaction.getAdId()).isEqualTo("ad id");
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 
-  private TransactionCreateCommand command(String beneficiary, String amount, String description) {
+  private TransactionCreateCommand command(String beneficiary, String amount, String description, String adId) {
     return new TransactionCreateCommand()
       .setBeneficiaryId(beneficiary)
       .setAmount(new BigDecimal(amount))
-      .setDescription(description);
+      .setDescription(description)
+      .setAdId(adId);
   }
 
   @Test
   public void create_insufficientBalance() {
-    TransactionCreateCommand command = command("beneficiary", "10.2", "description");
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description", "33");
     User user = new User().setId("remitter");
     doReturn(TEN).when(service).balance(user);
 
@@ -91,9 +96,18 @@ public class TransactionServiceTest {
   @Test(expected = BadRequestException.class)
   public void create_unknownBeneficiary() {
     when(userService.user("unknown")).thenThrow(new BadRequestException());
-    TransactionCreateCommand command = command("unknown", "10.2", "description");
+    TransactionCreateCommand command = command("unknown", "10.2", "description", "33");
 
     service.create(new User(), command);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_unknownAd() {
+    TransactionCreateCommand command = command("beneficiary", "10.2", "description", "unknown ad");
+    User user = new User().setId("remitter");
+    when(adService.ad(user, "unknown ad")).thenThrow(new BadRequestException());
+
+    service.create(user, command);
   }
 
   @Test

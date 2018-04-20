@@ -13,4 +13,5 @@ public class TransactionCreateCommand {
   private String beneficiaryId;
   private String description;
   private BigDecimal amount;
+  private String adId;
 }

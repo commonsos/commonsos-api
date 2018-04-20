@@ -1,6 +1,7 @@
 package commonsos.domain.transaction;
 
 import commonsos.DisplayableException;
+import commonsos.domain.ad.AdService;
 import commonsos.domain.agreement.Agreement;
 import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
@@ -22,6 +23,7 @@ public class TransactionService {
   @Inject AgreementService agreementService;
   @Inject TransactionRepository repository;
   @Inject UserService userService;
+  @Inject AdService adService;
 
   public Transaction claim(User user, String transactionData) {
     Agreement agreement = agreementService.findByTransactionData(transactionData).orElseThrow(() -> new DisplayableException("Code not found"));
@@ -77,6 +79,7 @@ public class TransactionService {
 
   public void create(User user, TransactionCreateCommand command) {
     userService.user(command.getBeneficiaryId());
+    adService.ad(user, command.getAdId());
     BigDecimal balance = balance(user);
     if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");
     
@@ -85,6 +88,7 @@ public class TransactionService {
       .setAmount(command.getAmount())
       .setBeneficiaryId(command.getBeneficiaryId())
       .setDescription(command.getDescription())
+      .setAdId(command.getAdId())
       .setCreatedAt(OffsetDateTime.now())
     );
   }

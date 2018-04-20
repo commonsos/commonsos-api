@@ -31,10 +31,10 @@ public class TransactionCreateControllerTest {
   public void handle() {
     User user = new User();
     Request request = mock(Request.class);
-    when(request.body()).thenReturn("{\"amount\": 10.2, \"beneficiaryId\": \"beneficiary\", \"description\": \"description\" }");
+    when(request.body()).thenReturn("{\"amount\": 10.2, \"beneficiaryId\": \"beneficiary\", \"description\": \"description\", \"adId\": \"33\" }");
 
     controller.handle(user, request, null);
 
-    verify(service).create(user, new TransactionCreateCommand().setAmount(new BigDecimal("10.2")).setBeneficiaryId("beneficiary").setDescription("description"));
+    verify(service).create(user, new TransactionCreateCommand().setAmount(new BigDecimal("10.2")).setBeneficiaryId("beneficiary").setDescription("description").setAdId("33"));
   }
 }
