@@ -6,6 +6,8 @@ import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.AccountCreateCommand;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
+import commonsos.domain.message.MessageService;
+import commonsos.domain.message.MessageThreadView;
 import commonsos.domain.transaction.Transaction;
 import commonsos.domain.transaction.TransactionService;
 
@@ -27,6 +29,7 @@ public class DemoData {
   @Inject UserService userService;
   @Inject TransactionService transactionService;
   @Inject AdService adService;
+  @Inject MessageService messageService;
 
   public void install() {
 
@@ -81,5 +84,8 @@ public class DemoData {
     transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(workerAd.getId()).setDescription("Ad: House cleaning").setAmount(new BigDecimal("1299.01")).setCreatedAt(now().minus(1, DAYS)));
     transactionService.create(new Transaction().setBeneficiaryId(elderly2.getId()).setRemitterId(elderly1.getId()).setAdId(elderly1Ad.getId()).setDescription("Ad: Shopping agent").setAmount(new BigDecimal("300")).setCreatedAt(now().minus(3, HOURS)));
     transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(elderly2Ad.getId()).setDescription("Ad: 小川くん、醤油かってきて").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(1, HOURS)));
+
+    MessageThreadView thread = messageService.thread(worker, elderly1Ad.getId());
+    MessageThreadView thread2 = messageService.thread(elderly1, elderly2Ad.getId());
   }
 }
