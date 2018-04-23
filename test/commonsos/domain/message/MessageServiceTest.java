@@ -32,11 +32,12 @@ public class MessageServiceTest {
   @Test
   public void thread_findExisting() {
     MessageThread messageThread = new MessageThread();
-    when(repository.byAdId(new User(), "ad-id")).thenReturn(Optional.of(messageThread));
+    User user = new User();
+    when(repository.byAdId(user, "ad-id")).thenReturn(Optional.of(messageThread));
     MessageThreadView messageThreadView = new MessageThreadView();
-    doReturn(messageThreadView).when(service).view(messageThread);
+    doReturn(messageThreadView).when(service).view(user, messageThread);
 
-    MessageThreadView result = service.thread(new User(), "ad-id");
+    MessageThreadView result = service.thread(user, "ad-id");
 
     assertThat(result).isSameAs(messageThreadView);
   }
@@ -50,7 +51,7 @@ public class MessageServiceTest {
     doReturn(newThread).when(service).createMessageThreadForAd(user, "ad-id");
 
     MessageThreadView messageThreadView = new MessageThreadView();
-    doReturn(messageThreadView).when(service).view(newThread);
+    doReturn(messageThreadView).when(service).view(user, newThread);
 
 
     MessageThreadView result = service.thread(user, "ad-id");
@@ -78,12 +79,13 @@ public class MessageServiceTest {
 
   @Test
   public void view() {
-    User counterparty = new User();
-    MessageThread messageThread = new MessageThread().setId("thread id").setTitle("title").setUsers(asList(counterparty));
+    User user = new User().setId("myself");
+    User counterparty = new User().setId("counterparty");
+    MessageThread messageThread = new MessageThread().setId("thread id").setTitle("title").setUsers(asList(user, counterparty));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
 
-    MessageThreadView view = service.view(messageThread);
+    MessageThreadView view = service.view(user, messageThread);
 
     assertThat(view.getId()).isEqualTo("thread id");
     assertThat(view.getTitle()).isEqualTo("title");
@@ -97,7 +99,7 @@ public class MessageServiceTest {
     MessageThread thread = new MessageThread();
     when(repository.listByUser(user)).thenReturn(asList(thread));
     MessageThreadView threadView = new MessageThreadView();
-    doReturn(threadView).when(service).view(thread);
+    doReturn(threadView).when(service).view(user, thread);
 
     List<MessageThreadView> result = service.threads(user);
 

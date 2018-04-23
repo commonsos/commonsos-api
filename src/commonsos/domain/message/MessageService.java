@@ -22,9 +22,8 @@ public class MessageService {
   @Inject private UserService userService;
 
   public MessageThreadView thread(User user, String adId) {
-    return view(
-      repository.byAdId(user, adId).orElseGet(() -> createMessageThreadForAd(user, adId))
-    );
+    MessageThread thread = repository.byAdId(user, adId).orElseGet(() -> createMessageThreadForAd(user, adId));
+    return view(user, thread);
   }
 
   MessageThread createMessageThreadForAd(User user, String adId) {
@@ -39,8 +38,12 @@ public class MessageService {
     return repository.create(messageThread);
   }
 
-  public MessageThreadView view(MessageThread thread) {
-    List<UserView> users = thread.getUsers().stream().map(userService::view).collect(toList());
+  public MessageThreadView view(User user, MessageThread thread) {
+    List<UserView> users = thread.getUsers().stream()
+      .filter(u -> !u.equals(user))
+      .map(userService::view)
+      .collect(toList());
+
     return new MessageThreadView()
       .setId(thread.getId())
       .setTitle(thread.getTitle())
@@ -49,6 +52,6 @@ public class MessageService {
   }
 
   public List<MessageThreadView> threads(User user) {
-    return repository.listByUser(user).stream().map(this::view).collect(toList());
+    return repository.listByUser(user).stream().map(thread -> view(user, thread)).collect(toList());
   }
 }
