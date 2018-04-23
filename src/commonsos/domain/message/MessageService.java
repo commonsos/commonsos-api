@@ -45,4 +45,8 @@ public class MessageService {
       .setMessages(Collections.emptyList())
       .setUsers(users);
   }
+
+  public List<MessageThreadView> threads(User user) {
+    return repository.listByUser(user).stream().map(this::view).collect(toList());
+  }
 }

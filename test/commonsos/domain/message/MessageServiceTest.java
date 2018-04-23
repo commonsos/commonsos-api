@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
@@ -88,5 +89,18 @@ public class MessageServiceTest {
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.getUsers()).containsExactly(conterpartyView);
     assertThat(view.getMessages()).isEmpty();
+  }
+
+  @Test
+  public void threads() {
+    User user = new User();
+    MessageThread thread = new MessageThread();
+    when(repository.listByUser(user)).thenReturn(asList(thread));
+    MessageThreadView threadView = new MessageThreadView();
+    doReturn(threadView).when(service).view(thread);
+
+    List<MessageThreadView> result = service.threads(user);
+
+    assertThat(result).containsExactly(threadView);
   }
 }

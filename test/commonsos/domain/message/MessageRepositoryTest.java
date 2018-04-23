@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,12 +18,12 @@ public class MessageRepositoryTest {
 
   @Test
   public void byAdId() {
-    MessageThread messageThread1 = new MessageThread().setAdId("10").setCreatedBy("me");
-    MessageThread messageThread2 = new MessageThread().setAdId("20").setCreatedBy("other-user");
-    MessageThread messageThread3 = new MessageThread().setAdId("20").setCreatedBy("me");
-    repository.threads.addAll(asList(messageThread1, messageThread2, messageThread3));
+    MessageThread thread1 = new MessageThread().setAdId("10").setCreatedBy("me");
+    MessageThread thread2 = new MessageThread().setAdId("20").setCreatedBy("other-user");
+    MessageThread thread3 = new MessageThread().setAdId("20").setCreatedBy("me");
+    repository.threads.addAll(asList(thread1, thread2, thread3));
 
-    assertThat(repository.byAdId(new User().setId("me"), "20")).contains(messageThread3);
+    assertThat(repository.byAdId(new User().setId("me"), "20")).contains(thread3);
   }
 
   @Test
@@ -40,5 +42,18 @@ public class MessageRepositoryTest {
 
     assertThat(result.getId()).isEqualTo("0");
     assertThat(repository.threads).containsExactly(messageThread);
+  }
+
+  @Test
+  public void listByUser() {
+    User user = new User().setId("1");
+    MessageThread thread1 = new MessageThread().setUsers(asList(user, new User().setId("2")));
+    MessageThread thread2 = new MessageThread().setUsers(asList(new User().setId("2"), new User().setId("3")));
+    MessageThread thread3 = new MessageThread().setUsers(asList(new User().setId("3"), user));
+    repository.threads.addAll(asList(thread1, thread2, thread3));
+
+    List<MessageThread> result = repository.listByUser(user);
+
+    assertThat(result).containsExactly(thread1, thread3);
   }
 }
