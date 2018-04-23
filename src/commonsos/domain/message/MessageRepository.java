@@ -2,12 +2,14 @@ package commonsos.domain.message;
 
 import commonsos.domain.auth.User;
 
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
+@Singleton
 public class MessageRepository {
 
   ArrayList<MessageThread> threads = new ArrayList<>();

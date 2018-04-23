@@ -7,12 +7,14 @@ import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
+@Singleton
 public class MessageService {
 
   @Inject private MessageRepository repository;
@@ -32,7 +34,7 @@ public class MessageService {
     MessageThread messageThread = new MessageThread()
       .setCreatedBy(user.getId())
       .setTitle(ad.getTitle()).setAdId(adId)
-      .setUsers(asList(adCreator));
+      .setUsers(asList(adCreator, user));
 
     return repository.create(messageThread);
   }

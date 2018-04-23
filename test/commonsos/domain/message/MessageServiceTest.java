@@ -62,7 +62,7 @@ public class MessageServiceTest {
   @Test
   public void createMessageThreadForAd() {
     User user = new User().setId("user id");
-    User counterparty = new User();
+    User counterparty = new User().setId("counterparty id");
     when(adService.ad("ad-id")).thenReturn(new Ad().setTitle("Title").setCreatedBy("ad publisher"));
     MessageThread newThread = new MessageThread();
     when(repository.create(any())).thenReturn(newThread);
@@ -71,7 +71,7 @@ public class MessageServiceTest {
     MessageThread result = service.createMessageThreadForAd(user, "ad-id");
 
     assertThat(result).isEqualTo(newThread);
-    MessageThread messageThread = new MessageThread().setAdId("ad-id").setCreatedBy("user id").setTitle("Title").setUsers(asList(counterparty));
+    MessageThread messageThread = new MessageThread().setAdId("ad-id").setCreatedBy("user id").setTitle("Title").setUsers(asList(counterparty, user));
     verify(repository).create(messageThread);
   }
 
