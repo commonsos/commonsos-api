@@ -43,7 +43,7 @@ public class MessageService {
   }
 
   private MessageThread checkAccess(User user, MessageThread thread) {
-    if (!thread.getUsers().contains(user)) throw new ForbiddenException();
+    if (!thread.getParties().contains(user)) throw new ForbiddenException();
     return thread;
   }
 
@@ -54,13 +54,13 @@ public class MessageService {
     MessageThread messageThread = new MessageThread()
       .setCreatedBy(user.getId())
       .setTitle(ad.getTitle()).setAdId(adId)
-      .setUsers(asList(adCreator, user));
+      .setParties(asList(adCreator, user));
 
     return messageThreadRepository.create(messageThread);
   }
 
   public MessageThreadView view(User user, MessageThread thread) {
-    List<UserView> users = thread.getUsers().stream()
+    List<UserView> parties = thread.getParties().stream()
       .filter(u -> !u.equals(user))
       .map(userService::view)
       .collect(toList());
@@ -71,7 +71,7 @@ public class MessageService {
       .setId(thread.getId())
       .setTitle(thread.getTitle())
       .setMessages(messages)
-      .setUsers(users);
+      .setParties(parties);
   }
 
   MessageView view(Message message) {

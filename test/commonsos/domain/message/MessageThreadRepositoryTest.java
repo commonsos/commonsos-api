@@ -47,9 +47,9 @@ public class MessageThreadRepositoryTest {
   @Test
   public void listByUser() {
     User user = new User().setId("1");
-    MessageThread thread1 = new MessageThread().setUsers(asList(user, new User().setId("2")));
-    MessageThread thread2 = new MessageThread().setUsers(asList(new User().setId("2"), new User().setId("3")));
-    MessageThread thread3 = new MessageThread().setUsers(asList(new User().setId("3"), user));
+    MessageThread thread1 = new MessageThread().setParties(asList(user, new User().setId("2")));
+    MessageThread thread2 = new MessageThread().setParties(asList(new User().setId("2"), new User().setId("3")));
+    MessageThread thread3 = new MessageThread().setParties(asList(new User().setId("3"), user));
     repository.threads.addAll(asList(thread1, thread2, thread3));
 
     List<MessageThread> result = repository.listByUser(user);

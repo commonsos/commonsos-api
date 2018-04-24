@@ -29,7 +29,7 @@ public class MessageThreadRepository {
   }
 
   public List<MessageThread> listByUser(User user) {
-    return threads.stream().filter(t -> t.getUsers().contains(user)).collect(toList());
+    return threads.stream().filter(t -> t.getParties().contains(user)).collect(toList());
   }
 
   public Optional<MessageThread> thread(String id) {

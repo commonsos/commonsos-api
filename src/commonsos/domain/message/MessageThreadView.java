@@ -11,6 +11,6 @@ import java.util.List;
 public class MessageThreadView {
   private String id;
   private String title;
-  private List<UserView> users;
+  private List<UserView> parties;
   private List<MessageView> messages;
 }

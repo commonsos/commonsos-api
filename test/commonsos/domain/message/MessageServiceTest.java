@@ -71,7 +71,7 @@ public class MessageServiceTest {
   @Test
   public void thread() {
     User user = new User().setId("user id");
-    MessageThread messageThread = new MessageThread().setUsers(asList(user));
+    MessageThread messageThread = new MessageThread().setParties(asList(user));
     when(messageThreadRepository.thread("thread-id")).thenReturn(Optional.of(messageThread));
     MessageThreadView messageThreadView = new MessageThreadView();
     doReturn(messageThreadView).when(service).view(user, messageThread);
@@ -82,7 +82,7 @@ public class MessageServiceTest {
 
   @Test(expected = ForbiddenException.class)
   public void thread_canOnlyAccessThreadParticipatingIn() {
-    MessageThread messageThread = new MessageThread().setUsers(asList(new User().setId("other user")));
+    MessageThread messageThread = new MessageThread().setParties(asList(new User().setId("other user")));
     when(messageThreadRepository.thread("thread-id")).thenReturn(Optional.of(messageThread));
 
     service.thread(new User().setId("user id"), "thread-id");
@@ -107,7 +107,7 @@ public class MessageServiceTest {
     MessageThread result = service.createMessageThreadForAd(user, "ad-id");
 
     assertThat(result).isEqualTo(newThread);
-    MessageThread messageThread = new MessageThread().setAdId("ad-id").setCreatedBy("user id").setTitle("Title").setUsers(asList(counterparty, user));
+    MessageThread messageThread = new MessageThread().setAdId("ad-id").setCreatedBy("user id").setTitle("Title").setParties(asList(counterparty, user));
     verify(messageThreadRepository).create(messageThread);
   }
 
@@ -119,7 +119,7 @@ public class MessageServiceTest {
     MessageThread messageThread = new MessageThread()
       .setId("thread id")
       .setTitle("title")
-      .setUsers(asList(user, counterparty))
+      .setParties(asList(user, counterparty))
       .setMessages(asList(message));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
@@ -130,7 +130,7 @@ public class MessageServiceTest {
 
     assertThat(view.getId()).isEqualTo("thread id");
     assertThat(view.getTitle()).isEqualTo("title");
-    assertThat(view.getUsers()).containsExactly(conterpartyView);
+    assertThat(view.getParties()).containsExactly(conterpartyView);
     assertThat(view.getMessages()).containsExactly(messageView);
   }
 
@@ -183,7 +183,7 @@ public class MessageServiceTest {
   @Test
   public void create() {
     User user = new User().setId("user id");
-    when(messageThreadRepository.thread("thread id")).thenReturn(Optional.of(new MessageThread().setUsers(asList(user))));
+    when(messageThreadRepository.thread("thread id")).thenReturn(Optional.of(new MessageThread().setParties(asList(user))));
 
     service.postMessage(user, new MessagePostCommand().setThreadId("thread id").setText("message text"));
 
@@ -198,7 +198,7 @@ public class MessageServiceTest {
 
   @Test(expected = ForbiddenException.class)
   public void create_canPostOnlyToThreadParticipatingIn() {
-    when(messageThreadRepository.thread("thread id")).thenReturn(Optional.of(new MessageThread().setUsers(asList(new User().setId("other user")))));
+    when(messageThreadRepository.thread("thread id")).thenReturn(Optional.of(new MessageThread().setParties(asList(new User().setId("other user")))));
 
     service.postMessage(new User().setId("user id"), new MessagePostCommand().setThreadId("thread id").setText("message text"));
   }
