@@ -124,7 +124,7 @@ public class MessageServiceTest {
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
     MessageView messageView = new MessageView().setId("33");
-    when(service.view(message)).thenReturn(messageView);
+    doReturn(messageView).when(service).view(message);
 
     MessageThreadView view = service.view(user, messageThread);
 
@@ -137,11 +137,22 @@ public class MessageServiceTest {
   @Test
   public void messageView() {
     OffsetDateTime messageCreated = now();
-    Message message = new Message().setId("33").setThreadId("thread id").setCreatedAt(messageCreated).setCreatedBy("myself").setText("hello");
+    Message message = new Message()
+      .setId("33")
+      .setThreadId("thread id")
+      .setCreatedAt(messageCreated)
+      .setCreatedBy("user id")
+      .setText("hello");
+    UserView userView = new UserView();
+    when(userService.view("user id")).thenReturn(userView);
 
     MessageView result = service.view(message);
 
-    assertThat(result).isEqualTo(new MessageView().setId("33").setCreatedAt(messageCreated).setCreatedBy("myself").setText("hello"));
+    assertThat(result).isEqualTo(new MessageView()
+      .setId("33")
+      .setCreatedAt(messageCreated)
+      .setCreatedBy(userView)
+      .setText("hello"));
   }
 
   @Test
