@@ -82,6 +82,7 @@ public class TransactionService {
 
   public void create(User user, TransactionCreateCommand command) {
     if (isBlank(command.getDescription()))  throw new BadRequestException();
+    if (ZERO.compareTo(command.getAmount()) > -1)  throw new BadRequestException();
     if (user.getId().equals(command.getBeneficiaryId())) throw new BadRequestException();
     userService.user(command.getBeneficiaryId());
 

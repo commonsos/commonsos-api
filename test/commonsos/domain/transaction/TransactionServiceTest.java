@@ -58,16 +58,16 @@ public class TransactionServiceTest {
 
   @Test
   public void create() {
-    TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
+    TransactionCreateCommand command = command("beneficiary", "0.01", "description", "ad id");
     User user = new User().setId("remitter");
-    doReturn(new BigDecimal("10.20")).when(service).balance(user);
+    doReturn(new BigDecimal("0.2")).when(service).balance(user);
     when(adService.ad("ad id")).thenReturn(new Ad().setCreatedBy("beneficiary"));
 
     service.create(user, command);
 
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
-    assertThat(transaction.getAmount()).isEqualTo(new BigDecimal("10.2"));
+    assertThat(transaction.getAmount()).isEqualTo(new BigDecimal("0.01"));
     assertThat(transaction.getBeneficiaryId()).isEqualTo("beneficiary");
     assertThat(transaction.getRemitterId()).isEqualTo("remitter");
     assertThat(transaction.getDescription()).isEqualTo("description");
@@ -76,10 +76,18 @@ public class TransactionServiceTest {
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_descriptionIsMandatory() {
-    TransactionCreateCommand command = command("beneficiary", "10.2", " ", null);
+  public void create_negativeAmount() {
+    service.create(new User(), command("beneficiary", "-0.01", "description", "ad id"));
+  }
 
-    service.create(new User().setId("remitter"), command);
+  @Test(expected = BadRequestException.class)
+  public void create_zeroAmount() {
+    service.create(new User(), command("beneficiary", "0.0", "description", "ad id"));
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_descriptionIsMandatory() {
+    service.create(new User(), command("beneficiary", "10.2", " ", null));
   }
 
   public void create_transactionWithoutAd() {
