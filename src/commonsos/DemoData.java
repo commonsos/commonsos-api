@@ -6,6 +6,7 @@ import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.AccountCreateCommand;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
+import commonsos.domain.message.MessagePostCommand;
 import commonsos.domain.message.MessageService;
 import commonsos.domain.message.MessageThreadView;
 import commonsos.domain.transaction.Transaction;
@@ -80,12 +81,26 @@ public class DemoData {
         .setLocation("kaga")
       ).setPhotoUrl("/static/temp/soy.jpeg");
 
+    MessageThreadView workerAdElderly1Thread = messageService.threadForAd(elderly1, workerAd.getId());
+    messageService.postMessage(elderly1, new MessagePostCommand().setThreadId(workerAdElderly1Thread.getId()).setText("Hello!"));
+    messageService.postMessage(elderly1, new MessagePostCommand().setThreadId(workerAdElderly1Thread.getId()).setText("I would like you to do cleaning in my appartement"));
+    messageService.postMessage(worker, new MessagePostCommand().setThreadId(workerAdElderly1Thread.getId()).setText("Hi, what about tomorrow in the afternoon?"));
+    messageService.postMessage(elderly1, new MessagePostCommand().setThreadId(workerAdElderly1Thread.getId()).setText("But I have a very little appartement, could it be cheaper?"));
+    messageService.postMessage(worker, new MessagePostCommand().setThreadId(workerAdElderly1Thread.getId()).setText("No problem, it will be special price for you: 999.99"));
     transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly1.getId()).setAdId(workerAd.getId()).setDescription("Ad: House cleaning (agreed price)").setAmount(new BigDecimal("999.99")).setCreatedAt(now().minus(2, DAYS)));
-    transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(workerAd.getId()).setDescription("Ad: House cleaning").setAmount(new BigDecimal("1299.01")).setCreatedAt(now().minus(1, DAYS)));
-    transactionService.create(new Transaction().setBeneficiaryId(elderly2.getId()).setRemitterId(elderly1.getId()).setAdId(elderly1Ad.getId()).setDescription("Ad: Shopping agent").setAmount(new BigDecimal("300")).setCreatedAt(now().minus(3, HOURS)));
-    transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(elderly2Ad.getId()).setDescription("Ad: 小川くん、醤油かってきて").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(1, HOURS)));
 
-    MessageThreadView thread = messageService.threadForAd(worker, elderly1Ad.getId());
-    MessageThreadView thread2 = messageService.threadForAd(elderly1, elderly2Ad.getId());
+
+    MessageThreadView workerAdElderly2Thread = messageService.threadForAd(elderly2, workerAd.getId());
+    messageService.postMessage(elderly1, new MessagePostCommand().setThreadId(workerAdElderly2Thread.getId()).setText("Hi! Would like to arrange cleaning on a weekly basis"));
+    messageService.postMessage(worker, new MessagePostCommand().setThreadId(workerAdElderly2Thread.getId()).setText("Hi! Ok, would it be ok to do the first cleaning next Tuesday?"));
+    messageService.postMessage(elderly1, new MessagePostCommand().setThreadId(workerAdElderly2Thread.getId()).setText("Yes, waiting for you."));
+    transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(workerAd.getId()).setDescription("Ad: House cleaning").setAmount(new BigDecimal("1299.01")).setCreatedAt(now().minus(1, DAYS)));
+
+    MessageThreadView elderly1AdThread = messageService.threadForAd(elderly2, elderly1Ad.getId());
+    messageService.postMessage(elderly2, new MessagePostCommand().setThreadId(elderly1AdThread.getId()).setText("Hi, I can bring you some food from the shop"));
+    transactionService.create(new Transaction().setBeneficiaryId(elderly2.getId()).setRemitterId(elderly1.getId()).setAdId(elderly1Ad.getId()).setDescription("Ad: Shopping agent").setAmount(new BigDecimal("300")).setCreatedAt(now().minus(3, HOURS)));
+
+    MessageThreadView elderly2AdThread = messageService.threadForAd(worker, elderly2Ad.getId());
+    transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(elderly2Ad.getId()).setDescription("Ad: 小川くん、醤油かってきて").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(1, HOURS)));
   }
 }

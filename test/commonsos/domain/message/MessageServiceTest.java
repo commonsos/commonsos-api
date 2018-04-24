@@ -9,16 +9,20 @@ import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,7 +30,8 @@ import static org.mockito.Mockito.*;
 
 public class MessageServiceTest {
 
-  @Mock MessageRepository repository;
+  @Mock MessageThreadRepository messageThreadRepository;
+  @Mock MessageRepository messageRepository;
   @Mock AdService adService;
   @Mock UserService userService;
   @InjectMocks @Spy MessageService service;
@@ -35,7 +40,7 @@ public class MessageServiceTest {
   public void threadForAd_findExisting() {
     MessageThread messageThread = new MessageThread();
     User user = new User();
-    when(repository.byAdId(user, "ad-id")).thenReturn(Optional.of(messageThread));
+    when(messageThreadRepository.byAdId(user, "ad-id")).thenReturn(Optional.of(messageThread));
     MessageThreadView messageThreadView = new MessageThreadView();
     doReturn(messageThreadView).when(service).view(user, messageThread);
 
@@ -47,7 +52,7 @@ public class MessageServiceTest {
   @Test
   public void threadForAd_createNewIfNotPresent() {
     User user = new User().setId("user id");
-    when(repository.byAdId(user, "ad-id")).thenReturn(Optional.empty());
+    when(messageThreadRepository.byAdId(user, "ad-id")).thenReturn(Optional.empty());
 
     MessageThread newThread = new MessageThread();
     doReturn(newThread).when(service).createMessageThreadForAd(user, "ad-id");
@@ -66,7 +71,7 @@ public class MessageServiceTest {
   public void thread() {
     User user = new User().setId("user id");
     MessageThread messageThread = new MessageThread().setUsers(asList(user));
-    when(repository.thread("thread-id")).thenReturn(Optional.of(messageThread));
+    when(messageThreadRepository.thread("thread-id")).thenReturn(Optional.of(messageThread));
     MessageThreadView messageThreadView = new MessageThreadView();
     doReturn(messageThreadView).when(service).view(user, messageThread);
 
@@ -74,16 +79,16 @@ public class MessageServiceTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void thread_onlyThreadParticipantsHaveAccess() {
+  public void thread_canOnlyAccessThreadParticipatingIn() {
     MessageThread messageThread = new MessageThread().setUsers(asList(new User().setId("other user")));
-    when(repository.thread("thread-id")).thenReturn(Optional.of(messageThread));
+    when(messageThreadRepository.thread("thread-id")).thenReturn(Optional.of(messageThread));
 
     service.thread(new User().setId("user id"), "thread-id");
   }
 
   @Test(expected = BadRequestException.class)
   public void thread_notFound() {
-    when(repository.thread("thread-id")).thenReturn(Optional.empty());
+    when(messageThreadRepository.thread("thread-id")).thenReturn(Optional.empty());
 
     service.thread(new User().setId("user id"), "thread-id");
   }
@@ -94,14 +99,14 @@ public class MessageServiceTest {
     User counterparty = new User().setId("counterparty id");
     when(adService.ad("ad-id")).thenReturn(new Ad().setTitle("Title").setCreatedBy("ad publisher"));
     MessageThread newThread = new MessageThread();
-    when(repository.create(any())).thenReturn(newThread);
+    when(messageThreadRepository.create(any(MessageThread.class))).thenReturn(newThread);
     when(userService.user("ad publisher")).thenReturn(counterparty);
 
     MessageThread result = service.createMessageThreadForAd(user, "ad-id");
 
     assertThat(result).isEqualTo(newThread);
     MessageThread messageThread = new MessageThread().setAdId("ad-id").setCreatedBy("user id").setTitle("Title").setUsers(asList(counterparty, user));
-    verify(repository).create(messageThread);
+    verify(messageThreadRepository).create(messageThread);
   }
 
 
@@ -125,12 +130,35 @@ public class MessageServiceTest {
   public void threads() {
     User user = new User();
     MessageThread thread = new MessageThread();
-    when(repository.listByUser(user)).thenReturn(asList(thread));
+    when(messageThreadRepository.listByUser(user)).thenReturn(asList(thread));
     MessageThreadView threadView = new MessageThreadView();
     doReturn(threadView).when(service).view(user, thread);
 
     List<MessageThreadView> result = service.threads(user);
 
     assertThat(result).containsExactly(threadView);
+  }
+
+  @Test
+  public void create() {
+    User user = new User().setId("user id");
+    when(messageThreadRepository.thread("thread id")).thenReturn(Optional.of(new MessageThread().setUsers(asList(user))));
+
+    service.postMessage(user, new MessagePostCommand().setThreadId("thread id").setText("message text"));
+
+    ArgumentCaptor<Message> messageArgument = ArgumentCaptor.forClass(Message.class);
+    verify(messageRepository).create(messageArgument.capture());
+    Message message = messageArgument.getValue();
+    assertThat(message.getThreadId()).isEqualTo("thread id");
+    assertThat(message.getCreatedBy()).isEqualTo("user id");
+    assertThat(message.getText()).isEqualTo("message text");
+    assertThat(message.getCreatedAt()).isCloseTo(OffsetDateTime.now(), within(1, SECONDS));
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void create_canPostOnlyToThreadParticipatingIn() {
+    when(messageThreadRepository.thread("thread id")).thenReturn(Optional.of(new MessageThread().setUsers(asList(new User().setId("other user")))));
+
+    service.postMessage(new User().setId("user id"), new MessagePostCommand().setThreadId("thread id").setText("message text"));
   }
 }

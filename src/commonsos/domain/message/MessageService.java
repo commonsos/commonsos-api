@@ -13,23 +13,25 @@ import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 
+import static java.time.OffsetDateTime.now;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class MessageService {
 
-  @Inject private MessageRepository repository;
+  @Inject private MessageThreadRepository messageThreadRepository;
+  @Inject private MessageRepository messageRepository;
   @Inject private AdService adService;
   @Inject private UserService userService;
 
   public MessageThreadView threadForAd(User user, String adId) {
-    MessageThread thread = repository.byAdId(user, adId).orElseGet(() -> createMessageThreadForAd(user, adId));
+    MessageThread thread = messageThreadRepository.byAdId(user, adId).orElseGet(() -> createMessageThreadForAd(user, adId));
     return view(user, thread);
   }
 
   public MessageThreadView thread(User user, String threadId) {
-    return repository.thread(threadId)
+    return messageThreadRepository.thread(threadId)
       .map(t -> checkAccess(user, t))
       .map(t -> view(user, t))
       .orElseThrow(BadRequestException::new);
@@ -49,7 +51,7 @@ public class MessageService {
       .setTitle(ad.getTitle()).setAdId(adId)
       .setUsers(asList(adCreator, user));
 
-    return repository.create(messageThread);
+    return messageThreadRepository.create(messageThread);
   }
 
   public MessageThreadView view(User user, MessageThread thread) {
@@ -66,6 +68,15 @@ public class MessageService {
   }
 
   public List<MessageThreadView> threads(User user) {
-    return repository.listByUser(user).stream().map(thread -> view(user, thread)).collect(toList());
+    return messageThreadRepository.listByUser(user).stream().map(thread -> view(user, thread)).collect(toList());
+  }
+
+  public void postMessage(User user, MessagePostCommand command) {
+    messageThreadRepository.thread(command.getThreadId()).map(thread -> checkAccess(user, thread));
+    messageRepository.create(new Message()
+      .setCreatedBy(user.getId())
+      .setCreatedAt(now())
+      .setThreadId(command.getThreadId())
+      .setText(command.getText()));
   }
 }
