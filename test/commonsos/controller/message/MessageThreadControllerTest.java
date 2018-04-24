@@ -14,18 +14,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MessageThreadForAdControllerTest {
+public class MessageThreadControllerTest {
 
-  @InjectMocks MessageThreadForAdController controller;
+  @InjectMocks MessageThreadController controller;
   @Mock Request request;
   @Mock MessageService service;
 
   @Test
   public void handle() {
     User user = new User();
-    when(request.params("adId")).thenReturn("ad-id");
+    when(request.params("id")).thenReturn("thread-id");
     MessageThreadView view = new MessageThreadView();
-    when(service.threadForAd(user, "ad-id")).thenReturn(view);
+    when(service.thread(user, "thread-id")).thenReturn(view);
 
     MessageThreadView result = controller.handle(user, request, null);
 

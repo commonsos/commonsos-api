@@ -19,7 +19,7 @@ public class MessageRepository {
       .stream()
       .filter(t -> t.getAdId().equals(adId))
       .filter(t -> t.getCreatedBy().equals(user.getId()))
-      .findFirst();
+      .findAny();
   }
 
   public MessageThread create(MessageThread messageThread) {
@@ -30,5 +30,9 @@ public class MessageRepository {
 
   public List<MessageThread> listByUser(User user) {
     return threads.stream().filter(t -> t.getUsers().contains(user)).collect(toList());
+  }
+
+  public Optional<MessageThread> thread(String id) {
+    return threads.stream().filter(t -> t.getId().equals(id)).findAny();
   }
 }

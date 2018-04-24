@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.inject.*;
 import commonsos.controller.ad.*;
+import commonsos.controller.message.MessageThreadController;
 import commonsos.controller.message.MessageThreadForAdController;
 import commonsos.controller.message.MessageThreadListController;
 import commonsos.controller.transaction.TransactionCreateController;
@@ -69,6 +70,7 @@ public class Server {
     post("/transactions", injector.getInstance(TransactionCreateController.class), toJson);
 
     post("/message-threads/for-ad/:adId", injector.getInstance(MessageThreadForAdController.class), toJson);
+    get("/message-threads/:id", injector.getInstance(MessageThreadController.class), toJson);
     get("/message-threads", injector.getInstance(MessageThreadListController.class), toJson);
 
     exception(BadRequestException.class, (exception, request, response) -> {

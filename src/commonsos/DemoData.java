@@ -85,7 +85,7 @@ public class DemoData {
     transactionService.create(new Transaction().setBeneficiaryId(elderly2.getId()).setRemitterId(elderly1.getId()).setAdId(elderly1Ad.getId()).setDescription("Ad: Shopping agent").setAmount(new BigDecimal("300")).setCreatedAt(now().minus(3, HOURS)));
     transactionService.create(new Transaction().setBeneficiaryId(worker.getId()).setRemitterId(elderly2.getId()).setAdId(elderly2Ad.getId()).setDescription("Ad: 小川くん、醤油かってきて").setAmount(TEN.add(TEN)).setCreatedAt(now().minus(1, HOURS)));
 
-    MessageThreadView thread = messageService.thread(worker, elderly1Ad.getId());
-    MessageThreadView thread2 = messageService.thread(elderly1, elderly2Ad.getId());
+    MessageThreadView thread = messageService.threadForAd(worker, elderly1Ad.getId());
+    MessageThreadView thread2 = messageService.threadForAd(elderly1, elderly2Ad.getId());
   }
 }

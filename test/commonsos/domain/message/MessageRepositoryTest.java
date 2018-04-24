@@ -56,4 +56,20 @@ public class MessageRepositoryTest {
 
     assertThat(result).containsExactly(thread1, thread3);
   }
+
+  @Test
+  public void threadById() {
+    MessageThread thread1 = new MessageThread().setId("0");
+    MessageThread thread2 = new MessageThread().setId("1");
+    repository.threads.addAll(asList(thread1, thread2));
+
+    assertThat(repository.thread("1")).contains(thread2);
+  }
+
+  @Test
+  public void threadById_notFound() {
+    repository.threads.addAll(asList(new MessageThread().setId("0")));
+
+    assertThat(repository.thread("1")).isEmpty();
+  }
 }

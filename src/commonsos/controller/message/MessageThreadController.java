@@ -9,11 +9,10 @@ import spark.Response;
 
 import javax.inject.Inject;
 
-public class MessageThreadForAdController extends Controller {
-
+public class MessageThreadController extends Controller {
   @Inject MessageService service;
 
   @Override protected MessageThreadView handle(User user, Request request, Response response) {
-    return service.threadForAd(user, request.params("adId"));
+    return service.thread(user, request.params("id"));
   }
 }

@@ -1,5 +1,7 @@
 package commonsos.domain.message;
 
+import commonsos.BadRequestException;
+import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.User;
@@ -30,20 +32,20 @@ public class MessageServiceTest {
   @InjectMocks @Spy MessageService service;
 
   @Test
-  public void thread_findExisting() {
+  public void threadForAd_findExisting() {
     MessageThread messageThread = new MessageThread();
     User user = new User();
     when(repository.byAdId(user, "ad-id")).thenReturn(Optional.of(messageThread));
     MessageThreadView messageThreadView = new MessageThreadView();
     doReturn(messageThreadView).when(service).view(user, messageThread);
 
-    MessageThreadView result = service.thread(user, "ad-id");
+    MessageThreadView result = service.threadForAd(user, "ad-id");
 
     assertThat(result).isSameAs(messageThreadView);
   }
 
   @Test
-  public void thread_createNewIfNotPresent() {
+  public void threadForAd_createNewIfNotPresent() {
     User user = new User().setId("user id");
     when(repository.byAdId(user, "ad-id")).thenReturn(Optional.empty());
 
@@ -54,10 +56,36 @@ public class MessageServiceTest {
     doReturn(messageThreadView).when(service).view(user, newThread);
 
 
-    MessageThreadView result = service.thread(user, "ad-id");
+    MessageThreadView result = service.threadForAd(user, "ad-id");
 
 
     assertThat(result).isEqualTo(messageThreadView);
+  }
+
+  @Test
+  public void thread() {
+    User user = new User().setId("user id");
+    MessageThread messageThread = new MessageThread().setUsers(asList(user));
+    when(repository.thread("thread-id")).thenReturn(Optional.of(messageThread));
+    MessageThreadView messageThreadView = new MessageThreadView();
+    doReturn(messageThreadView).when(service).view(user, messageThread);
+
+    assertThat(service.thread(user, "thread-id")).isSameAs(messageThreadView);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void thread_onlyThreadParticipantsHaveAccess() {
+    MessageThread messageThread = new MessageThread().setUsers(asList(new User().setId("other user")));
+    when(repository.thread("thread-id")).thenReturn(Optional.of(messageThread));
+
+    service.thread(new User().setId("user id"), "thread-id");
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void thread_notFound() {
+    when(repository.thread("thread-id")).thenReturn(Optional.empty());
+
+    service.thread(new User().setId("user id"), "thread-id");
   }
 
   @Test

@@ -1,5 +1,7 @@
 package commonsos.domain.message;
 
+import commonsos.BadRequestException;
+import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.User;
@@ -21,9 +23,21 @@ public class MessageService {
   @Inject private AdService adService;
   @Inject private UserService userService;
 
-  public MessageThreadView thread(User user, String adId) {
+  public MessageThreadView threadForAd(User user, String adId) {
     MessageThread thread = repository.byAdId(user, adId).orElseGet(() -> createMessageThreadForAd(user, adId));
     return view(user, thread);
+  }
+
+  public MessageThreadView thread(User user, String threadId) {
+    return repository.thread(threadId)
+      .map(t -> checkAccess(user, t))
+      .map(t -> view(user, t))
+      .orElseThrow(BadRequestException::new);
+  }
+
+  private MessageThread checkAccess(User user, MessageThread thread) {
+    if (!thread.getUsers().contains(user)) throw new ForbiddenException();
+    return thread;
   }
 
   MessageThread createMessageThreadForAd(User user, String adId) {
