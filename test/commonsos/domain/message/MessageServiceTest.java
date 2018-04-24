@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,6 +77,7 @@ public class MessageServiceTest {
     doReturn(messageThreadView).when(service).view(user, messageThread);
 
     assertThat(service.thread(user, "thread-id")).isSameAs(messageThreadView);
+    verify(service).loadMessages(messageThread);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -109,21 +111,37 @@ public class MessageServiceTest {
     verify(messageThreadRepository).create(messageThread);
   }
 
-
   @Test
   public void view() {
     User user = new User().setId("myself");
     User counterparty = new User().setId("counterparty");
-    MessageThread messageThread = new MessageThread().setId("thread id").setTitle("title").setUsers(asList(user, counterparty));
+    Message message = new Message().setId("33");
+    MessageThread messageThread = new MessageThread()
+      .setId("thread id")
+      .setTitle("title")
+      .setUsers(asList(user, counterparty))
+      .setMessages(asList(message));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
+    MessageView messageView = new MessageView().setId("33");
+    when(service.view(message)).thenReturn(messageView);
 
     MessageThreadView view = service.view(user, messageThread);
 
     assertThat(view.getId()).isEqualTo("thread id");
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.getUsers()).containsExactly(conterpartyView);
-    assertThat(view.getMessages()).isEmpty();
+    assertThat(view.getMessages()).containsExactly(messageView);
+  }
+
+  @Test
+  public void messageView() {
+    OffsetDateTime messageCreated = now();
+    Message message = new Message().setId("33").setThreadId("thread id").setCreatedAt(messageCreated).setCreatedBy("myself").setText("hello");
+
+    MessageView result = service.view(message);
+
+    assertThat(result).isEqualTo(new MessageView().setId("33").setCreatedAt(messageCreated).setCreatedBy("myself").setText("hello"));
   }
 
   @Test
@@ -137,6 +155,18 @@ public class MessageServiceTest {
     List<MessageThreadView> result = service.threads(user);
 
     assertThat(result).containsExactly(threadView);
+    verify(service).loadMessages(thread);
+  }
+
+  @Test
+  public void loadMessages() {
+    Message message = new Message().setId("1");
+    when(messageRepository.listByThread("thread id")).thenReturn(asList(message));
+    MessageThread thread = new MessageThread().setId("thread id");
+
+    service.loadMessages(thread);
+
+    assertThat(thread.getMessages()).containsExactly(message);
   }
 
   @Test
@@ -152,7 +182,7 @@ public class MessageServiceTest {
     assertThat(message.getThreadId()).isEqualTo("thread id");
     assertThat(message.getCreatedBy()).isEqualTo("user id");
     assertThat(message.getText()).isEqualTo("message text");
-    assertThat(message.getCreatedAt()).isCloseTo(OffsetDateTime.now(), within(1, SECONDS));
+    assertThat(message.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 
   @Test(expected = ForbiddenException.class)

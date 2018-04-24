@@ -10,7 +10,6 @@ import commonsos.domain.auth.UserView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Collections;
 import java.util.List;
 
 import static java.time.OffsetDateTime.now;
@@ -33,8 +32,14 @@ public class MessageService {
   public MessageThreadView thread(User user, String threadId) {
     return messageThreadRepository.thread(threadId)
       .map(t -> checkAccess(user, t))
+      .map(this::loadMessages)
       .map(t -> view(user, t))
       .orElseThrow(BadRequestException::new);
+  }
+
+  MessageThread loadMessages(MessageThread thread) {
+    thread.setMessages(messageRepository.listByThread(thread.getId()));
+    return thread;
   }
 
   private MessageThread checkAccess(User user, MessageThread thread) {
@@ -60,15 +65,30 @@ public class MessageService {
       .map(userService::view)
       .collect(toList());
 
+    List<MessageView> messages = thread.getMessages().stream().map(this::view).collect(toList());
+
     return new MessageThreadView()
       .setId(thread.getId())
       .setTitle(thread.getTitle())
-      .setMessages(Collections.emptyList())
+      .setMessages(messages)
       .setUsers(users);
   }
 
+  MessageView view(Message message) {
+    return new MessageView()
+      .setId(message.getId())
+      .setCreatedAt(message.getCreatedAt())
+      .setCreatedBy(message.getCreatedBy())
+      .setText(message.getText());
+  }
+
   public List<MessageThreadView> threads(User user) {
-    return messageThreadRepository.listByUser(user).stream().map(thread -> view(user, thread)).collect(toList());
+    return messageThreadRepository
+      .listByUser(user)
+      .stream()
+      .map(this::loadMessages)
+      .map(thread -> view(user, thread))
+      .collect(toList());
   }
 
   public void postMessage(User user, MessagePostCommand command) {

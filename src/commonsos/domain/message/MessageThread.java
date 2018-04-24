@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
@@ -15,5 +16,6 @@ public class MessageThread {
   private String adId;
   private String title;
   private String createdBy;
-  private List<User> users;
+  private List<User> users = new ArrayList<>();
+  private List<Message> messages = new ArrayList<>();
 }
