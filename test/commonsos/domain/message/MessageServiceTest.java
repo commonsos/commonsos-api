@@ -77,7 +77,6 @@ public class MessageServiceTest {
     doReturn(messageThreadView).when(service).view(user, messageThread);
 
     assertThat(service.thread(user, "thread-id")).isSameAs(messageThreadView);
-    verify(service).loadMessages(messageThread);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -119,19 +118,21 @@ public class MessageServiceTest {
     MessageThread messageThread = new MessageThread()
       .setId("thread id")
       .setTitle("title")
-      .setParties(asList(user, counterparty))
-      .setMessages(asList(message));
+      .setParties(asList(user, counterparty));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
-    MessageView messageView = new MessageView().setId("33");
+    MessageView messageView = new MessageView();
     doReturn(messageView).when(service).view(message);
+    when(messageRepository.listByThread("thread id")).thenReturn(asList(message));
+    when(messageRepository.lastMessage("thread id")).thenReturn(Optional.of(message));
 
     MessageThreadView view = service.view(user, messageThread);
 
     assertThat(view.getId()).isEqualTo("thread id");
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.getParties()).containsExactly(conterpartyView);
-    assertThat(view.getMessages()).containsExactly(messageView);
+    assertThat(view.getMessages()).contains(messageView);
+    assertThat(view.getLastMessage()).isEqualTo(messageView);
   }
 
   @Test
@@ -166,18 +167,6 @@ public class MessageServiceTest {
     List<MessageThreadView> result = service.threads(user);
 
     assertThat(result).containsExactly(threadView);
-    verify(service).loadMessages(thread);
-  }
-
-  @Test
-  public void loadMessages() {
-    Message message = new Message().setId("1");
-    when(messageRepository.listByThread("thread id")).thenReturn(asList(message));
-    MessageThread thread = new MessageThread().setId("thread id");
-
-    service.loadMessages(thread);
-
-    assertThat(thread.getMessages()).containsExactly(message);
   }
 
   @Test

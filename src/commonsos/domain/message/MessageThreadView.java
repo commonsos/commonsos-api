@@ -13,4 +13,5 @@ public class MessageThreadView {
   private String title;
   private List<UserView> parties;
   private List<MessageView> messages;
+  private MessageView lastMessage;
 }

@@ -32,14 +32,8 @@ public class MessageService {
   public MessageThreadView thread(User user, String threadId) {
     return messageThreadRepository.thread(threadId)
       .map(t -> checkAccess(user, t))
-      .map(this::loadMessages)
       .map(t -> view(user, t))
       .orElseThrow(BadRequestException::new);
-  }
-
-  MessageThread loadMessages(MessageThread thread) {
-    thread.setMessages(messageRepository.listByThread(thread.getId()));
-    return thread;
   }
 
   private MessageThread checkAccess(User user, MessageThread thread) {
@@ -65,12 +59,13 @@ public class MessageService {
       .map(userService::view)
       .collect(toList());
 
-    List<MessageView> messages = thread.getMessages().stream().map(this::view).collect(toList());
+    List<MessageView> messages = messageRepository.listByThread(thread.getId()).stream().map(this::view).collect(toList());
 
     return new MessageThreadView()
       .setId(thread.getId())
       .setTitle(thread.getTitle())
       .setMessages(messages)
+      .setLastMessage(messageRepository.lastMessage(thread.getId()).map(this::view).orElse(null))
       .setParties(parties);
   }
 
@@ -86,7 +81,6 @@ public class MessageService {
     return messageThreadRepository
       .listByUser(user)
       .stream()
-      .map(this::loadMessages)
       .map(thread -> view(user, thread))
       .collect(toList());
   }
