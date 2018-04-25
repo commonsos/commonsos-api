@@ -4,6 +4,7 @@ import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.ad.AdView;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
@@ -62,13 +63,15 @@ public class MessageService {
       .collect(toList());
 
     List<MessageView> messages = messageRepository.listByThread(thread.getId()).stream().map(this::view).collect(toList());
+    AdView ad = thread.getAdId() == null ? null : adService.view(user, thread.getAdId());
+    MessageView lastMessage = messageRepository.lastMessage(thread.getId()).map(this::view).orElse(null);
 
     return new MessageThreadView()
       .setId(thread.getId())
-      .setAdId(thread.getAdId())
+      .setAd(ad)
       .setTitle(thread.getTitle())
       .setMessages(messages)
-      .setLastMessage(messageRepository.lastMessage(thread.getId()).map(this::view).orElse(null))
+      .setLastMessage(lastMessage)
       .setParties(parties);
   }
 

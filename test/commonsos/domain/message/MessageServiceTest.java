@@ -4,6 +4,7 @@ import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.ad.AdView;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
@@ -128,11 +129,13 @@ public class MessageServiceTest {
     doReturn(messageView).when(service).view(message);
     when(messageRepository.listByThread("thread id")).thenReturn(asList(message));
     when(messageRepository.lastMessage("thread id")).thenReturn(Optional.of(message));
+    AdView adView = new AdView();
+    when(adService.view(user, "ad id")).thenReturn(adView);
 
     MessageThreadView view = service.view(user, messageThread);
 
     assertThat(view.getId()).isEqualTo("thread id");
-    assertThat(view.getAdId()).isEqualTo("ad id");
+    assertThat(view.getAd()).isEqualTo(adView);
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.getParties()).containsExactly(conterpartyView);
     assertThat(view.getMessages()).contains(messageView);
