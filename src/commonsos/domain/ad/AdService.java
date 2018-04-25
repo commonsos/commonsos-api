@@ -51,8 +51,8 @@ public class AdService {
       .setDescription(ad.getDescription())
       .setPoints(ad.getPoints())
       .setLocation(ad.getLocation())
-      .setOwn(isOwn(ad, user))
-      .setPayable(isPayable(ad, user))
+      .setOwn(isOwnAd(user, ad))
+      .setPayable(isPayableByUser(user, ad))
       .setCreatedAt(ad.getCreatedAt())
       .setPhotoUrl(ad.getPhotoUrl());
   }
@@ -61,20 +61,20 @@ public class AdService {
     return view(ad(adId), user);
   }
 
-  boolean isOwn(Ad ad, User user) {
+  boolean isOwnAd(User user, Ad ad) {
     return ad.getCreatedBy().equals(user.getId());
   }
 
-  public boolean isPayable(Ad ad, User user) {
+  public boolean isPayableByUser(User user, Ad ad) {
     if (ZERO.compareTo(ad.getPoints()) >= 0) return false;
-    if (isOwn(ad, user) && WANT == ad.getType()) return true;
-    if (!isOwn(ad, user) && GIVE == ad.getType()) return true;
+    if (isOwnAd(user, ad) && WANT == ad.getType()) return true;
+    if (!isOwnAd(user, ad) && GIVE == ad.getType()) return true;
     return false;
   }
 
   public Ad accept(User user, String id) {
     Ad ad = repository.find(id).orElseThrow(RuntimeException::new);
-    if (isOwn(ad, user)) throw new ForbiddenException();
+    if (isOwnAd(user, ad)) throw new ForbiddenException();
     repository.save(ad);
     agreementService.create(user, ad);
     return ad;

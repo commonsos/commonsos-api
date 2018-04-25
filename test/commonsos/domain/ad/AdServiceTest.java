@@ -143,8 +143,8 @@ public class AdServiceTest {
   public void isOwn() {
     Ad ad = new Ad().setCreatedBy("worker");
 
-    assertThat(service.isOwn(ad, new User().setId("worker"))).isTrue();
-    assertThat(service.isOwn(ad, new User().setId("stranger"))).isFalse();
+    assertThat(service.isOwnAd(new User().setId("worker"), ad)).isTrue();
+    assertThat(service.isOwnAd(new User().setId("stranger"), ad)).isFalse();
   }
 
   @Test
@@ -156,13 +156,13 @@ public class AdServiceTest {
     Ad sellAd = new Ad().setCreatedBy("other").setType(GIVE).setPoints(ONE);
     Ad sellAdWithZeroPrice = new Ad().setCreatedBy("other").setType(GIVE).setPoints(ZERO);
 
-    assertThat(service.isPayable(sellAd, me)).isTrue();
-    assertThat(service.isPayable(buyAd, otherUser)).isTrue();
+    assertThat(service.isPayableByUser(me, sellAd)).isTrue();
+    assertThat(service.isPayableByUser(otherUser, buyAd)).isTrue();
 
-    assertThat(service.isPayable(sellAdWithZeroPrice, me)).isFalse();
-    assertThat(service.isPayable(buyAd, me)).isFalse();
-    assertThat(service.isPayable(sellAd, otherUser)).isFalse();
-    assertThat(service.isPayable(buyAd, me)).isFalse();
+    assertThat(service.isPayableByUser(me, sellAdWithZeroPrice)).isFalse();
+    assertThat(service.isPayableByUser(me, buyAd)).isFalse();
+    assertThat(service.isPayableByUser(otherUser, sellAd)).isFalse();
+    assertThat(service.isPayableByUser(me, buyAd)).isFalse();
   }
 
   @Test

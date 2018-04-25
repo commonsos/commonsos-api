@@ -88,8 +88,7 @@ public class TransactionService {
 
     if (command.getAdId() != null) {
       Ad ad = adService.ad(command.getAdId());
-      if (!adService.isPayable(ad, userService.user(command.getBeneficiaryId())))
-      if (!command.getBeneficiaryId().equals(ad.getCreatedBy())) throw new BadRequestException();
+      if (!adService.isPayableByUser(user, ad)) throw new BadRequestException();
     }
     BigDecimal balance = balance(user);
     if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");

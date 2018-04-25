@@ -61,7 +61,9 @@ public class TransactionServiceTest {
     TransactionCreateCommand command = command("beneficiary", "0.01", "description", "ad id");
     User user = new User().setId("remitter");
     doReturn(new BigDecimal("0.2")).when(service).balance(user);
-    when(adService.ad("ad id")).thenReturn(new Ad().setCreatedBy("beneficiary"));
+    Ad ad = new Ad();
+    when(adService.ad("ad id")).thenReturn(ad);
+    when(adService.isPayableByUser(user, ad)).thenReturn(true);
 
     service.create(user, command);
 
@@ -113,7 +115,9 @@ public class TransactionServiceTest {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
     User user = new User().setId("remitter");
     doReturn(TEN).when(service).balance(user);
-    when(adService.ad("ad id")).thenReturn(new Ad().setCreatedBy("beneficiary"));
+    Ad ad = new Ad().setCreatedBy("beneficiary");
+    when(adService.ad("ad id")).thenReturn(ad);
+    when(adService.isPayableByUser(user, ad)).thenReturn(true);
     DisplayableException thrown = catchThrowableOfType(() -> service.create(user, command), DisplayableException.class);
 
     assertThat(thrown).hasMessage("Not enough funds");
