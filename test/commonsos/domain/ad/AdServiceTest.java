@@ -173,11 +173,12 @@ public class AdServiceTest {
     Ad sellAdWithZeroPrice = new Ad().setCreatedBy("other").setType(GIVE).setPoints(ZERO);
 
     assertThat(service.isPayable(sellAd, me)).isTrue();
+    assertThat(service.isPayable(buyAd, otherUser)).isTrue();
 
     assertThat(service.isPayable(sellAdWithZeroPrice, me)).isFalse();
     assertThat(service.isPayable(buyAd, me)).isFalse();
     assertThat(service.isPayable(sellAd, otherUser)).isFalse();
-    assertThat(service.isPayable(buyAd, otherUser)).isFalse();
+    assertThat(service.isPayable(buyAd, me)).isFalse();
   }
 
   @Test

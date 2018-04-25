@@ -65,9 +65,11 @@ public class AdService {
     return ad.getCreatedBy().equals(user.getId());
   }
 
-
   public boolean isPayable(Ad ad, User user) {
-    return ZERO.compareTo(ad.getPoints()) < 0 && !isOwn(ad, user) && GIVE == ad.getType();
+    if (ZERO.compareTo(ad.getPoints()) >= 0) return false;
+    if (isOwn(ad, user) && WANT == ad.getType()) return true;
+    if (!isOwn(ad, user) && GIVE == ad.getType()) return true;
+    return false;
   }
 
   public Ad accept(User user, String id) {
