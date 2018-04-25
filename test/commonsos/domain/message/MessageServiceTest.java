@@ -170,12 +170,17 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void create() {
+  public void postMessage() {
     User user = new User().setId("user id");
     when(messageThreadRepository.thread("thread id")).thenReturn(Optional.of(new MessageThread().setParties(asList(user))));
+    Message createdMessage = new Message();
+    when(messageRepository.create(any())).thenReturn(createdMessage);
+    MessageView messageView = new MessageView();
+    doReturn(messageView).when(service).view(createdMessage);
 
-    service.postMessage(user, new MessagePostCommand().setThreadId("thread id").setText("message text"));
+    MessageView result = service.postMessage(user, new MessagePostCommand().setThreadId("thread id").setText("message text"));
 
+    assertThat(result).isSameAs(messageView);
     ArgumentCaptor<Message> messageArgument = ArgumentCaptor.forClass(Message.class);
     verify(messageRepository).create(messageArgument.capture());
     Message message = messageArgument.getValue();

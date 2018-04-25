@@ -85,12 +85,13 @@ public class MessageService {
       .collect(toList());
   }
 
-  public void postMessage(User user, MessagePostCommand command) {
+  public MessageView postMessage(User user, MessagePostCommand command) {
     messageThreadRepository.thread(command.getThreadId()).map(thread -> checkAccess(user, thread));
-    messageRepository.create(new Message()
+    Message message = messageRepository.create(new Message()
       .setCreatedBy(user.getId())
       .setCreatedAt(now())
       .setThreadId(command.getThreadId())
       .setText(command.getText()));
+    return view(message);
   }
 }

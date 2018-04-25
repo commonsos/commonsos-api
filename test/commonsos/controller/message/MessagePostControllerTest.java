@@ -4,6 +4,7 @@ import commonsos.GsonProvider;
 import commonsos.domain.auth.User;
 import commonsos.domain.message.MessagePostCommand;
 import commonsos.domain.message.MessageService;
+import commonsos.domain.message.MessageView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import spark.Request;
 
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,9 +32,12 @@ public class MessagePostControllerTest {
   public void handle() {
     User user = new User();
     when(request.body()).thenReturn("{\"threadId\": \"thread id\", \"text\": \"message text\"}");
+    MessagePostCommand command = new MessagePostCommand().setThreadId("thread id").setText("message text");
+    MessageView messageView = new MessageView();
+    when(service.postMessage(user, command)).thenReturn(messageView);
 
-    controller.handle(user, request, null);
+    MessageView result = controller.handle(user, request, null);
 
-    verify(service).postMessage(user, new MessagePostCommand().setThreadId("thread id").setText("message text"));
+    assertThat(result).isEqualTo(messageView);
   }
 }
