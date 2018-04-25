@@ -17,5 +17,4 @@ public class MessageThread {
   private String title;
   private String createdBy;
   private List<User> parties = new ArrayList<>();
-  private List<Message> messages = new ArrayList<>();
 }
