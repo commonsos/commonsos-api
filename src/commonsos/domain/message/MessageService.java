@@ -10,6 +10,8 @@ import commonsos.domain.auth.UserView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.time.OffsetDateTime.now;
@@ -78,11 +80,18 @@ public class MessageService {
   }
 
   public List<MessageThreadView> threads(User user) {
-    return messageThreadRepository
+    List<MessageThreadView> threadViews = messageThreadRepository
       .listByUser(user)
       .stream()
       .map(thread -> view(user, thread))
+      .filter(t -> t.getLastMessage() != null)
       .collect(toList());
+    sortThreadsByLastMessageTime(threadViews);
+    return threadViews;
+  }
+
+  void sortThreadsByLastMessageTime(List<MessageThreadView> threadViews) {
+    Collections.sort(threadViews, Comparator.comparing((MessageThreadView t) -> t.getLastMessage().getCreatedAt()).reversed());
   }
 
   public MessageView postMessage(User user, MessagePostCommand command) {

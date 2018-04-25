@@ -16,10 +16,12 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static java.time.OffsetDateTime.now;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -161,12 +163,36 @@ public class MessageServiceTest {
     User user = new User();
     MessageThread thread = new MessageThread();
     when(messageThreadRepository.listByUser(user)).thenReturn(asList(thread));
-    MessageThreadView threadView = new MessageThreadView();
+    MessageThreadView threadView = new MessageThreadView().setLastMessage(new MessageView());
     doReturn(threadView).when(service).view(user, thread);
 
     List<MessageThreadView> result = service.threads(user);
 
+    verify(service).sortThreadsByLastMessageTime(asList(threadView));
     assertThat(result).containsExactly(threadView);
+  }
+
+  @Test
+  public void threads_excludeWithoutMessages() {
+    User user = new User();
+    MessageThread thread = new MessageThread();
+    when(messageThreadRepository.listByUser(user)).thenReturn(asList(thread));
+    MessageThreadView threadView = new MessageThreadView();
+    doReturn(threadView).when(service).view(user, thread);
+
+    assertThat(service.threads(user)).isEmpty();
+  }
+
+  @Test
+  public void ordersLatestThreadsFirst() {
+    MessageThreadView view1 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(2, HOURS)));
+    MessageThreadView view2 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(1, HOURS)));
+    MessageThreadView view3 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(3, HOURS)));
+    List<MessageThreadView> data = new ArrayList<>(asList(view1, view2, view3));
+
+    service.sortThreadsByLastMessageTime(data);
+
+    assertThat(data).containsExactly(view2, view1, view3);
   }
 
   @Test
