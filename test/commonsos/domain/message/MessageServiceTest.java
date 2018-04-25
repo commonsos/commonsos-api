@@ -120,6 +120,7 @@ public class MessageServiceTest {
     MessageThread messageThread = new MessageThread()
       .setId("thread id")
       .setTitle("title")
+      .setAdId("ad id")
       .setParties(asList(user, counterparty));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
@@ -131,6 +132,7 @@ public class MessageServiceTest {
     MessageThreadView view = service.view(user, messageThread);
 
     assertThat(view.getId()).isEqualTo("thread id");
+    assertThat(view.getAdId()).isEqualTo("ad id");
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.getParties()).containsExactly(conterpartyView);
     assertThat(view.getMessages()).contains(messageView);

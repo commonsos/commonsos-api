@@ -65,6 +65,7 @@ public class MessageService {
 
     return new MessageThreadView()
       .setId(thread.getId())
+      .setAdId(thread.getAdId())
       .setTitle(thread.getTitle())
       .setMessages(messages)
       .setLastMessage(messageRepository.lastMessage(thread.getId()).map(this::view).orElse(null))

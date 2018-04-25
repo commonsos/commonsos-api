@@ -133,26 +133,10 @@ public class AdServiceTest {
     assertThat(view.getPoints()).isEqualTo(TEN);
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.isOwn()).isEqualTo(true);
-    assertThat(view.isPayable()).isEqualTo(false);
+    assertThat(view.isPayable()).isEqualTo(true);
     assertThat(view.getCreatedAt()).isEqualTo(createdAt);
     assertThat(view.getPhotoUrl()).isEqualTo("photo url");
     assertThat(view.getType()).isEqualTo(WANT);
-  }
-
-  @Test
-  public void view_payable() {
-    Ad ad = new Ad()
-      .setCreatedBy("worker")
-      .setType(GIVE)
-      .setPoints(TEN);
-    UserView userView = new UserView();
-    when(userService.view("worker")).thenReturn(userView);
-
-    AdView view = service.view(ad, new User().setId("elderly"));
-
-    assertThat(view.isOwn()).isEqualTo(false);
-    assertThat(view.isPayable()).isEqualTo(true);
-    assertThat(view.getType()).isEqualTo(GIVE);
   }
 
   @Test
