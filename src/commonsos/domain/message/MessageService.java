@@ -107,4 +107,11 @@ public class MessageService {
       .setText(command.getText()));
     return view(message);
   }
+
+  public List<MessageView> messages(User user, String threadId) {
+    MessageThread thread = messageThreadRepository.thread(threadId).orElseThrow(BadRequestException::new);
+    if (!thread.getParties().contains(user)) throw new ForbiddenException();
+
+    return messageRepository.listByThread(threadId).stream().map(this::view).collect(toList());
+  }
 }

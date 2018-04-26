@@ -227,4 +227,32 @@ public class MessageServiceTest {
 
     service.postMessage(new User().setId("user id"), new MessagePostCommand().setThreadId("thread id").setText("message text"));
   }
+
+  @Test
+  public void messages() {
+    Message message = new Message();
+    when(messageRepository.listByThread("thread id")).thenReturn(asList(message));
+    MessageView view = new MessageView();
+    doReturn(view).when(service).view(message);
+    when(messageThreadRepository.thread(("thread id"))).thenReturn(Optional.of(new MessageThread().setParties(asList(new User().setId("user id")))));
+
+    List<MessageView> result = service.messages(new User().setId("user id"), "thread id");
+
+    assertThat(result).containsExactly(view);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void message_threadMustExist() {
+    when(messageThreadRepository.thread(("thread id"))).thenReturn(Optional.empty());
+
+    service.messages(new User().setId("me"), "thread id");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void message_canBeAccessedByParticipatingParty() {
+    MessageThread messageThread = new MessageThread().setParties(asList(new User().setId("other user")));
+    when(messageThreadRepository.thread(("thread id"))).thenReturn(Optional.of(messageThread));
+
+    service.messages(new User().setId("me"), "thread id");
+  }
 }

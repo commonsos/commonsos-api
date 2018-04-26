@@ -11,10 +11,7 @@ import commonsos.controller.auth.AccountCreateController;
 import commonsos.controller.auth.LoginController;
 import commonsos.controller.auth.LogoutController;
 import commonsos.controller.auth.UserController;
-import commonsos.controller.message.MessagePostController;
-import commonsos.controller.message.MessageThreadController;
-import commonsos.controller.message.MessageThreadForAdController;
-import commonsos.controller.message.MessageThreadListController;
+import commonsos.controller.message.*;
 import commonsos.controller.transaction.BalanceController;
 import commonsos.controller.transaction.ClaimRewardController;
 import commonsos.controller.transaction.TransactionCreateController;
@@ -74,6 +71,7 @@ public class Server {
     get("/message-threads/:id", injector.getInstance(MessageThreadController.class), toJson);
     get("/message-threads", injector.getInstance(MessageThreadListController.class), toJson);
     post("/message-threads/:id/messages", injector.getInstance(MessagePostController.class), toJson);
+    get("/message-threads/:id/messages", injector.getInstance(MessageListController.class), toJson);
 
     exception(BadRequestException.class, (exception, request, response) -> {
       log.error("Bad request", exception);
