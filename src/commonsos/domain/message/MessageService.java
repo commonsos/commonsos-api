@@ -62,7 +62,6 @@ public class MessageService {
       .map(userService::view)
       .collect(toList());
 
-    List<MessageView> messages = messageRepository.listByThread(thread.getId()).stream().map(this::view).collect(toList());
     AdView ad = thread.getAdId() == null ? null : adService.view(user, thread.getAdId());
     MessageView lastMessage = messageRepository.lastMessage(thread.getId()).map(this::view).orElse(null);
 
@@ -70,7 +69,6 @@ public class MessageService {
       .setId(thread.getId())
       .setAd(ad)
       .setTitle(thread.getTitle())
-      .setMessages(messages)
       .setLastMessage(lastMessage)
       .setParties(parties);
   }

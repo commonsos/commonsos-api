@@ -127,7 +127,6 @@ public class MessageServiceTest {
     when(userService.view(counterparty)).thenReturn(conterpartyView);
     MessageView messageView = new MessageView();
     doReturn(messageView).when(service).view(message);
-    when(messageRepository.listByThread("thread id")).thenReturn(asList(message));
     when(messageRepository.lastMessage("thread id")).thenReturn(Optional.of(message));
     AdView adView = new AdView();
     when(adService.view(user, "ad id")).thenReturn(adView);
@@ -138,7 +137,6 @@ public class MessageServiceTest {
     assertThat(view.getAd()).isEqualTo(adView);
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.getParties()).containsExactly(conterpartyView);
-    assertThat(view.getMessages()).contains(messageView);
     assertThat(view.getLastMessage()).isEqualTo(messageView);
   }
 
