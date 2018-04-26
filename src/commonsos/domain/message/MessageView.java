@@ -1,6 +1,5 @@
 package commonsos.domain.message;
 
-import commonsos.domain.auth.UserView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +12,6 @@ import java.time.OffsetDateTime;
 public class MessageView {
   private String id;
   private OffsetDateTime createdAt;
-  private UserView createdBy;
+  private String createdBy;
   private String text;
 }

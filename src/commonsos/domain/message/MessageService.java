@@ -76,7 +76,7 @@ public class MessageService {
     return new MessageView()
       .setId(message.getId())
       .setCreatedAt(message.getCreatedAt())
-      .setCreatedBy(userService.view(message.getCreatedBy()))
+      .setCreatedBy(message.getCreatedBy())
       .setText(message.getText());
   }
 

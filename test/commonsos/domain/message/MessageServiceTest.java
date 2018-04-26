@@ -149,15 +149,13 @@ public class MessageServiceTest {
       .setCreatedAt(messageCreated)
       .setCreatedBy("user id")
       .setText("hello");
-    UserView userView = new UserView();
-    when(userService.view("user id")).thenReturn(userView);
 
     MessageView result = service.view(message);
 
     assertThat(result).isEqualTo(new MessageView()
       .setId("33")
       .setCreatedAt(messageCreated)
-      .setCreatedBy(userView)
+      .setCreatedBy("user id")
       .setText("hello"));
   }
 
