@@ -11,12 +11,11 @@ import commonsos.domain.auth.UserView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static java.time.OffsetDateTime.now;
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -93,7 +92,7 @@ public class MessageService {
   }
 
   void sortThreadsByLastMessageTime(List<MessageThreadView> threadViews) {
-    Collections.sort(threadViews, Comparator.comparing((MessageThreadView t) -> t.getLastMessage().getCreatedAt()).reversed());
+    threadViews.sort(comparing((MessageThreadView t) -> t.getLastMessage().getCreatedAt()).reversed());
   }
 
   public MessageView postMessage(User user, MessagePostCommand command) {
