@@ -38,7 +38,7 @@ public class Server {
       }
     };
 
-    Injector injector = Guice.createInjector(module);
+    Injector injector = Guice.createInjector(module, new TransactionInterceptor());
     injector.injectMembers(this);
     return injector;
   }
