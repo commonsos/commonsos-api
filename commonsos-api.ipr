@@ -199,6 +199,13 @@
       </item>
     </group>
   </component>
+  <component name="ProjectDictionaryState">
+    <dictionary name="xp">
+      <words>
+        <w>commonsos</w>
+      </words>
+    </dictionary>
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/commonsos-api.iml" filepath="$PROJECT_DIR$/commonsos-api.iml" />
