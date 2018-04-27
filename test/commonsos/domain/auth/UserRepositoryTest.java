@@ -1,25 +1,31 @@
 package commonsos.domain.auth;
 
+import commonsos.DBTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Optional;
-
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserRepositoryTest {
+public class UserRepositoryTest extends DBTest {
 
   UserRepository repository = new UserRepository();
 
   @Before
-  public void setUp() throws Exception {
-    repository.users.clear();
+  public void before() {
+    repository.emService = entityManagerService;
+  }
+
+  @Test
+  public void create() {
+    String id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
+
+    User created = entityManagerService.get().find(User.class, id);
+    assertThat(created.getUsername()).isEqualTo("worker");
   }
 
   @Test
   public void findByUsername() {
-    repository.users = asList(new User().setUsername("worker"));
+    inTransaction(() -> repository.create(new User().setUsername("worker")));
 
     assertThat(repository.findByUsername("worker")).isNotEmpty();
   }
@@ -31,9 +37,9 @@ public class UserRepositoryTest {
 
   @Test
   public void findById() {
-    repository.users = asList(new User().setId("user id"));
+    String id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
 
-    assertThat(repository.findById("user id")).isNotEmpty();
+    assertThat(repository.findById(id)).isNotEmpty();
   }
 
   @Test
@@ -42,19 +48,9 @@ public class UserRepositoryTest {
   }
 
   @Test
-  public void create() {
-    repository.create(new User().setUsername("worker"));
-
-    Optional<User> result = repository.findByUsername("worker");
-    assertThat(result).isNotEmpty();
-    assertThat(result.get().getId()).isEqualTo("0");
-  }
-
-  @Test
   public void search() {
-    User user1 = new User().setFirstName("first").setLastName("foo");
-    User user2 = new User().setFirstName("first").setLastName("bar");
-    repository.users = asList(user1, user2);
+    User user1 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("foo")));
+    User user2 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("bar")));
 
     assertThat(repository.search("irs")).containsExactly(user1, user2);
     assertThat(repository.search("foo")).containsExactly(user1);
@@ -65,10 +61,9 @@ public class UserRepositoryTest {
 
   @Test
   public void search_excludesAdminUser() {
-    User admin = new User().setFirstName("first").setAdmin(true);
-    User user = new User().setFirstName("first").setAdmin(false);
-    repository.users = asList(admin, user);
+    inTransaction(() -> repository.create(new User().setFirstName("name").setAdmin(true)));
+    User user = inTransaction(() -> repository.create(new User().setFirstName("name").setAdmin(false)));
 
-    assertThat(repository.search("first")).containsExactly(user);
+    assertThat(repository.search("name")).containsExactly(user);
   }
 }

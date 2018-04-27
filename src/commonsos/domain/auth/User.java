@@ -6,9 +6,16 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import static javax.persistence.GenerationType.IDENTITY;
+
+@Entity
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class User {
-  String id;
+  @Id @GeneratedValue(strategy = IDENTITY) String id;
   boolean admin;
   String username;
   String passwordHash;
