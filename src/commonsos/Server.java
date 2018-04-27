@@ -3,17 +3,17 @@ package commonsos;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.inject.*;
-import commonsos.controller.ad.*;
+import commonsos.controller.ad.AdController;
+import commonsos.controller.ad.AdCreateController;
+import commonsos.controller.ad.AdListController;
+import commonsos.controller.ad.MyAdsController;
 import commonsos.controller.admin.UserSearchController;
-import commonsos.controller.agreement.AgreementController;
-import commonsos.controller.agreement.AgreementListController;
 import commonsos.controller.auth.AccountCreateController;
 import commonsos.controller.auth.LoginController;
 import commonsos.controller.auth.LogoutController;
 import commonsos.controller.auth.UserController;
 import commonsos.controller.message.*;
 import commonsos.controller.transaction.BalanceController;
-import commonsos.controller.transaction.ClaimRewardController;
 import commonsos.controller.transaction.TransactionCreateController;
 import commonsos.controller.transaction.TransactionListController;
 import lombok.extern.slf4j.Slf4j;
@@ -55,13 +55,9 @@ public class Server {
     before(new AuthenticationFilter(asList("/login", "/create-account")));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
-    post("/ads/:id/accept", injector.getInstance(AdAcceptController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
     get("/ads/:id", injector.getInstance(AdController.class), toJson);
     get("/my-ads", injector.getInstance(MyAdsController.class), toJson);
-    get("/agreements", injector.getInstance(AgreementListController.class), toJson);
-    get("/agreements/:id", injector.getInstance(AgreementController.class), toJson);
-    post("/claim-reward", injector.getInstance(ClaimRewardController.class), toJson);
 
     get("/balance", injector.getInstance(BalanceController.class), toJson);
     get("/transactions", injector.getInstance(TransactionListController.class), toJson);

@@ -9,7 +9,6 @@ import java.time.OffsetDateTime;
 
 @Getter @Setter @Accessors(chain=true)
 public class Transaction {
-  private String agreementId;
   private String remitterId;
   private String beneficiaryId;
   private String description;

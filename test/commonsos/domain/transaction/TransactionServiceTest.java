@@ -2,10 +2,8 @@ package commonsos.domain.transaction;
 
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
-import commonsos.domain.ad.AdService;
 import commonsos.domain.ad.Ad;
-import commonsos.domain.agreement.Agreement;
-import commonsos.domain.agreement.AgreementService;
+import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
@@ -17,7 +15,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
@@ -31,30 +28,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionServiceTest {
 
-  @Mock AgreementService agreementService;
   @Mock AdService adService;
   @Mock UserService userService;
   @Captor ArgumentCaptor<Transaction> captor;
   @Mock TransactionRepository repository;
   @InjectMocks @Spy TransactionService service;
-
-  @Test
-  public void claim() {
-    Agreement agreement = new Agreement().setPoints(TEN).setId("123").setProviderId("worker").setConsumerId("elderly");
-    when(agreementService.findByTransactionData("transactionData")).thenReturn(Optional.of(agreement));
-
-    Transaction result = service.claim(new User().setId("worker"), "transactionData");
-
-    verify(agreementService).rewardClaimed(agreement);
-    verify(repository).create(captor.capture());
-    Transaction transaction = captor.getValue();
-    assertThat(transaction.getAgreementId()).isEqualTo("123");
-    assertThat(transaction.getAmount()).isEqualTo(TEN);
-    assertThat(transaction.getBeneficiaryId()).isEqualTo("worker");
-    assertThat(transaction.getRemitterId()).isEqualTo("elderly");
-    assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
-    assertThat(transaction).isEqualTo(result);
-  }
 
   @Test
   public void create() {
@@ -155,25 +133,6 @@ public class TransactionServiceTest {
     when(adService.ad("unknown ad")).thenReturn(new Ad().setCreatedBy("ad owner"));
 
     service.create(user, command);
-  }
-
-  @Test
-  public void claim_onlyProviderCanClaimReward() {
-    when(agreementService.findByTransactionData("otherUserTransactionData")).thenReturn(Optional.of(new Agreement().setProviderId("worker")));
-
-    DisplayableException thrown = catchThrowableOfType(() -> service.claim(new User().setId("other user id"), "otherUserTransactionData"), DisplayableException.class);
-
-    assertThat(thrown).hasMessage("Only service provider can claim this code");
-  }
-
-  @Test
-  public void claim_onlyOnceAllowed() {
-    Agreement agreement = new Agreement().setPoints(TEN).setId("123").setProviderId("worker").setConsumerId("elderly").setRewardClaimedAt(now());
-    when(agreementService.findByTransactionData("transactionData")).thenReturn(Optional.of(agreement));
-
-    DisplayableException thrown = catchThrowableOfType(() -> service.claim(new User().setId("worker"), "transactionData"), DisplayableException.class);
-
-    assertThat(thrown).hasMessage("This code has been already claimed");
   }
 
   @Test

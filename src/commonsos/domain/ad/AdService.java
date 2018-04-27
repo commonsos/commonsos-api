@@ -1,8 +1,6 @@
 package commonsos.domain.ad;
 
 import commonsos.BadRequestException;
-import commonsos.ForbiddenException;
-import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 
@@ -10,7 +8,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
-import static commonsos.domain.ad.AdType.*;
+import static commonsos.domain.ad.AdType.GIVE;
+import static commonsos.domain.ad.AdType.WANT;
 import static java.math.BigDecimal.ZERO;
 import static java.time.OffsetDateTime.now;
 import static java.util.stream.Collectors.toList;
@@ -18,7 +17,6 @@ import static java.util.stream.Collectors.toList;
 @Singleton
 public class AdService {
   @Inject AdRepository repository;
-  @Inject AgreementService agreementService;
   @Inject UserService userService;
 
   public Ad create(User user, AdCreateCommand command) {
@@ -70,14 +68,6 @@ public class AdService {
     if (isOwnAd(user, ad) && WANT == ad.getType()) return true;
     if (!isOwnAd(user, ad) && GIVE == ad.getType()) return true;
     return false;
-  }
-
-  public Ad accept(User user, String id) {
-    Ad ad = repository.find(id).orElseThrow(RuntimeException::new);
-    if (isOwnAd(user, ad)) throw new ForbiddenException();
-    repository.save(ad);
-    agreementService.create(user, ad);
-    return ad;
   }
 
   public Ad ad(String id) {

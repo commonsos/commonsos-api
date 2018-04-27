@@ -1,8 +1,6 @@
 package commonsos.domain.ad;
 
 import commonsos.BadRequestException;
-import commonsos.ForbiddenException;
-import commonsos.domain.agreement.AgreementService;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
@@ -17,9 +15,7 @@ import java.util.Optional;
 
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.TEN;
-import static java.math.BigDecimal.ZERO;
+import static java.math.BigDecimal.*;
 import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
@@ -31,7 +27,6 @@ import static org.mockito.Mockito.*;
 public class AdServiceTest {
 
   @Mock AdRepository repository;
-  @Mock AgreementService agreementService;
   @Mock UserService userService;
   @Captor ArgumentCaptor<Ad> adCaptor;
   @InjectMocks @Spy AdService service;
@@ -56,28 +51,6 @@ public class AdServiceTest {
     assertThat(ad.getPoints()).isEqualTo(TEN);
     assertThat(ad.getLocation()).isEqualTo("location");
     assertThat(ad.getType()).isEqualTo(WANT);
-  }
-
-  @Test
-  public void accept() {
-    Ad ad = new Ad().setCreatedBy("otherUserId");
-    when(repository.find("adId")).thenReturn(Optional.of(ad));
-    User user = new User().setId("user");
-
-    Ad result = service.accept(user, "adId");
-
-    verify(agreementService).create(user, ad);
-    assertThat(result).isSameAs(ad);
-    verify(repository).save(ad);
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void accept_forbiddenForOwnAd() {
-    Ad ad = new Ad().setCreatedBy("userId");
-    when(repository.find("adId")).thenReturn(Optional.of(ad));
-    User user = new User().setId("userId");
-
-    service.accept(user, "adId");
   }
 
   @Test
