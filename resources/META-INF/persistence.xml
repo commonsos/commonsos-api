@@ -10,6 +10,7 @@
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
     <class>commonsos.domain.auth.User</class>
+    <class>commonsos.domain.ad.Ad</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

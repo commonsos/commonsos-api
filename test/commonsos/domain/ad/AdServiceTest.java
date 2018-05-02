@@ -38,7 +38,8 @@ public class AdServiceTest {
       .setDescription("description")
       .setAmount(TEN)
       .setLocation("location")
-      .setType(WANT);
+      .setType(WANT)
+      .setPhotoUrl("url://photo");
 
     service.create(new User().setId("user id"), command);
 
@@ -51,6 +52,7 @@ public class AdServiceTest {
     assertThat(ad.getPoints()).isEqualTo(TEN);
     assertThat(ad.getLocation()).isEqualTo("location");
     assertThat(ad.getType()).isEqualTo(WANT);
+    assertThat(ad.getPhotoUrl()).isEqualTo("url://photo");
   }
 
   @Test

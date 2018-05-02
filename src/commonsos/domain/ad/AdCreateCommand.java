@@ -13,4 +13,5 @@ public class AdCreateCommand {
   private BigDecimal amount;
   private String location;
   private AdType type;
+  private String photoUrl;
 }

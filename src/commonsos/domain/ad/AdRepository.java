@@ -1,30 +1,34 @@
 package commonsos.domain.ad;
 
+import commonsos.EntityManagerService;
+
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Singleton
 public class AdRepository {
 
-  List<Ad> ads = new ArrayList<>();
+  @Inject EntityManagerService emService;
+
+  EntityManager em() {
+    return emService.get();
+  }
 
   public Ad create(Ad ad) {
-    ad.setId(String.valueOf(ads.size()));
-    ads.add(ad);
+    em().persist(ad);
     return ad;
   }
 
   public List<Ad> list() {
-    return ads;
+    return em().createQuery("FROM Ad", Ad.class).getResultList();
   }
 
   public Optional<Ad> find(String id) {
-    return ads.stream().filter(a -> a.getId().equals(id)).findAny();
-  }
-
-  public void save(Ad ad) {
-    // changes made in 'stored' objects immediately reflect in repository due to shared object reference
+    return ofNullable(em().find(Ad.class, id));
   }
 }

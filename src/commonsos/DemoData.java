@@ -58,29 +58,32 @@ public class DemoData {
     transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(5, DAYS)));
     transactionService.create(new Transaction().setRemitterId(admin.getId()).setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality").setCreatedAt(now().minus(4, DAYS)));
 
-    Ad workerAd = adService.create(worker, new AdCreateCommand()
+    Ad workerAd = emService.runInTransaction(() -> adService.create(worker, new AdCreateCommand()
       .setType(GIVE)
       .setTitle("House cleaning")
       .setDescription("Vacuum cleaning, moist cleaning, floors etc")
       .setAmount(new BigDecimal("1299.01"))
       .setLocation("Kaga city")
-    ).setPhotoUrl("/static/temp/sample-photo-apartment1.jpg");
+      .setPhotoUrl("/static/temp/sample-photo-apartment1.jpg"))
+    );
 
-    Ad elderly1Ad = adService.create(elderly1, new AdCreateCommand()
+    Ad elderly1Ad = emService.runInTransaction(() -> adService.create(elderly1, new AdCreateCommand()
       .setType(WANT)
       .setTitle("Shopping agent")
       .setDescription("Thank you for reading this article. I had traffic accident last year and chronic pain on left leg\uD83D\uDE22 I want anyone to help me by going shopping to a grocery shop once a week.")
       .setAmount(new BigDecimal("300"))
       .setLocation("Kumasakamachi 熊坂町")
-    ).setPhotoUrl("/static/temp/shop.jpeg");
+      .setPhotoUrl("/static/temp/shop.jpeg")
+    ));
 
-    Ad elderly2Ad = adService.create(elderly2, new AdCreateCommand()
+    Ad elderly2Ad = emService.runInTransaction(() -> adService.create(elderly2, new AdCreateCommand()
       .setType(WANT)
       .setTitle("小川くん、醤油かってきて")
       .setDescription("刺し身買ってきたから")
       .setAmount(new BigDecimal("20"))
       .setLocation("kaga")
-    ).setPhotoUrl("/static/temp/soy.jpeg");
+      .setPhotoUrl("/static/temp/soy.jpeg")
+    ));
 
     MessageThreadView workerAdElderly1Thread = messageService.threadForAd(elderly1, workerAd.getId());
     messageService.postMessage(elderly1, new MessagePostCommand().setThreadId(workerAdElderly1Thread.getId()).setText("Hello!"));

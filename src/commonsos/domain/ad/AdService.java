@@ -27,7 +27,8 @@ public class AdService {
       .setTitle(command.getTitle())
       .setDescription(command.getDescription())
       .setLocation(command.getLocation())
-      .setPoints(command.getAmount());
+      .setPoints(command.getAmount())
+      .setPhotoUrl(command.getPhotoUrl());
 
     return repository.create(ad);
   }
