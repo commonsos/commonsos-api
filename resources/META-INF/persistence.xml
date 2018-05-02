@@ -12,6 +12,7 @@
     <class>commonsos.domain.auth.User</class>
     <class>commonsos.domain.ad.Ad</class>
     <class>commonsos.domain.transaction.Transaction</class>
+    <class>commonsos.domain.message.Message</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

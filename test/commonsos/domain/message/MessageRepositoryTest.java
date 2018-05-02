@@ -1,53 +1,71 @@
 package commonsos.domain.message;
 
+import commonsos.DBTest;
 import org.junit.Test;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import static java.time.OffsetDateTime.now;
 import static java.time.temporal.ChronoUnit.HOURS;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MessageRepositoryTest {
+public class MessageRepositoryTest extends DBTest {
 
-  private MessageRepository repository = new MessageRepository();
+  private MessageRepository repository = new MessageRepository(entityManagerService);
 
   @Test
   public void createMessage() {
-    repository.messages.clear();
-    Message message = new Message();
+    OffsetDateTime now = now();
+    Message message = new Message()
+      .setCreatedBy("created by")
+      .setCreatedAt(now)
+      .setText("message text")
+      .setThreadId("thread id");
 
-    Message result = repository.create(message);
+    String id = inTransaction(() -> repository.create(message).getId());
 
-    assertThat(result.getId()).isEqualTo("0");
+    Message result = em().find(Message.class, id);
+
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isNotNull();
+    assertThat(result.getCreatedBy()).isEqualTo("created by");
+    assertThat(result.getCreatedAt()).isEqualTo(now);
+    assertThat(result.getText()).isEqualTo("message text");
+    assertThat(result.getThreadId()).isEqualTo("thread id");
   }
 
   @Test
-  public void listByThread() {
-    Message message1 = new Message().setThreadId("thread id").setCreatedAt(OffsetDateTime.now().minus(1, HOURS));
-    Message message2 = new Message().setThreadId("thread id").setCreatedAt(OffsetDateTime.now());
-    repository.messages.addAll(asList(new Message().setThreadId("other thread"), message1, message2));
+  public void listByThread_olderMessagesFirst() {
+    String id1 = inTransaction(() -> repository.create(new Message().setThreadId("thread id").setCreatedAt(now().minus(1, HOURS))).getId());
+    String id2 = inTransaction(() -> repository.create(new Message().setThreadId("thread id").setCreatedAt(now())).getId());
+    String id3 = inTransaction(() -> repository.create(new Message().setThreadId("thread id").setCreatedAt(now().minus(2, HOURS))).getId());
+    inTransaction(() -> repository.create(new Message().setThreadId("other thread")));
 
     List<Message> result = repository.listByThread("thread id");
 
-    assertThat(result).containsExactly(message1, message2);
+    assertThat(result).extracting("id").containsExactly(id3, id1, id2);
   }
 
   @Test
   public void lastThreadMessage() {
-    Message message1 = new Message().setThreadId("thread id").setCreatedAt(OffsetDateTime.now().minus(1, HOURS));
-    Message message2 = new Message().setThreadId("thread id").setCreatedAt(OffsetDateTime.now());
-    repository.messages.addAll(asList(message2, message1));
+    Message oldestMessage = new Message().setThreadId("thread id").setCreatedAt(now().minus(2, HOURS));
+    Message newestMessage = new Message().setThreadId("thread id").setCreatedAt(now());
+    Message olderMessage = new Message().setThreadId("thread id").setCreatedAt(now().minus(1, HOURS));
 
-    assertThat(repository.lastMessage("thread id")).contains(message2);
+    inTransaction(() -> repository.create(oldestMessage));
+    inTransaction(() -> repository.create(newestMessage));
+    inTransaction(() -> repository.create(olderMessage));
+
+    Optional<Message> result = repository.lastMessage("thread id");
+
+    assertThat(result).isNotEmpty();
+    assertThat(result.get().getId()).isEqualTo(newestMessage.getId());
   }
 
   @Test
   public void lastThreadMessage_noMessagesYet() {
-    repository.messages.addAll(Collections.emptyList());
-
     assertThat(repository.lastMessage("thread id")).isEmpty();
   }
 }

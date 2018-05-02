@@ -1,33 +1,39 @@
 package commonsos.domain.message;
 
+import commonsos.EntityManagerService;
+import commonsos.Repository;
+
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
 @Singleton
-public class MessageRepository {
+public class MessageRepository extends Repository {
 
-  List<Message> messages = new ArrayList<>();
+  @Inject
+  public MessageRepository(EntityManagerService entityManagerService) {
+    super(entityManagerService);
+  }
 
   public Message create(Message message) {
-    message.setId(String.valueOf(messages.size()));
-    messages.add(message);
+    em().persist(message);
     return message;
   }
 
   public List<Message> listByThread(String threadId) {
-    return messages.stream()
-      .filter(m -> m.getThreadId().equals(threadId))
-      .sorted(comparing(Message::getCreatedAt))
-      .collect(toList());
+    return em()
+      .createQuery("FROM Message WHERE threadId = :threadId ORDER BY createdAt", Message.class)
+      .setParameter("threadId", threadId)
+      .getResultList();
   }
 
   public Optional<Message> lastMessage(String threadId) {
-    List<Message> messages = listByThread(threadId);
-    return messages.size() > 0 ? Optional.of(messages.get(messages.size()-1)) : Optional.empty();
+    List<Message> messages = em().createQuery("FROM Message WHERE threadId = :threadId ORDER BY createdAt DESC", Message.class)
+      .setParameter("threadId", threadId)
+      .setMaxResults(1)
+      .getResultList();
+
+    return messages.isEmpty() ? Optional.empty() : Optional.of(messages.get(0));
   }
 }
