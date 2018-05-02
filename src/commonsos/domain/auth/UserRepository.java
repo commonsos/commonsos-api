@@ -1,10 +1,10 @@
 package commonsos.domain.auth;
 
 import commonsos.EntityManagerService;
+import commonsos.Repository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Optional;
@@ -15,11 +15,11 @@ import static java.util.Optional.ofNullable;
 import static spark.utils.StringUtils.isBlank;
 
 @Singleton
-public class UserRepository {
-  @Inject EntityManagerService emService;
+public class UserRepository extends Repository {
 
-  EntityManager em() {
-    return emService.get();
+  @Inject
+  public UserRepository(EntityManagerService entityManagerService) {
+    super(entityManagerService);
   }
 
   public Optional<User> findByUsername(String username) {

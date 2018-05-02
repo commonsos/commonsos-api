@@ -1,25 +1,19 @@
 package commonsos.domain.auth;
 
 import commonsos.DBTest;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserRepositoryTest extends DBTest {
 
-  UserRepository repository = new UserRepository();
-
-  @Before
-  public void before() {
-    repository.emService = entityManagerService;
-  }
+  private UserRepository repository = new UserRepository(entityManagerService);
 
   @Test
   public void create() {
     String id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
 
-    User created = entityManagerService.get().find(User.class, id);
+    User created = em().find(User.class, id);
     assertThat(created.getUsername()).isEqualTo("worker");
   }
 

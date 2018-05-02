@@ -1,7 +1,6 @@
 package commonsos.domain.ad;
 
 import commonsos.DBTest;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -15,18 +14,13 @@ import static org.junit.Assert.assertFalse;
 
 public class AdRepositoryTest extends DBTest {
 
-  private AdRepository repository = new AdRepository();
-
-  @Before
-  public void before() {
-    repository.emService = entityManagerService;
-  }
+  private AdRepository repository = new AdRepository(entityManagerService);
 
   @Test
   public void create() {
     String id = inTransaction(() -> repository.create(new Ad()).getId());
 
-    assertThat(repository.em().find(Ad.class, id)).isNotNull();
+    assertThat(em().find(Ad.class, id)).isNotNull();
   }
 
   @Test

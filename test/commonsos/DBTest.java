@@ -25,6 +25,10 @@ public abstract class DBTest {
 
   protected EntityManagerService entityManagerService = new TestEntityManagerService();
 
+  protected EntityManager em() {
+    return entityManagerService.get();
+  }
+
   @BeforeClass
   public static void initDb() {
     Map<String, String> config = new HashMap<>();

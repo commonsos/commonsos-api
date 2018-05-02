@@ -1,22 +1,20 @@
 package commonsos.domain.ad;
 
 import commonsos.EntityManagerService;
+import commonsos.Repository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
 @Singleton
-public class AdRepository {
+public class AdRepository extends Repository {
 
-  @Inject EntityManagerService emService;
-
-  EntityManager em() {
-    return emService.get();
+  @Inject public AdRepository(EntityManagerService entityManagerService) {
+    super(entityManagerService);
   }
 
   public Ad create(Ad ad) {
