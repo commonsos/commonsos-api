@@ -1,27 +1,33 @@
 package commonsos.domain.transaction;
 
+import commonsos.EntityManagerService;
+import commonsos.Repository;
 import commonsos.domain.auth.User;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+@Singleton
+public class TransactionRepository extends Repository {
 
-public class TransactionRepository {
   public List<Transaction> transactions = new ArrayList<Transaction>();
 
-  public void create(Transaction transaction) {
-    transactions.add(transaction);
+  @Inject
+  public TransactionRepository(EntityManagerService entityManagerService) {
+    super(entityManagerService);
+  }
+
+  public Transaction create(Transaction transaction) {
+    em().persist(transaction);
+    return transaction;
   }
 
   public List<Transaction> transactions(User user) {
-    return transactions
-      .stream()
-      .filter(t -> isUserRelated(user, t))
-      .collect(toList());
-  }
-
-  private boolean isUserRelated(User user, Transaction t) {
-    return t.getBeneficiaryId().equals(user.getId()) || t.getRemitterId().equals(user.getId());
+    return em()
+      .createQuery("FROM Transaction WHERE beneficiaryId = :userId OR remitterId = :userId", Transaction.class)
+      .setParameter("userId", user.getId())
+      .getResultList();
   }
 }
