@@ -7,14 +7,16 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class MessageThread {
-  private String id;
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) String id;
   private String adId;
   private String title;
   private String createdBy;
-  private List<User> parties = new ArrayList<>();
+  @ManyToMany private List<User> parties = new ArrayList<>();
 }

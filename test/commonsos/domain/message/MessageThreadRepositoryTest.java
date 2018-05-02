@@ -1,75 +1,84 @@
 package commonsos.domain.message;
 
+import commonsos.DBTest;
 import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserRepository;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MessageThreadRepositoryTest {
+public class MessageThreadRepositoryTest extends DBTest {
 
-  @InjectMocks MessageThreadRepository repository;
+  UserRepository userRepository = new UserRepository(entityManagerService);
+  MessageThreadRepository repository = new MessageThreadRepository(entityManagerService);
 
   @Test
   public void byAdId() {
-    MessageThread thread1 = new MessageThread().setAdId("10").setCreatedBy("me");
-    MessageThread thread2 = new MessageThread().setAdId("20").setCreatedBy("other-user");
-    MessageThread thread3 = new MessageThread().setAdId("20").setCreatedBy("me");
-    repository.threads.addAll(asList(thread1, thread2, thread3));
+    inTransaction(() -> repository.create(new MessageThread().setAdId("10").setCreatedBy("me")));
+    inTransaction(() -> repository.create(new MessageThread().setAdId("20").setCreatedBy("other-user")));
+    String id = inTransaction(() -> repository.create(new MessageThread().setAdId("20").setCreatedBy("me"))).getId();
 
-    assertThat(repository.byAdId(new User().setId("me"), "20")).contains(thread3);
+    Optional<MessageThread> result = repository.byAdId(new User().setId("me"), "20");
+    assertThat(result).isNotEmpty();
+    assertThat(result.get().getId()).isEqualTo(id);
   }
 
   @Test
   public void byAdId_notFound() {
-    repository.threads.clear();
-
     assertThat(repository.byAdId(new User().setId("me"), "20")).isEmpty();
   }
 
   @Test
   public void create() {
-    repository.threads.clear();
-    MessageThread messageThread = new MessageThread();
+    User myself = inTransaction(() -> userRepository.create(new User()));
+    User counterparty = inTransaction(() -> userRepository.create(new User()));
 
-    MessageThread result = repository.create(messageThread);
+    MessageThread messageThread = new MessageThread()
+      .setParties(asList(myself, counterparty));
+    String id = inTransaction(() -> repository.create(messageThread).getId());
 
-    assertThat(result.getId()).isEqualTo("0");
-    assertThat(repository.threads).containsExactly(messageThread);
+    MessageThread result = em().find(MessageThread.class, id);
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isNotNull();
+
+    assertThat(result.getParties()).containsExactly(myself, counterparty);
   }
 
   @Test
   public void listByUser() {
-    User user = new User().setId("1");
-    MessageThread thread1 = new MessageThread().setParties(asList(user, new User().setId("2")));
-    MessageThread thread2 = new MessageThread().setParties(asList(new User().setId("2"), new User().setId("3")));
-    MessageThread thread3 = new MessageThread().setParties(asList(new User().setId("3"), user));
-    repository.threads.addAll(asList(thread1, thread2, thread3));
+    User user = inTransaction(() -> userRepository.create(new User()));
+    User otherUser = inTransaction(() -> userRepository.create(new User()));
+
+    MessageThread thread1 = new MessageThread().setParties(asList(user, otherUser));
+    MessageThread thread2 = new MessageThread().setParties(asList(otherUser));
+    MessageThread thread3 = new MessageThread().setParties(asList(otherUser, user));
+
+    String id1 = inTransaction(() -> repository.create(thread1).getId());
+    String id2 = inTransaction(() -> repository.create(thread2).getId());
+    String id3 = inTransaction(() -> repository.create(thread3).getId());
 
     List<MessageThread> result = repository.listByUser(user);
 
-    assertThat(result).containsExactly(thread1, thread3);
+    assertThat(result).extracting("id").containsExactly(id1, id3);
   }
 
   @Test
   public void threadById() {
-    MessageThread thread1 = new MessageThread().setId("0");
-    MessageThread thread2 = new MessageThread().setId("1");
-    repository.threads.addAll(asList(thread1, thread2));
+    User user = inTransaction(() -> userRepository.create(new User()));
+    String id = inTransaction(() -> repository.create(new MessageThread().setParties(asList(user))).getId());
 
-    assertThat(repository.thread("1")).contains(thread2);
+    Optional<MessageThread> result = repository.thread(id);
+
+    assertThat(result).isNotEmpty();
+    assertThat(result.get().getId()).isEqualTo(id);
   }
 
   @Test
   public void threadById_notFound() {
-    repository.threads.addAll(asList(new MessageThread().setId("0")));
-
     assertThat(repository.thread("1")).isEmpty();
   }
 }

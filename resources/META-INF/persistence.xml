@@ -13,6 +13,7 @@
     <class>commonsos.domain.ad.Ad</class>
     <class>commonsos.domain.transaction.Transaction</class>
     <class>commonsos.domain.message.Message</class>
+    <class>commonsos.domain.message.MessageThread</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -23,7 +24,7 @@
       <property name="hibernate.connection.url" value="jdbc:h2:mem:commonsos;MODE=MySQL;IGNORECASE=TRUE;AUTOCOMMIT=OFF;DB_CLOSE_DELAY=-1" />
       <property name="hibernate.connection.username" value="sa" />
       <property name="hibernate.show_sql" value="false" />
-      <property name="hibernate.format_sql" value="false" />
+      <property name="hibernate.format_sql" value="true" />
       <property name="hibernate.connection.provider_class"
                 value="org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider" />
       <property name="hibernate.c3p0.max_size" value="100" />
