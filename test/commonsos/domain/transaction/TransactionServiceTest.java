@@ -13,12 +13,12 @@ import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
@@ -150,6 +150,7 @@ public class TransactionServiceTest {
 
   @Test
   public void view() {
+    Instant createdAt = Instant.now();
     UserView beneficiary = new UserView();
     UserView remitter = new UserView();
     when(userService.view("beneficiary id")).thenReturn(beneficiary);
@@ -162,13 +163,13 @@ public class TransactionServiceTest {
         .setRemitterId("remitter id")
         .setAmount(TEN)
         .setDescription("description")
-        .setCreatedAt(OffsetDateTime.MAX));
+        .setCreatedAt(createdAt));
 
     assertThat(view.getBeneficiary()).isEqualTo(beneficiary);
     assertThat(view.getRemitter()).isEqualTo(remitter);
     assertThat(view.getAmount()).isEqualTo(TEN);
     assertThat(view.getDescription()).isEqualTo("description");
-    assertThat(view.getCreatedAt()).isEqualTo(OffsetDateTime.MAX);
+    assertThat(view.getCreatedAt()).isEqualTo(createdAt);
     assertThat(view.isDebit()).isTrue();
   }
 

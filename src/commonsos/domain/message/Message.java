@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -15,7 +15,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Getter @Setter @Accessors(chain=true)
 public class Message {
   @Id @GeneratedValue(strategy = IDENTITY) private String id;
-  private OffsetDateTime createdAt;
+  private Instant createdAt;
   private String createdBy;
   private String threadId;
   private String text;

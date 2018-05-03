@@ -9,14 +9,14 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
 import static java.math.BigDecimal.*;
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,7 +85,7 @@ public class AdServiceTest {
 
   @Test
   public void view() {
-    OffsetDateTime createdAt = now();
+    Instant createdAt = now();
     Ad ad = new Ad()
       .setPoints(TEN)
       .setLocation("home")

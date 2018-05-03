@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter @Setter @Accessors(chain=true)
 public class AdView {
@@ -18,7 +18,7 @@ public class AdView {
   private String location;
   private boolean own;
   private boolean payable;
-  private OffsetDateTime createdAt;
+  private Instant createdAt;
   private String photoUrl;
   private AdType type;
 }

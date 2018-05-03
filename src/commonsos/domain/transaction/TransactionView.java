@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter @Setter @Accessors(chain=true)
 public class TransactionView {
@@ -14,6 +14,6 @@ public class TransactionView {
   private UserView beneficiary;
   private BigDecimal amount;
   private String description;
-  private OffsetDateTime createdAt;
+  private Instant createdAt;
   private boolean debit;
 }

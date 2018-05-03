@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;

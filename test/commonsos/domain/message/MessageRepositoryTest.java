@@ -3,11 +3,11 @@ package commonsos.domain.message;
 import commonsos.DBTest;
 import org.junit.Test;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +17,7 @@ public class MessageRepositoryTest extends DBTest {
 
   @Test
   public void createMessage() {
-    OffsetDateTime now = now();
+    Instant now = now();
     Message message = new Message()
       .setCreatedBy("created by")
       .setCreatedAt(now)

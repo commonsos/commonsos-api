@@ -16,12 +16,12 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
@@ -142,7 +142,7 @@ public class MessageServiceTest {
 
   @Test
   public void messageView() {
-    OffsetDateTime messageCreated = now();
+    Instant messageCreated = now();
     Message message = new Message()
       .setId("33")
       .setThreadId("thread id")

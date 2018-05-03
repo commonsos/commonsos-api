@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -24,6 +24,6 @@ public class Ad {
   private String description;
   private BigDecimal points;
   private String location;
-  private OffsetDateTime createdAt;
+  private Instant createdAt;
   private String photoUrl;
 }

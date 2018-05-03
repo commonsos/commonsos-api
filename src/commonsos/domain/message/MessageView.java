@@ -6,12 +6,12 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class MessageView {
   private String id;
-  private OffsetDateTime createdAt;
+  private Instant createdAt;
   private String createdBy;
   private String text;
 }

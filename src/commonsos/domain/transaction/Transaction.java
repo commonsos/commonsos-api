@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -21,5 +21,5 @@ public class Transaction {
   private String description;
   private String adId;
   private BigDecimal amount;
-  private OffsetDateTime createdAt;
+  private Instant createdAt;
 }

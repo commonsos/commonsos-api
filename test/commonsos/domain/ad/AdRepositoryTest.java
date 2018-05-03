@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import static commonsos.domain.ad.AdType.GIVE;
 import static java.math.BigDecimal.TEN;
-import static java.time.OffsetDateTime.parse;
+import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 
@@ -37,7 +37,7 @@ public class AdRepositoryTest extends DBTest {
         .setCreatedBy("john")
         .setPoints(TEN).setType(GIVE)
         .setPhotoUrl("url://photo")
-        .setCreatedAt(parse("2016-10-02T20:15:30+03:00"))
+        .setCreatedAt(parse("2016-02-02T20:15:30Z"))
         .setDescription("description")
         .setLocation("home"))
       .getId());
@@ -48,7 +48,7 @@ public class AdRepositoryTest extends DBTest {
     assertThat(result.getCreatedBy()).isEqualTo("john");
     assertThat(result.getType()).isEqualTo(GIVE);
     assertThat(result.getPhotoUrl()).isEqualTo("url://photo");
-    assertThat(result.getCreatedAt()).isEqualTo(parse("2016-10-02T20:15:30+03:00"));
+    assertThat(result.getCreatedAt()).isEqualTo(parse("2016-02-02T20:15:30Z"));
     assertThat(result.getDescription()).isEqualTo("description");
     assertThat(result.getLocation()).isEqualTo("home");
   }

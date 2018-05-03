@@ -11,7 +11,7 @@ import java.util.List;
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
 import static java.math.BigDecimal.ZERO;
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
 
 @Singleton

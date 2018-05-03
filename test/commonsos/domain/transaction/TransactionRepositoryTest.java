@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static java.math.BigDecimal.TEN;
-import static java.time.OffsetDateTime.parse;
+import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TransactionRepositoryTest extends DBTest {
@@ -21,7 +21,7 @@ public class TransactionRepositoryTest extends DBTest {
         .setBeneficiaryId("beneficiary id")
         .setAdId("ad id")
         .setDescription("description")
-        .setCreatedAt(parse("2017-10-24T11:22:33+03:00"))
+        .setCreatedAt(parse("2017-10-24T11:22:33Z"))
         .setAmount(TEN))
       .getId());
 
@@ -33,7 +33,7 @@ public class TransactionRepositoryTest extends DBTest {
     assertThat(result.getBeneficiaryId()).isEqualTo("beneficiary id");
     assertThat(result.getAdId()).isEqualTo("ad id");
     assertThat(result.getDescription()).isEqualTo("description");
-    assertThat(result.getCreatedAt()).isEqualTo(parse("2017-10-24T11:22:33+03:00"));
+    assertThat(result.getCreatedAt()).isEqualTo(parse("2017-10-24T11:22:33Z"));
     assertThat(result.getAmount()).isEqualTo(new BigDecimal("10.00"));
   }
 

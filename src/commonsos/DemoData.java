@@ -20,7 +20,7 @@ import java.util.UUID;
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
 import static java.math.BigDecimal.TEN;
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 

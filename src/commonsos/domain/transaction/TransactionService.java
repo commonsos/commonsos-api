@@ -11,7 +11,7 @@ import commonsos.domain.auth.UserView;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 
@@ -77,7 +77,7 @@ public class TransactionService {
       .setBeneficiaryId(command.getBeneficiaryId())
       .setDescription(command.getDescription())
       .setAdId(command.getAdId())
-      .setCreatedAt(OffsetDateTime.now())
+      .setCreatedAt(Instant.now())
     );
   }
 }
