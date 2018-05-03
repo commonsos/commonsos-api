@@ -20,9 +20,10 @@
     <properties>
       <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
-      <property name="hibernate.hbm2ddl.auto" value="create" />
+      <property name="hibernate.hbm2ddl.auto" value="none" />
       <property name="hibernate.connection.url" value="jdbc:h2:mem:commonsos;MODE=MySQL;IGNORECASE=TRUE;AUTOCOMMIT=OFF;DB_CLOSE_DELAY=-1" />
       <property name="hibernate.connection.username" value="sa" />
+      <property name="hibernate.physical_naming_strategy" value="commonsos.PhysicalNamingStrategyImpl"/>
       <property name="hibernate.show_sql" value="false" />
       <property name="hibernate.format_sql" value="true" />
       <property name="hibernate.connection.provider_class"

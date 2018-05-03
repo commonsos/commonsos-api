@@ -20,8 +20,8 @@ public class MessageThread {
   private String createdBy;
   @ManyToMany
   @JoinTable(
-    name = "messagethread_party",
-    joinColumns = { @JoinColumn(name = "messagethread_id") },
+    name = "message_thread_party",
+    joinColumns = { @JoinColumn(name = "message_thread_id") },
     inverseJoinColumns = { @JoinColumn(name = "user_id") }
   )
   private List<User> parties = new ArrayList<>();

@@ -26,11 +26,14 @@ import static spark.Spark.*;
 @Slf4j
 public class Server {
   @Inject private JsonTransformer toJson;
+  @Inject private DatabaseMigrator databaseMigrator;
+  @Inject private DemoData demoData;
 
   private void start() {
     Injector injector = initDependencies();
+    databaseMigrator.execute();
     initRoutes(injector);
-    injector.getInstance(DemoData.class).install();
+    demoData.install();
   }
 
   private Injector initDependencies() {

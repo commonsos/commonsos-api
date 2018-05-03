@@ -1,5 +1,6 @@
 package commonsos;
 
+import org.flywaydb.core.Flyway;
 import org.hibernate.internal.SessionImpl;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -22,8 +23,7 @@ import java.util.Map;
 public abstract class DBTest {
   private static Path dumpFilePath;
   private static EntityManagerFactory entityManagerFactory;
-
-  protected EntityManagerService entityManagerService = new TestEntityManagerService();
+  protected static EntityManagerService entityManagerService = new TestEntityManagerService();
 
   protected EntityManager em() {
     return entityManagerService.get();
@@ -36,6 +36,10 @@ public abstract class DBTest {
     config.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
     config.put("hibernate.connection.driver_class", "org.h2.Driver");
     entityManagerFactory = Persistence.createEntityManagerFactory("commonsos", config);
+    entityManagerService.entityManagerFactory = entityManagerFactory;
+
+    new DatabaseMigrator(entityManagerService, new Flyway()).execute();
+
     dumpFilePath = createTempFile();
     executeSQL("script drop to '" + dumpFilePath + "'", entityManagerFactory);
   }
@@ -47,7 +51,6 @@ public abstract class DBTest {
 
   @Before
   public void setUp() throws Exception {
-    entityManagerService.entityManagerFactory = entityManagerFactory;
     executeSQL("runscript from '" + dumpFilePath + "'", entityManagerFactory);
   }
 
