@@ -18,5 +18,11 @@ public class MessageThread {
   private String adId;
   private String title;
   private String createdBy;
-  @ManyToMany private List<User> parties = new ArrayList<>();
+  @ManyToMany
+  @JoinTable(
+    name = "messagethread_party",
+    joinColumns = { @JoinColumn(name = "messagethread_id") },
+    inverseJoinColumns = { @JoinColumn(name = "user_id") }
+  )
+  private List<User> parties = new ArrayList<>();
 }
