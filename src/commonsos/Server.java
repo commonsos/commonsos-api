@@ -33,6 +33,17 @@ public class Server {
     injector.getInstance(DemoData.class).install();
   }
 
+  static private void startH2WebConsole() {
+    try {
+      org.h2.tools.Server server = org.h2.tools.Server.createWebServer("-trace");
+      server.start();
+      log.info("H2 Web server started on port " + server.getPort());
+    }
+    catch (SQLException e) {
+      log.warn("Failed to start H2 Web server", e);
+    }
+  }
+
   private Injector initDependencies() {
     Module module = new AbstractModule() {
       @Override protected void configure() {
