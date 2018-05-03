@@ -18,6 +18,8 @@ import commonsos.controller.transaction.TransactionCreateController;
 import commonsos.controller.transaction.TransactionListController;
 import lombok.extern.slf4j.Slf4j;
 
+import java.sql.SQLException;
+
 import static java.util.Arrays.asList;
 import static spark.Spark.*;
 
@@ -29,6 +31,17 @@ public class Server {
     Injector injector = initDependencies();
     initRoutes(injector);
     injector.getInstance(DemoData.class).install();
+  }
+
+  static private void startH2WebConsole() {
+    try {
+      org.h2.tools.Server server = org.h2.tools.Server.createWebServer("-trace");
+      server.start();
+      log.info("H2 Web server started on port " + server.getPort());
+    }
+    catch (SQLException e) {
+      log.warn("Failed to start H2 Web server", e);
+    }
   }
 
   private Injector initDependencies() {
@@ -99,6 +112,7 @@ public class Server {
   public static void main(String[] args) {
     try {
       new Server().start();
+      if (args.length > 0 && "h2-console".equals(args[0])) Server.startH2WebConsole();
     }
     catch (Throwable e) {
       e.printStackTrace();
