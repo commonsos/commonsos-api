@@ -6,13 +6,10 @@ import commonsos.domain.auth.User;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.List;
 
 @Singleton
 public class TransactionRepository extends Repository {
-
-  public List<Transaction> transactions = new ArrayList<Transaction>();
 
   @Inject
   public TransactionRepository(EntityManagerService entityManagerService) {
