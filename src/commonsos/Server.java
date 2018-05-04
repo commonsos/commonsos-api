@@ -31,7 +31,7 @@ public class Server {
     Injector injector = initDependencies();
     databaseMigrator.execute();
     initRoutes(injector);
-    //demoData.install();
+    demoData.install();
   }
 
   private Injector initDependencies() {

@@ -35,6 +35,8 @@ public class DemoData {
 
   public void install() {
 
+    if (!emService.get().createQuery("FROM User", User.class).setMaxResults(1).getResultList().isEmpty()) return;
+
     User worker = emService.runInTransaction(() -> userService.create(new AccountCreateCommand().setUsername("worker").setPassword("secret00").setFirstName("Haruto").setLastName("Sato").setLocation("Shibuya, Tokyo, Japan"))
       .setAvatarUrl("https://image.jimcdn.com/app/cms/image/transf/none/path/s09a03e3ad80f8a02/image/i788e42d25ed4115e/version/1493969515/image.jpg")
       .setDescription("I am an Engineer, currently unemployed. I like helping elderly people, I can help with daily chores."));
