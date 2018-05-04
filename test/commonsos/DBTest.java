@@ -32,7 +32,7 @@ public abstract class DBTest {
   @BeforeClass
   public static void initDb() {
     Map<String, String> config = new HashMap<>();
-    config.put("hibernate.connection.url", "jdbc:h2:mem:commonsos;MODE=MySQL");
+    config.put("hibernate.connection.url", "jdbc:h2:mem:commonsos;MODE=PostgreSQL");
     config.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
     config.put("hibernate.connection.driver_class", "org.h2.Driver");
     entityManagerFactory = Persistence.createEntityManagerFactory("commonsos", config);

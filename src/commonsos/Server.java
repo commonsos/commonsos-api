@@ -18,8 +18,6 @@ import commonsos.controller.transaction.TransactionCreateController;
 import commonsos.controller.transaction.TransactionListController;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.SQLException;
-
 import static java.util.Arrays.asList;
 import static spark.Spark.*;
 
@@ -101,22 +99,9 @@ public class Server {
     });
   }
 
-  private static void startH2WebConsole() {
-    try {
-      org.h2.tools.Server server = org.h2.tools.Server.createWebServer();
-      server.start();
-      log.info("H2 Web server started on port " + server.getPort());
-    }
-    catch (SQLException e) {
-      log.warn("Failed to start H2 Web server", e);
-    }
-  }
-
-
   public static void main(String[] args) {
     try {
       new Server().start();
-      if (args.length > 0 && "h2-console".equals(args[0])) startH2WebConsole();
     }
     catch (Throwable e) {
       e.printStackTrace();

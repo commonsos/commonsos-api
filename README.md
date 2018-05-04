@@ -8,8 +8,20 @@ sudo apt-get update
 sudo apt-get install oracle-java8-installer 
 
 sudo apt-get install gradle 
+```
+
+## Database installation
 
 ```
+sudo apt-get install postgresql
+``` 
+
+###Create user and database
+```
+sudo -u postgres createuser -D -A -P commonsos
+sudo -u postgres createdb -O commonsos commonsos
+```
+
 ## Apache configuration
 
 Proxy API and Web to corresponding servers

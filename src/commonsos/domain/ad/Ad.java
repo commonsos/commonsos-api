@@ -6,20 +6,19 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
-@Entity
+@Entity @Table(name="ads")
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class Ad {
   @Id @GeneratedValue(strategy = IDENTITY) private String id;
   private String createdBy;
-  private AdType type;
+  @Enumerated(value = STRING) private AdType type;
   private String title;
   private String description;
   private BigDecimal points;

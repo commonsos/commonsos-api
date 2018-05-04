@@ -7,12 +7,13 @@ import lombok.experimental.Accessors;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
-@Entity
+@Entity @Table(name="transactions")
 @Getter @Setter @Accessors(chain=true)
 public class Transaction {
   @Id @GeneratedValue(strategy=IDENTITY) private String id;

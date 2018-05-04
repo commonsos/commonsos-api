@@ -9,10 +9,11 @@ import lombok.experimental.Accessors;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
-@Entity
+@Entity @Table(name = "users")
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class User {
   @Id @GeneratedValue(strategy = IDENTITY) String id;

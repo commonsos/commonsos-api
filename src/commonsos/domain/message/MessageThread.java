@@ -11,7 +11,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Entity @Table(name="message_threads")
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class MessageThread {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY) String id;
@@ -20,7 +20,7 @@ public class MessageThread {
   private String createdBy;
   @ManyToMany
   @JoinTable(
-    name = "message_thread_party",
+    name = "message_thread_parties",
     joinColumns = { @JoinColumn(name = "message_thread_id") },
     inverseJoinColumns = { @JoinColumn(name = "user_id") }
   )
