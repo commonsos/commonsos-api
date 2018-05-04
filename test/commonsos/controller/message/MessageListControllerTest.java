@@ -27,8 +27,8 @@ public class MessageListControllerTest {
   public void handle() {
     User user = new User();
     List<MessageView> messages = new ArrayList<>();
-    when(request.params("id")).thenReturn("thread id");
-    when(service.messages(user, "thread id")).thenReturn(messages);
+    when(request.params("id")).thenReturn("123");
+    when(service.messages(user, 123L)).thenReturn(messages);
 
     List<MessageView> result = controller.handle(user, request, null);
 

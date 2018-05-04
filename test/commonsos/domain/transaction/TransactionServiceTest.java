@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+import static commonsos.TestId.id;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static java.time.Instant.now;
@@ -37,10 +38,10 @@ public class TransactionServiceTest {
   @Test
   public void create() {
     TransactionCreateCommand command = command("beneficiary", "0.01", "description", "ad id");
-    User user = new User().setId("remitter");
+    User user = new User().setId(id("remitter"));
     doReturn(new BigDecimal("0.2")).when(service).balance(user);
     Ad ad = new Ad();
-    when(adService.ad("ad id")).thenReturn(ad);
+    when(adService.ad(id("ad id"))).thenReturn(ad);
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
 
     service.create(user, command);
@@ -48,10 +49,10 @@ public class TransactionServiceTest {
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
     assertThat(transaction.getAmount()).isEqualTo(new BigDecimal("0.01"));
-    assertThat(transaction.getBeneficiaryId()).isEqualTo("beneficiary");
-    assertThat(transaction.getRemitterId()).isEqualTo("remitter");
+    assertThat(transaction.getBeneficiaryId()).isEqualTo(id("beneficiary"));
+    assertThat(transaction.getRemitterId()).isEqualTo(id("remitter"));
     assertThat(transaction.getDescription()).isEqualTo("description");
-    assertThat(transaction.getAdId()).isEqualTo("ad id");
+    assertThat(transaction.getAdId()).isEqualTo(id("ad id"));
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 
@@ -72,7 +73,7 @@ public class TransactionServiceTest {
 
   public void create_transactionWithoutAd() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
-    User user = new User().setId("remitter");
+    User user = new User().setId(id("remitter"));
     doReturn(new BigDecimal("10.20")).when(service).balance(user);
 
     service.create(user, command);
@@ -82,19 +83,19 @@ public class TransactionServiceTest {
 
   private TransactionCreateCommand command(String beneficiary, String amount, String description, String adId) {
     return new TransactionCreateCommand()
-      .setBeneficiaryId(beneficiary)
+      .setBeneficiaryId(id(beneficiary))
       .setAmount(new BigDecimal(amount))
       .setDescription(description)
-      .setAdId(adId);
+      .setAdId(id(adId));
   }
 
   @Test
   public void create_insufficientBalance() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
-    User user = new User().setId("remitter");
+    User user = new User().setId(id("remitter"));
     doReturn(TEN).when(service).balance(user);
-    Ad ad = new Ad().setCreatedBy("beneficiary");
-    when(adService.ad("ad id")).thenReturn(ad);
+    Ad ad = new Ad().setCreatedBy(id("beneficiary"));
+    when(adService.ad(id("ad id"))).thenReturn(ad);
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
     DisplayableException thrown = catchThrowableOfType(() -> service.create(user, command), DisplayableException.class);
 
@@ -103,17 +104,17 @@ public class TransactionServiceTest {
 
   @Test(expected = BadRequestException.class)
   public void create_unknownBeneficiary() {
-    when(userService.user("unknown")).thenThrow(new BadRequestException());
+    when(userService.user(id("unknown"))).thenThrow(new BadRequestException());
     TransactionCreateCommand command = command("unknown", "10.2", "description", "33");
 
-    service.create(new User().setId("remitter"), command);
+    service.create(new User().setId(id("remitter")), command);
   }
 
   @Test(expected = BadRequestException.class)
   public void create_unknownAd() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "unknown ad");
-    User user = new User().setId("remitter");
-    when(adService.ad("unknown ad")).thenThrow(new BadRequestException());
+    User user = new User().setId(id("remitter"));
+    when(adService.ad(id("unknown ad"))).thenThrow(new BadRequestException());
 
     service.create(user, command);
   }
@@ -121,7 +122,7 @@ public class TransactionServiceTest {
   @Test(expected = BadRequestException.class)
   public void create_canNotPayYourself() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
-    User user = new User().setId("beneficiary");
+    User user = new User().setId(id("beneficiary"));
 
     service.create(user, command);
   }
@@ -129,18 +130,18 @@ public class TransactionServiceTest {
   @Test(expected = BadRequestException.class)
   public void create_beneficiaryDontMatchWithAdOwner() {
     TransactionCreateCommand command = command("not ad owner", "10.2", "description", "unknown ad");
-    User user = new User().setId("remitter");
-    when(adService.ad("unknown ad")).thenReturn(new Ad().setCreatedBy("ad owner"));
+    User user = new User().setId(id("remitter"));
+    when(adService.ad(id("unknown ad"))).thenReturn(new Ad().setCreatedBy(id("ad owner")));
 
     service.create(user, command);
   }
 
   @Test
   public void balance() {
-    User user = new User().setId("worker");
+    User user = new User().setId(id("worker"));
     List<Transaction> transactions = asList(
-      new Transaction().setRemitterId("worker").setBeneficiaryId("elderly").setAmount(ONE),
-      new Transaction().setRemitterId("elderly").setBeneficiaryId("worker").setAmount(TEN));
+      new Transaction().setRemitterId(id("worker")).setBeneficiaryId(id("elderly")).setAmount(ONE),
+      new Transaction().setRemitterId(id("elderly")).setBeneficiaryId(id("worker")).setAmount(TEN));
     when(repository.transactions(user)).thenReturn(transactions);
 
     BigDecimal balance = service.balance(user);
@@ -153,14 +154,14 @@ public class TransactionServiceTest {
     Instant createdAt = Instant.now();
     UserView beneficiary = new UserView();
     UserView remitter = new UserView();
-    when(userService.view("beneficiary id")).thenReturn(beneficiary);
-    when(userService.view("remitter id")).thenReturn(remitter);
+    when(userService.view(id("beneficiary id"))).thenReturn(beneficiary);
+    when(userService.view(id("remitter id"))).thenReturn(remitter);
 
     TransactionView view = service.view(
-      new User().setId("remitter id"),
+      new User().setId(id("remitter id")),
       new Transaction()
-        .setBeneficiaryId("beneficiary id")
-        .setRemitterId("remitter id")
+        .setBeneficiaryId(id("beneficiary id"))
+        .setRemitterId(id("remitter id"))
         .setAmount(TEN)
         .setDescription("description")
         .setCreatedAt(createdAt));

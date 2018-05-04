@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Optional;
 
+import static commonsos.TestId.id;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,18 +19,18 @@ public class MessageThreadRepositoryTest extends DBTest {
 
   @Test
   public void byAdId() {
-    inTransaction(() -> repository.create(new MessageThread().setAdId("10").setCreatedBy("me")));
-    inTransaction(() -> repository.create(new MessageThread().setAdId("20").setCreatedBy("other-user")));
-    String id = inTransaction(() -> repository.create(new MessageThread().setAdId("20").setCreatedBy("me"))).getId();
+    inTransaction(() -> repository.create(new MessageThread().setAdId(10L).setCreatedBy(id("me"))));
+    inTransaction(() -> repository.create(new MessageThread().setAdId(20L).setCreatedBy(id("other-user"))));
+    Long id = inTransaction(() -> repository.create(new MessageThread().setAdId(20L).setCreatedBy(id("me")))).getId();
 
-    Optional<MessageThread> result = repository.byAdId(new User().setId("me"), "20");
+    Optional<MessageThread> result = repository.byAdId(new User().setId(id("me")), 20L);
     assertThat(result).isNotEmpty();
     assertThat(result.get().getId()).isEqualTo(id);
   }
 
   @Test
   public void byAdId_notFound() {
-    assertThat(repository.byAdId(new User().setId("me"), "20")).isEmpty();
+    assertThat(repository.byAdId(new User().setId(id("me")), 20L)).isEmpty();
   }
 
   @Test
@@ -39,7 +40,7 @@ public class MessageThreadRepositoryTest extends DBTest {
 
     MessageThread messageThread = new MessageThread()
       .setParties(asList(myself, counterparty));
-    String id = inTransaction(() -> repository.create(messageThread).getId());
+    Long id = inTransaction(() -> repository.create(messageThread).getId());
 
     MessageThread result = em().find(MessageThread.class, id);
     assertThat(result).isNotNull();
@@ -57,9 +58,9 @@ public class MessageThreadRepositoryTest extends DBTest {
     MessageThread thread2 = new MessageThread().setParties(asList(otherUser));
     MessageThread thread3 = new MessageThread().setParties(asList(otherUser, user));
 
-    String id1 = inTransaction(() -> repository.create(thread1).getId());
-    String id2 = inTransaction(() -> repository.create(thread2).getId());
-    String id3 = inTransaction(() -> repository.create(thread3).getId());
+    Long id1 = inTransaction(() -> repository.create(thread1).getId());
+    Long id2 = inTransaction(() -> repository.create(thread2).getId());
+    Long id3 = inTransaction(() -> repository.create(thread3).getId());
 
     List<MessageThread> result = repository.listByUser(user);
 
@@ -69,7 +70,7 @@ public class MessageThreadRepositoryTest extends DBTest {
   @Test
   public void threadById() {
     User user = inTransaction(() -> userRepository.create(new User()));
-    String id = inTransaction(() -> repository.create(new MessageThread().setParties(asList(user))).getId());
+    Long id = inTransaction(() -> repository.create(new MessageThread().setParties(asList(user))).getId());
 
     Optional<MessageThread> result = repository.thread(id);
 
@@ -79,6 +80,6 @@ public class MessageThreadRepositoryTest extends DBTest {
 
   @Test
   public void threadById_notFound() {
-    assertThat(repository.thread("1")).isEmpty();
+    assertThat(repository.thread(1L)).isEmpty();
   }
 }

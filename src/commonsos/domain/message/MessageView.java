@@ -10,8 +10,8 @@ import java.time.Instant;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class MessageView {
-  private String id;
+  private Long id;
   private Instant createdAt;
-  private String createdBy;
+  private Long createdBy;
   private String text;
 }

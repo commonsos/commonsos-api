@@ -26,12 +26,12 @@ public class MessageService {
   @Inject private AdService adService;
   @Inject private UserService userService;
 
-  public MessageThreadView threadForAd(User user, String adId) {
+  public MessageThreadView threadForAd(User user, Long adId) {
     MessageThread thread = messageThreadRepository.byAdId(user, adId).orElseGet(() -> createMessageThreadForAd(user, adId));
     return view(user, thread);
   }
 
-  public MessageThreadView thread(User user, String threadId) {
+  public MessageThreadView thread(User user, Long threadId) {
     return messageThreadRepository.thread(threadId)
       .map(t -> checkAccess(user, t))
       .map(t -> view(user, t))
@@ -43,7 +43,7 @@ public class MessageService {
     return thread;
   }
 
-  MessageThread createMessageThreadForAd(User user, String adId) {
+  MessageThread createMessageThreadForAd(User user, Long adId) {
     Ad ad = adService.ad(adId);
     User adCreator = userService.user(ad.getCreatedBy());
 
@@ -105,7 +105,7 @@ public class MessageService {
     return view(message);
   }
 
-  public List<MessageView> messages(User user, String threadId) {
+  public List<MessageView> messages(User user, Long threadId) {
     MessageThread thread = messageThreadRepository.thread(threadId).orElseThrow(BadRequestException::new);
     if (!thread.getParties().contains(user)) throw new ForbiddenException();
 

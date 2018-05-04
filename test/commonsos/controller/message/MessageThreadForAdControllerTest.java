@@ -23,9 +23,9 @@ public class MessageThreadForAdControllerTest {
   @Test
   public void handle() {
     User user = new User();
-    when(request.params("adId")).thenReturn("ad-id");
+    when(request.params("adId")).thenReturn("123");
     MessageThreadView view = new MessageThreadView();
-    when(service.threadForAd(user, "ad-id")).thenReturn(view);
+    when(service.threadForAd(user, 123L)).thenReturn(view);
 
     MessageThreadView result = controller.handle(user, request, null);
 

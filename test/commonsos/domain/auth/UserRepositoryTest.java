@@ -3,6 +3,7 @@ package commonsos.domain.auth;
 import commonsos.DBTest;
 import org.junit.Test;
 
+import static commonsos.TestId.id;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserRepositoryTest extends DBTest {
@@ -11,7 +12,7 @@ public class UserRepositoryTest extends DBTest {
 
   @Test
   public void create() {
-    String id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
+    Long id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
 
     User created = em().find(User.class, id);
     assertThat(created.getUsername()).isEqualTo("worker");
@@ -31,14 +32,14 @@ public class UserRepositoryTest extends DBTest {
 
   @Test
   public void findById() {
-    String id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
+    Long id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
 
     assertThat(repository.findById(id)).isNotEmpty();
   }
 
   @Test
   public void findById_notFound() {
-    assertThat(repository.findById("invalid id")).isEmpty();
+    assertThat(repository.findById(id("invalid id"))).isEmpty();
   }
 
   @Test

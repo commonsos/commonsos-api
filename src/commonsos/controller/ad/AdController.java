@@ -9,10 +9,12 @@ import spark.Response;
 
 import javax.inject.Inject;
 
+import static java.lang.Long.parseLong;
+
 public class AdController extends Controller {
   @Inject AdService service;
 
   @Override public AdView handle(User user, Request request, Response response) {
-    return service.view(user, request.params("id"));
+    return service.view(user, parseLong(request.params("id")));
   }
 }

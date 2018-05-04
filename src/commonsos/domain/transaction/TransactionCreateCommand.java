@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class TransactionCreateCommand {
-  private String beneficiaryId;
+  private Long beneficiaryId;
   private String description;
   private BigDecimal amount;
-  private String adId;
+  private Long adId;
 }

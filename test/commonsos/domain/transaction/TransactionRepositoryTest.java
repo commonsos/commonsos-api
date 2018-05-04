@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
+import static commonsos.TestId.id;
 import static java.math.BigDecimal.TEN;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,10 +17,10 @@ public class TransactionRepositoryTest extends DBTest {
 
   @Test
   public void create() {
-    String id = inTransaction(() -> repository.create(new Transaction()
-        .setRemitterId("remitter id")
-        .setBeneficiaryId("beneficiary id")
-        .setAdId("ad id")
+    Long id = inTransaction(() -> repository.create(new Transaction()
+        .setRemitterId(id("remitter id"))
+        .setBeneficiaryId(id("beneficiary id"))
+        .setAdId(id("ad id"))
         .setDescription("description")
         .setCreatedAt(parse("2017-10-24T11:22:33Z"))
         .setAmount(TEN))
@@ -29,9 +30,9 @@ public class TransactionRepositoryTest extends DBTest {
 
     assertThat(result).isNotNull();
     assertThat(result.getId()).isNotNull();
-    assertThat(result.getRemitterId()).isEqualTo("remitter id");
-    assertThat(result.getBeneficiaryId()).isEqualTo("beneficiary id");
-    assertThat(result.getAdId()).isEqualTo("ad id");
+    assertThat(result.getRemitterId()).isEqualTo(id("remitter id"));
+    assertThat(result.getBeneficiaryId()).isEqualTo(id("beneficiary id"));
+    assertThat(result.getAdId()).isEqualTo(id("ad id"));
     assertThat(result.getDescription()).isEqualTo("description");
     assertThat(result.getCreatedAt()).isEqualTo(parse("2017-10-24T11:22:33Z"));
     assertThat(result.getAmount()).isEqualTo(new BigDecimal("10.00"));
@@ -39,16 +40,16 @@ public class TransactionRepositoryTest extends DBTest {
 
   @Test
   public void transactions() {
-    User user = new User().setId("worker");
+    User user = new User().setId(id("worker"));
 
-    String id1 = inTransaction(() -> repository.create(transaction("elderly", "worker")).getId());
-    String id2 = inTransaction(() -> repository.create(transaction("worker", "elderly2")).getId());
-    inTransaction(() -> repository.create(transaction("foo", "bar")).getId());
+    Long id1 = inTransaction(() -> repository.create(transaction(id("elderly"), id("worker"))).getId());
+    Long id2 = inTransaction(() -> repository.create(transaction(id("worker"), id("elderly2"))).getId());
+    inTransaction(() -> repository.create(transaction(id("foo"), id("bar"))).getId());
 
     assertThat(repository.transactions(user)).extracting("id").containsExactly(id1, id2);
   }
 
-  private Transaction transaction(String remitterId, String beneficiary) {
+  private Transaction transaction(Long remitterId, Long beneficiary) {
     return new Transaction().setBeneficiaryId(beneficiary).setRemitterId(remitterId);
   }
 }

@@ -8,6 +8,6 @@ import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class MessagePostCommand {
-  private String threadId;
+  private Long threadId;
   private String text;
 }

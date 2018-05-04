@@ -8,6 +8,7 @@ import spark.Response;
 
 import javax.inject.Inject;
 
+import static java.lang.Long.parseLong;
 import static spark.utils.StringUtils.isNotBlank;
 
 public class UserController extends Controller {
@@ -15,8 +16,8 @@ public class UserController extends Controller {
   @Inject UserService userService;
 
   @Override public Object handle(User user, Request request, Response response) {
-    String requestedUserId = request.params("id");
-    if (isNotBlank(requestedUserId)) {
+    if (isNotBlank(request.params("id"))) {
+      Long requestedUserId = parseLong(request.params("id"));
       return user.isAdmin() ? userService.privateView(user, requestedUserId) : userService.view(requestedUserId);
     }
     return userService.privateView(user);

@@ -35,7 +35,7 @@ public class UserControllerTest {
   public void handle_withOtherUserId() {
     when(request.params("id")).thenReturn("123");
     UserView userView = new UserView();
-    when(service.view("123")).thenReturn(userView);
+    when(service.view(123L)).thenReturn(userView);
 
     Object result = controller.handle(new User().setAdmin(false), request, null);
 
@@ -47,7 +47,7 @@ public class UserControllerTest {
     when(request.params("id")).thenReturn("123");
     UserPrivateView userView = new UserPrivateView();
     User user = new User().setAdmin(true);
-    when(service.privateView(user, "123")).thenReturn(userView);
+    when(service.privateView(user, 123L)).thenReturn(userView);
 
     Object result = controller.handle(user, request, null);
 

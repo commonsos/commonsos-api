@@ -37,7 +37,7 @@ public class UserService {
       .setAvatarUrl(user.getAvatarUrl());
   }
 
-  public UserPrivateView privateView(User currentUser, String userId) {
+  public UserPrivateView privateView(User currentUser, Long userId) {
     if (!currentUser.getId().equals(userId) && !currentUser.isAdmin()) throw new ForbiddenException();
     User user = repository.findById(userId).orElseThrow(ForbiddenException::new);
     return privateView(user);
@@ -70,11 +70,11 @@ public class UserService {
     if (command.getLastName() == null || command.getLastName().length() < 1) throw new BadRequestException();
   }
 
-  public UserView view(String id) {
+  public UserView view(Long id) {
     return view(user(id));
   }
 
-  public User user(String id) {
+  public User user(Long id) {
     return repository.findById(id).orElseThrow(BadRequestException::new);
   }
 

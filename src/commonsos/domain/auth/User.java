@@ -16,7 +16,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity @Table(name = "users")
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class User {
-  @Id @GeneratedValue(strategy = IDENTITY) String id;
+  @Id @GeneratedValue(strategy = IDENTITY) Long id;
   boolean admin;
   String username;
   String passwordHash;

@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static commonsos.TestId.id;
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
 import static java.math.BigDecimal.*;
@@ -41,11 +42,11 @@ public class AdServiceTest {
       .setType(WANT)
       .setPhotoUrl("url://photo");
 
-    service.create(new User().setId("user id"), command);
+    service.create(new User().setId(id("user id")), command);
 
     verify(repository).create(adCaptor.capture());
     Ad ad = adCaptor.getValue();
-    assertThat(ad.getCreatedBy()).isEqualTo("user id");
+    assertThat(ad.getCreatedBy()).isEqualTo(id("user id"));
     assertThat(ad.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
     assertThat(ad.getTitle()).isEqualTo("title");
     assertThat(ad.getDescription()).isEqualTo("description");
@@ -71,11 +72,11 @@ public class AdServiceTest {
 
   @Test
   public void adsByOwner() {
-    User user = new User().setId("worker");
-    Ad ad = new Ad().setCreatedBy("worker");
+    User user = new User().setId(id("worker"));
+    Ad ad = new Ad().setCreatedBy(id("worker"));
     AdView adView = new AdView();
     AdService service = spy(this.service);
-    when(repository.list()).thenReturn(asList(ad, new Ad().setCreatedBy("elderly")));
+    when(repository.list()).thenReturn(asList(ad, new Ad().setCreatedBy(id("elderly"))));
     doReturn(adView).when(service).view(ad, user);
 
     List<AdView> result = service.adsByOwner(user);
@@ -90,20 +91,20 @@ public class AdServiceTest {
       .setPoints(TEN)
       .setLocation("home")
       .setDescription("description")
-      .setCreatedBy("worker")
-      .setId("11")
+      .setCreatedBy(id("worker"))
+      .setId(11L)
       .setTitle("title")
       .setCreatedAt(createdAt)
       .setPhotoUrl("photo url")
       .setType(WANT);
     UserView userView = new UserView();
-    when(userService.view("worker")).thenReturn(userView);
+    when(userService.view(id("worker"))).thenReturn(userView);
 
-    AdView view = service.view(ad, new User().setId("worker"));
+    AdView view = service.view(ad, new User().setId(id("worker")));
 
     assertThat(view.getCreatedBy()).isEqualTo(userView);
+    assertThat(view.getId()).isEqualTo(11L);
     assertThat(view.getDescription()).isEqualTo("description");
-    assertThat(view.getId()).isEqualTo("11");
     assertThat(view.getLocation()).isEqualTo("home");
     assertThat(view.getPoints()).isEqualTo(TEN);
     assertThat(view.getTitle()).isEqualTo("title");
@@ -116,20 +117,20 @@ public class AdServiceTest {
 
   @Test
   public void isOwn() {
-    Ad ad = new Ad().setCreatedBy("worker");
+    Ad ad = new Ad().setCreatedBy(id("worker"));
 
-    assertThat(service.isOwnAd(new User().setId("worker"), ad)).isTrue();
-    assertThat(service.isOwnAd(new User().setId("stranger"), ad)).isFalse();
+    assertThat(service.isOwnAd(new User().setId(id("worker")), ad)).isTrue();
+    assertThat(service.isOwnAd(new User().setId(id("stranger")), ad)).isFalse();
   }
 
   @Test
   public void isPayable() {
-    User me = new User().setId("me");
-    User otherUser = new User().setId("other");
+    User me = new User().setId(id("me"));
+    User otherUser = new User().setId(id("other"));
 
-    Ad buyAd = new Ad().setCreatedBy("other").setType(AdType.WANT).setPoints(ONE);
-    Ad sellAd = new Ad().setCreatedBy("other").setType(GIVE).setPoints(ONE);
-    Ad sellAdWithZeroPrice = new Ad().setCreatedBy("other").setType(GIVE).setPoints(ZERO);
+    Ad buyAd = new Ad().setCreatedBy(id("other")).setType(AdType.WANT).setPoints(ONE);
+    Ad sellAd = new Ad().setCreatedBy(id("other")).setType(GIVE).setPoints(ONE);
+    Ad sellAdWithZeroPrice = new Ad().setCreatedBy(id("other")).setType(GIVE).setPoints(ZERO);
 
     assertThat(service.isPayableByUser(me, sellAd)).isTrue();
     assertThat(service.isPayableByUser(otherUser, buyAd)).isTrue();
@@ -143,16 +144,16 @@ public class AdServiceTest {
   @Test
   public void ad() {
     Ad ad = new Ad();
-    when(repository.find("ad id")).thenReturn(Optional.of(ad));
+    when(repository.find(id("ad id"))).thenReturn(Optional.of(ad));
 
-    assertThat(service.ad("ad id")).isEqualTo(ad);
+    assertThat(service.ad(id("ad id"))).isEqualTo(ad);
   }
 
   @Test(expected=BadRequestException.class)
   public void ad_notFound() {
-    when(repository.find("ad id")).thenReturn(Optional.empty());
+    when(repository.find(id("ad id"))).thenReturn(Optional.empty());
 
-    service.ad("ad id");
+    service.ad(id("ad id"));
   }
 
   @Test
@@ -161,9 +162,9 @@ public class AdServiceTest {
     AdView adView = new AdView();
     Ad ad = new Ad();
     doReturn(adView).when(service).view(ad, user);
-    doReturn(ad).when(service).ad("ad id");
+    doReturn(ad).when(service).ad(id("ad id"));
 
-    AdView result = service.view(user, "ad id");
+    AdView result = service.view(user, id("ad id"));
 
     assertThat(result).isEqualTo(adView);
   }

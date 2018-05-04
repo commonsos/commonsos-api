@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class MessageThreadView {
-  private String id;
+  private Long id;
   private AdView ad;
   private String title;
   private List<UserView> parties;

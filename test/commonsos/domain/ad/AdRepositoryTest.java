@@ -1,6 +1,7 @@
 package commonsos.domain.ad;
 
 import commonsos.DBTest;
+import commonsos.TestId;
 import org.junit.Test;
 
 import java.util.List;
@@ -18,23 +19,23 @@ public class AdRepositoryTest extends DBTest {
 
   @Test
   public void create() {
-    String id = inTransaction(() -> repository.create(new Ad()).getId());
+    Long id = inTransaction(() -> repository.create(new Ad()).getId());
 
     assertThat(em().find(Ad.class, id)).isNotNull();
   }
 
   @Test
   public void findById_notFound() {
-    Optional<Ad> result = inTransaction(() -> repository.find("unknown"));
+    Optional<Ad> result = inTransaction(() -> repository.find(TestId.id("unknown")));
 
     assertFalse(result.isPresent());
   }
 
   @Test
   public void findById() {
-    String id = inTransaction(() -> repository.create(new Ad()
+    Long id = inTransaction(() -> repository.create(new Ad()
         .setTitle("Title")
-        .setCreatedBy("john")
+        .setCreatedBy(TestId.id("john"))
         .setPoints(TEN).setType(GIVE)
         .setPhotoUrl("url://photo")
         .setCreatedAt(parse("2016-02-02T20:15:30Z"))
@@ -45,7 +46,7 @@ public class AdRepositoryTest extends DBTest {
     Ad result = repository.find(id).get();
 
     assertThat(result.getTitle()).isEqualTo("Title");
-    assertThat(result.getCreatedBy()).isEqualTo("john");
+    assertThat(result.getCreatedBy()).isEqualTo(TestId.id("john"));
     assertThat(result.getType()).isEqualTo(GIVE);
     assertThat(result.getPhotoUrl()).isEqualTo("url://photo");
     assertThat(result.getCreatedAt()).isEqualTo(parse("2016-02-02T20:15:30Z"));
@@ -55,11 +56,13 @@ public class AdRepositoryTest extends DBTest {
 
   @Test
   public void list() {
-    String id1 = inTransaction(() -> repository.create(new Ad()).getId());
-    String id2 = inTransaction(() -> repository.create(new Ad()).getId());
+    Long id1 = inTransaction(() -> repository.create(new Ad()).getId());
+    Long id2 = inTransaction(() -> repository.create(new Ad()).getId());
 
     List<Ad> list = repository.list();
 
     assertThat(list).extracting("id").containsExactly(id1, id2);
   }
+
+
 }

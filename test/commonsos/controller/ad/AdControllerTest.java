@@ -22,10 +22,10 @@ public class AdControllerTest {
 
   @Test
   public void handle() {
-    when(request.params("id")).thenReturn("ad id");
+    when(request.params("id")).thenReturn("123");
     User user = new User();
     AdView adView = new AdView();
-    when(service.view(user, "ad id")).thenReturn(adView);
+    when(service.view(user, 123L)).thenReturn(adView);
 
     AdView result = controller.handle(user, request, null);
 

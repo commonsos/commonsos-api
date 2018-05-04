@@ -10,7 +10,7 @@ import java.time.Instant;
 
 @Getter @Setter @Accessors(chain=true)
 public class AdView {
-  private String id;
+  private Long id;
   private UserView createdBy;
   private String title;
   private String description;

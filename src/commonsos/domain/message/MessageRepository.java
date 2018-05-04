@@ -21,14 +21,14 @@ public class MessageRepository extends Repository {
     return message;
   }
 
-  public List<Message> listByThread(String threadId) {
+  public List<Message> listByThread(Long threadId) {
     return em()
       .createQuery("FROM Message WHERE threadId = :threadId ORDER BY createdAt", Message.class)
       .setParameter("threadId", threadId)
       .getResultList();
   }
 
-  public Optional<Message> lastMessage(String threadId) {
+  public Optional<Message> lastMessage(Long threadId) {
     List<Message> messages = em().createQuery("FROM Message WHERE threadId = :threadId ORDER BY createdAt DESC", Message.class)
       .setParameter("threadId", threadId)
       .setMaxResults(1)

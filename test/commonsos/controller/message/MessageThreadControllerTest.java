@@ -23,9 +23,9 @@ public class MessageThreadControllerTest {
   @Test
   public void handle() {
     User user = new User();
-    when(request.params("id")).thenReturn("thread-id");
+    when(request.params("id")).thenReturn("123");
     MessageThreadView view = new MessageThreadView();
-    when(service.thread(user, "thread-id")).thenReturn(view);
+    when(service.thread(user, 123L)).thenReturn(view);
 
     MessageThreadView result = controller.handle(user, request, null);
 

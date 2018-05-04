@@ -21,7 +21,7 @@ public class MessageThreadRepository extends Repository {
     super(entityManagerService);
   }
 
-  public Optional<MessageThread> byAdId(User user, String adId) {
+  public Optional<MessageThread> byAdId(User user, Long adId) {
     try {
       return Optional.of(em().createQuery("FROM MessageThread WHERE adId = :adId AND createdBy = :createdBy", MessageThread.class)
         .setParameter("adId", adId)
@@ -45,7 +45,7 @@ public class MessageThreadRepository extends Repository {
       .getResultList();
   }
 
-  public Optional<MessageThread> thread(String id) {
+  public Optional<MessageThread> thread(Long id) {
     return ofNullable(em().find(MessageThread.class, id));
   }
 }

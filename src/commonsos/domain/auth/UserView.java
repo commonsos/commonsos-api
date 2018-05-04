@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true)
 public class UserView {
-  private String id;
+  private Long id;
   private String fullName;
   private String description;
   private String location;

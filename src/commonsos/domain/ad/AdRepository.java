@@ -26,7 +26,7 @@ public class AdRepository extends Repository {
     return em().createQuery("FROM Ad", Ad.class).getResultList();
   }
 
-  public Optional<Ad> find(String id) {
+  public Optional<Ad> find(Long id) {
     return ofNullable(em().find(Ad.class, id));
   }
 }

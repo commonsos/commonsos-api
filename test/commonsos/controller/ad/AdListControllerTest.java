@@ -23,8 +23,9 @@ public class AdListControllerTest {
   @Test
   public void handle() throws Exception {
     ArrayList<AdView> ads = new ArrayList<>();
-    when(service.all(new User().setId("userid"))).thenReturn(ads);
+    User user = new User();
+    when(service.all(user)).thenReturn(ads);
 
-    assertSame(ads, controller.handle(new User().setId("userid"), null, null));
+    assertSame(ads, controller.handle(user, null, null));
   }
 }

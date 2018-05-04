@@ -15,9 +15,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity @Table(name="messages")
 @Getter @Setter @Accessors(chain=true)
 public class Message {
-  @Id @GeneratedValue(strategy = IDENTITY) private String id;
+  @Id @GeneratedValue(strategy = IDENTITY) private Long id;
   private Instant createdAt;
-  private String createdBy;
-  private String threadId;
+  private Long createdBy;
+  private Long threadId;
   private String text;
 }

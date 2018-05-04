@@ -14,10 +14,10 @@ import java.util.List;
 @Entity @Table(name="message_threads")
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class MessageThread {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) String id;
-  private String adId;
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
+  private Long adId;
   private String title;
-  private String createdBy;
+  private Long createdBy;
   @ManyToMany
   @JoinTable(
     name = "message_thread_parties",

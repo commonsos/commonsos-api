@@ -31,8 +31,8 @@ public class MessagePostControllerTest {
   @Test
   public void handle() {
     User user = new User();
-    when(request.body()).thenReturn("{\"threadId\": \"thread id\", \"text\": \"message text\"}");
-    MessagePostCommand command = new MessagePostCommand().setThreadId("thread id").setText("message text");
+    when(request.body()).thenReturn("{\"threadId\": \"1\", \"text\": \"message text\"}");
+    MessagePostCommand command = new MessagePostCommand().setThreadId(1L).setText("message text");
     MessageView messageView = new MessageView();
     when(service.postMessage(user, command)).thenReturn(messageView);
 

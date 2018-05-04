@@ -56,7 +56,7 @@ public class AdService {
       .setPhotoUrl(ad.getPhotoUrl());
   }
 
-  public AdView view(User user, String adId) {
+  public AdView view(User user, Long adId) {
     return view(ad(adId), user);
   }
 
@@ -71,7 +71,7 @@ public class AdService {
     return false;
   }
 
-  public Ad ad(String id) {
+  public Ad ad(Long id) {
     return repository.find(id).orElseThrow(BadRequestException::new);
   }
 }

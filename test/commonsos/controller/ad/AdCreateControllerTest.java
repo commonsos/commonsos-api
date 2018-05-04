@@ -36,7 +36,7 @@ public class AdCreateControllerTest {
   @Test
   public void handle() throws Exception {
     when(request.body()).thenReturn("{\"title\": \"title\", \"description\": \"description\", \"amount\": \"123.456\", \"location\": \"location\", \"type\": \"GIVE\"}");
-    User user = new User().setId("user id");
+    User user = new User();
 
     controller.handle(user, request, null);
 

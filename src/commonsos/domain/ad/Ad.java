@@ -16,8 +16,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity @Table(name="ads")
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
 public class Ad {
-  @Id @GeneratedValue(strategy = IDENTITY) private String id;
-  private String createdBy;
+  @Id @GeneratedValue(strategy = IDENTITY) private Long id;
+  private Long createdBy;
   @Enumerated(value = STRING) private AdType type;
   private String title;
   private String description;

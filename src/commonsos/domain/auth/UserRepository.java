@@ -39,7 +39,7 @@ public class UserRepository extends Repository {
     return user;
   }
 
-  public Optional<User> findById(String id) {
+  public Optional<User> findById(Long id) {
     return ofNullable(em().find(User.class, id));
   }
 

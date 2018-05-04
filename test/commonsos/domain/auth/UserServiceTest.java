@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static commonsos.TestId.id;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
@@ -58,13 +59,13 @@ public class UserServiceTest {
 
   @Test
   public void privateView() {
-    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya")
+    User user = new User().setId(id("user id")).setFirstName("first").setLastName("last").setLocation("Shibuya")
       .setAvatarUrl("/avatar.png").setDescription("description").setAdmin(true);
     when(transactionService.balance(user)).thenReturn(BigDecimal.TEN);
 
     UserPrivateView view = service.privateView(user);
 
-    assertThat(view.getId()).isEqualTo("user id");
+    assertThat(view.getId()).isEqualTo(id("user id"));
     assertThat(view.isAdmin()).isTrue();
     assertThat(view.getBalance()).isEqualTo(BigDecimal.TEN);
     assertThat(view.getFullName()).isEqualTo("last first");
@@ -75,40 +76,40 @@ public class UserServiceTest {
 
   @Test
   public void privateView_adminAccessesOtherUser() {
-    User currentUser = new User().setId("222").setAdmin(true);
-    User foundUser = new User().setId("111");
-    when(repository.findById("111")).thenReturn(Optional.of(foundUser));
+    User currentUser = new User().setId(222L).setAdmin(true);
+    User foundUser = new User().setId(111L);
+    when(repository.findById(111L)).thenReturn(Optional.of(foundUser));
     UserPrivateView foundUserPrivateView = new UserPrivateView();
     doReturn(foundUserPrivateView).when(service).privateView(foundUser);
 
-    assertThat(service.privateView(currentUser, "111")).isSameAs(foundUserPrivateView);
+    assertThat(service.privateView(currentUser, 111L)).isSameAs(foundUserPrivateView);
   }
 
   @Test
   public void privateView_ownUser() {
-    User currentUser = new User().setId("111").setAdmin(false);
-    User foundUser = new User().setId("111");
-    when(repository.findById("111")).thenReturn(Optional.of(foundUser));
+    User currentUser = new User().setId(111L).setAdmin(false);
+    User foundUser = new User().setId(111L);
+    when(repository.findById(111L)).thenReturn(Optional.of(foundUser));
     UserPrivateView foundUserPrivateView = new UserPrivateView();
     doReturn(foundUserPrivateView).when(service).privateView(foundUser);
 
-    assertThat(service.privateView(currentUser, "111")).isSameAs(foundUserPrivateView);
+    assertThat(service.privateView(currentUser, 111L)).isSameAs(foundUserPrivateView);
   }
 
   @Test(expected = ForbiddenException.class)
   public void privateView_requiresAdminToAccessOtherUser() {
-    User currentUser = new User().setId("222").setAdmin(false);
+    User currentUser = new User().setId(222L).setAdmin(false);
 
-    service.privateView(currentUser, "111");
+    service.privateView(currentUser, 111L);
   }
 
   @Test
   public void view() {
-    User user = new User().setId("user id").setFirstName("first").setLastName("last").setLocation("Shibuya").setAvatarUrl("/avatar.png").setDescription("description");
+    User user = new User().setId(id("user id")).setFirstName("first").setLastName("last").setLocation("Shibuya").setAvatarUrl("/avatar.png").setDescription("description");
 
     UserView view = service.view(user);
 
-    assertThat(view.getId()).isEqualTo("user id");
+    assertThat(view.getId()).isEqualTo(id("user id"));
     assertThat(view.getFullName()).isEqualTo("last first");
     assertThat(view.getDescription()).isEqualTo("description");
     assertThat(view.getLocation()).isEqualTo("Shibuya");
@@ -182,18 +183,18 @@ public class UserServiceTest {
   @Test
   public void viewByUserId() {
     User user = new User();
-    when(repository.findById("user id")).thenReturn(Optional.of(user));
+    when(repository.findById(id("user id"))).thenReturn(Optional.of(user));
     UserView view = new UserView();
     doReturn(view).when(service).view(user);
 
-    assertThat(service.view("user id")).isEqualTo(view);
+    assertThat(service.view(id("user id"))).isEqualTo(view);
   }
 
   @Test(expected = BadRequestException.class)
   public void viewByUserId_userNotFound() {
-    when(repository.findById("invalid id")).thenReturn(Optional.empty());
+    when(repository.findById(id("invalid id"))).thenReturn(Optional.empty());
 
-    service.view("invalid id");
+    service.view(id("invalid id"));
   }
 
   @Test(expected=ForbiddenException.class)
