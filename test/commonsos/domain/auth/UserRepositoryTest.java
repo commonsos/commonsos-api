@@ -12,10 +12,28 @@ public class UserRepositoryTest extends DBTest {
 
   @Test
   public void create() {
-    Long id = inTransaction(() -> repository.create(new User().setUsername("worker")).getId());
+    Long id = inTransaction(() -> repository.create(new User()
+      .setUsername("worker")
+      .setAdmin(true)
+      .setPasswordHash("password hash")
+      .setDescription("description")
+      .setAvatarUrl("avatar url")
+      .setLocation("location")
+      .setLastName("last name")
+      .setFirstName("first name")
+      .setWallet("wallet")
+    ).getId());
 
     User created = em().find(User.class, id);
     assertThat(created.getUsername()).isEqualTo("worker");
+    assertThat(created.isAdmin()).isTrue();
+    assertThat(created.getPasswordHash()).isEqualTo("password hash");
+    assertThat(created.getDescription()).isEqualTo("description");
+    assertThat(created.getAvatarUrl()).isEqualTo("avatar url");
+    assertThat(created.getLocation()).isEqualTo("location");
+    assertThat(created.getLastName()).isEqualTo("last name");
+    assertThat(created.getFirstName()).isEqualTo("first name");
+    assertThat(created.getWallet()).isEqualTo("wallet");
   }
 
   @Test

@@ -4,6 +4,7 @@ import commonsos.AuthenticationException;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
+import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.transaction.TransactionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +30,7 @@ public class UserServiceTest {
   @Mock UserRepository repository;
   @Mock TransactionService transactionService;
   @Mock PasswordService passwordService;
+  @Mock BlockchainService blockchainService;
   @InjectMocks @Spy UserService service;
 
   @Test
@@ -121,7 +123,7 @@ public class UserServiceTest {
     User createdUser = new User();
     when(repository.create(any())).thenReturn(createdUser);
     when(passwordService.hash("secret78")).thenReturn("hash");
-
+    when(blockchainService.createWallet()).thenReturn("wallet");
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
       .setPassword("secret78")
@@ -139,6 +141,7 @@ public class UserServiceTest {
       .setLastName("last")
       .setDescription("description")
       .setLocation("Shibuya")
+      .setWallet("wallet")
     );
   }
 

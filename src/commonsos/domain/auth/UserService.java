@@ -4,6 +4,7 @@ import commonsos.AuthenticationException;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
+import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.transaction.TransactionService;
 
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import static java.util.stream.Collectors.toList;
 @Singleton
 public class UserService {
   @Inject UserRepository repository;
+  @Inject BlockchainService blockchainService;
   @Inject TransactionService transactionService;
   @Inject PasswordService passwordService;
 
@@ -59,6 +61,8 @@ public class UserService {
       .setLastName(command.getLastName())
       .setDescription(command.getDescription())
       .setLocation(command.getLocation());
+
+    user.setWallet(blockchainService.createWallet());
 
     return repository.create(user);
   }

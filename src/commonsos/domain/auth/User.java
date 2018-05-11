@@ -25,4 +25,5 @@ public class User {
   String description;
   String location;
   String avatarUrl;
+  String wallet;
 }
