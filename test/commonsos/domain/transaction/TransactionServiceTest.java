@@ -7,6 +7,7 @@ import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
+import commonsos.domain.blockchain.BlockchainService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -31,6 +32,7 @@ public class TransactionServiceTest {
 
   @Mock AdService adService;
   @Mock UserService userService;
+  @Mock BlockchainService blockchainService;
   @Captor ArgumentCaptor<Transaction> captor;
   @Mock TransactionRepository repository;
   @InjectMocks @Spy TransactionService service;
@@ -38,11 +40,12 @@ public class TransactionServiceTest {
   @Test
   public void create() {
     TransactionCreateCommand command = command("beneficiary", "0.01", "description", "ad id");
-    User user = new User().setId(id("remitter"));
+    User user = new User().setId(id("remitter")).setCommunityId(id("community"));
     doReturn(new BigDecimal("0.2")).when(service).balance(user);
     Ad ad = new Ad();
     when(adService.ad(id("ad id"))).thenReturn(ad);
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
+    when(userService.user(id("beneficiary"))).thenReturn(new User().setCommunityId(id("community")));
 
     service.create(user, command);
 
@@ -129,9 +132,22 @@ public class TransactionServiceTest {
 
   @Test(expected = BadRequestException.class)
   public void create_beneficiaryDontMatchWithAdOwner() {
-    TransactionCreateCommand command = command("not ad owner", "10.2", "description", "unknown ad");
+    TransactionCreateCommand command = command("not ad owner", "10.2", "description", "ad id");
     User user = new User().setId(id("remitter"));
-    when(adService.ad(id("unknown ad"))).thenReturn(new Ad().setCreatedBy(id("ad owner")));
+    when(adService.ad(id("ad"))).thenReturn(new Ad().setCreatedBy(id("ad owner")));
+
+    service.create(user, command);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_communitiesDiffer() {
+    TransactionCreateCommand command = command("beneficiary", "0.1", "description", "ad id");
+    User user = new User().setId(id("remitter")).setCommunityId(id("community"));
+    when(userService.user(id("beneficiary"))).thenReturn(new User().setCommunityId(id("other community")));
+    doReturn(new BigDecimal("0.2")).when(service).balance(user);
+    Ad ad = new Ad();
+    when(adService.ad(id("ad id"))).thenReturn(ad);
+    when(adService.isPayableByUser(user, ad)).thenReturn(true);
 
     service.create(user, command);
   }

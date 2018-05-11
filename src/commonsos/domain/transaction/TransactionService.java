@@ -62,7 +62,8 @@ public class TransactionService {
     if (isBlank(command.getDescription()))  throw new BadRequestException();
     if (ZERO.compareTo(command.getAmount()) > -1)  throw new BadRequestException();
     if (user.getId().equals(command.getBeneficiaryId())) throw new BadRequestException();
-    userService.user(command.getBeneficiaryId());
+    User beneficiary = userService.user(command.getBeneficiaryId());
+    if (!user.getCommunityId().equals(beneficiary.getCommunityId())) throw new BadRequestException();
 
     if (command.getAdId() != null) {
       Ad ad = adService.ad(command.getAdId());
@@ -70,14 +71,15 @@ public class TransactionService {
     }
     BigDecimal balance = balance(user);
     if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");
-    
-    repository.create(new Transaction()
+
+    Transaction transaction = new Transaction()
       .setRemitterId(user.getId())
       .setAmount(command.getAmount())
       .setBeneficiaryId(command.getBeneficiaryId())
       .setDescription(command.getDescription())
       .setAdId(command.getAdId())
-      .setCreatedAt(Instant.now())
-    );
+      .setCreatedAt(Instant.now());
+
+    repository.create(transaction);
   }
 }
