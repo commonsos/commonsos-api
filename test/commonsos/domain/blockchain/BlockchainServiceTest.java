@@ -1,24 +1,39 @@
 package commonsos.domain.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import commonsos.domain.auth.User;
+import commonsos.domain.community.Community;
+import commonsos.domain.community.CommunityRepository;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.Wallet;
 import org.web3j.crypto.WalletFile;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Optional;
 
+import static commonsos.TestId.id;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class BlockchainServiceTest {
 
   @Rule public TemporaryFolder tempDirectory = new TemporaryFolder();
-  BlockchainService service = spy(new BlockchainService());
+  @Mock CommunityRepository communityRepository;
+  @InjectMocks @Spy BlockchainService service;
 
   @Test
   public void createWallet() throws IOException, CipherException {
@@ -42,5 +57,29 @@ public class BlockchainServiceTest {
     Credentials credentials = service.credentials(wallet, "test");
 
     assertThat(credentials.getAddress()).isEqualTo("0x116ca1e1cc960a033a613f442e3c1bfc91841521");
+  }
+
+  @Test
+  public void createTransaction() throws Exception {
+    User remitter = new User().setCommunityId(id("community")).setWallet("remitter wallet");
+    User beneficiary = new User().setWalletAddress("beneficiary wallet address");
+
+    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractId("contract id")));
+
+    Credentials remitterCredentials = mock(Credentials.class);
+    doReturn(remitterCredentials).when(service).credentials("remitter wallet", "test");
+
+    TransactionReceipt transactionReceipt = new TransactionReceipt();
+    transactionReceipt.setTransactionHash("new transaction id");
+
+    TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
+    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
+    when(token.transfer("beneficiary wallet address", BigInteger.TEN).send()).thenReturn(transactionReceipt);
+
+
+    String result = service.createTransaction(remitter, beneficiary, BigDecimal.TEN);
+
+
+    assertThat(result).isEqualTo("new transaction id");
   }
 }

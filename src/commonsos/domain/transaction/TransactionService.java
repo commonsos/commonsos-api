@@ -7,6 +7,7 @@ import commonsos.domain.ad.AdService;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
+import commonsos.domain.blockchain.BlockchainService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,6 +23,7 @@ import static spark.utils.StringUtils.isBlank;
 @Singleton
 public class TransactionService {
   @Inject TransactionRepository repository;
+  @Inject BlockchainService blockchainService;
   @Inject UserService userService;
   @Inject AdService adService;
 
@@ -63,7 +65,6 @@ public class TransactionService {
     if (ZERO.compareTo(command.getAmount()) > -1)  throw new BadRequestException();
     if (user.getId().equals(command.getBeneficiaryId())) throw new BadRequestException();
     User beneficiary = userService.user(command.getBeneficiaryId());
-    if (!user.getCommunityId().equals(beneficiary.getCommunityId())) throw new BadRequestException();
 
     if (command.getAdId() != null) {
       Ad ad = adService.ad(command.getAdId());
@@ -71,6 +72,8 @@ public class TransactionService {
     }
     BigDecimal balance = balance(user);
     if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");
+
+    if (!user.getCommunityId().equals(beneficiary.getCommunityId())) throw new BadRequestException();
 
     Transaction transaction = new Transaction()
       .setRemitterId(user.getId())
@@ -81,5 +84,10 @@ public class TransactionService {
       .setCreatedAt(Instant.now());
 
     repository.create(transaction);
+
+    String blockchainTransactionId = blockchainService.createTransaction(user, beneficiary, transaction.getAmount());
+    transaction.setBlockchainTransactionId(blockchainTransactionId);
+
+    repository.update(transaction);
   }
 }

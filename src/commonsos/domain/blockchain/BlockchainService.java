@@ -1,24 +1,32 @@
 package commonsos.domain.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.Wallet;
-import org.web3j.crypto.WalletFile;
-import org.web3j.crypto.WalletUtils;
+import commonsos.domain.auth.User;
+import commonsos.domain.community.Community;
+import commonsos.domain.community.CommunityRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.web3j.crypto.*;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Files;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 
 @Singleton
+@Slf4j
 public class BlockchainService {
 
-  @Inject ObjectMapper objectMapper;
-
+  public static final BigInteger GAS_LIMIT = new BigInteger("90000");
   public static final BigInteger GAS_PRICE = new BigInteger("18000000000");
+
+  @Inject CommunityRepository communityRepository;
+  @Inject ObjectMapper objectMapper;
+  @Inject Web3j web3j;
 
   public String createWallet(String password) {
     File filePath = null;
@@ -44,11 +52,32 @@ public class BlockchainService {
   public Credentials credentials(String wallet, String password) {
     try {
       WalletFile walletFile = objectMapper.readValue(wallet, WalletFile.class);
-      return Credentials.create(Wallet.decrypt(password, walletFile));
+      ECKeyPair keyPair = Wallet.decrypt(password, walletFile);
+      Credentials credentials = Credentials.create(keyPair);
+      return credentials;
     }
     catch (Exception e) {
       throw new RuntimeException();
     }
   }
 
+  public String createTransaction(User remitter, User beneficiary, BigDecimal amount) {
+    Community community = communityRepository.findById(remitter.getCommunityId()).orElseThrow(RuntimeException::new);
+    try {
+      Credentials remitterCredentials = credentials(remitter.getWallet(), "test");
+      String tokenContractAddress = community.getTokenContractId();
+      TokenERC20 token = loadToken(remitterCredentials, tokenContractAddress);
+      log.info(String.format("Creating transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, tokenContractAddress));
+      TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), amount.toBigInteger()).send();
+      log.info(String.format("Transaction done, id  %s", transactionReceipt.getTransactionHash()));
+      return transactionReceipt.getTransactionHash();
+    }
+    catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  TokenERC20 loadToken(Credentials remitterCredentials, String tokenContractAddress) {
+    return TokenERC20.load(tokenContractAddress, web3j, remitterCredentials, GAS_PRICE, GAS_LIMIT);
+  }
 }

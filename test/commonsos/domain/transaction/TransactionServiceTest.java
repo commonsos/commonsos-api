@@ -39,24 +39,28 @@ public class TransactionServiceTest {
 
   @Test
   public void create() {
-    TransactionCreateCommand command = command("beneficiary", "0.01", "description", "ad id");
+    TransactionCreateCommand command = command("beneficiary", "10", "description", "ad id");
     User user = new User().setId(id("remitter")).setCommunityId(id("community"));
-    doReturn(new BigDecimal("0.2")).when(service).balance(user);
+    doReturn(TEN).when(service).balance(user);
     Ad ad = new Ad();
     when(adService.ad(id("ad id"))).thenReturn(ad);
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
-    when(userService.user(id("beneficiary"))).thenReturn(new User().setCommunityId(id("community")));
+    User beneficiary = new User().setCommunityId(id("community"));
+    when(userService.user(id("beneficiary"))).thenReturn(beneficiary);
+    when(blockchainService.createTransaction(user, beneficiary, new BigDecimal("10"))).thenReturn("blockchain id");
 
     service.create(user, command);
 
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
-    assertThat(transaction.getAmount()).isEqualTo(new BigDecimal("0.01"));
+    assertThat(transaction.getAmount()).isEqualTo(TEN);
     assertThat(transaction.getBeneficiaryId()).isEqualTo(id("beneficiary"));
     assertThat(transaction.getRemitterId()).isEqualTo(id("remitter"));
     assertThat(transaction.getDescription()).isEqualTo("description");
     assertThat(transaction.getAdId()).isEqualTo(id("ad id"));
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+    verify(repository).update(transaction);
+    assertThat(transaction.getBlockchainTransactionId()).isEqualTo("blockchain id");
   }
 
   @Test(expected = BadRequestException.class)
@@ -126,15 +130,6 @@ public class TransactionServiceTest {
   public void create_canNotPayYourself() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
     User user = new User().setId(id("beneficiary"));
-
-    service.create(user, command);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void create_beneficiaryDontMatchWithAdOwner() {
-    TransactionCreateCommand command = command("not ad owner", "10.2", "description", "ad id");
-    User user = new User().setId(id("remitter"));
-    when(adService.ad(id("ad"))).thenReturn(new Ad().setCreatedBy(id("ad owner")));
 
     service.create(user, command);
   }

@@ -27,4 +27,8 @@ public class TransactionRepository extends Repository {
       .setParameter("userId", user.getId())
       .getResultList();
   }
+
+  public void update(Transaction transaction) {
+    em().merge(transaction);
+  }
 }

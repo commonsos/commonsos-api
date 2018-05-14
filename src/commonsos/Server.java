@@ -1,5 +1,6 @@
 package commonsos;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.inject.*;
@@ -17,6 +18,8 @@ import commonsos.controller.transaction.BalanceController;
 import commonsos.controller.transaction.TransactionCreateController;
 import commonsos.controller.transaction.TransactionListController;
 import lombok.extern.slf4j.Slf4j;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
 
 import static java.util.Arrays.asList;
 import static spark.Spark.*;
@@ -38,6 +41,8 @@ public class Server {
     Module module = new AbstractModule() {
       @Override protected void configure() {
         bind(Gson.class).toProvider(GsonProvider.class);
+        bind(Web3j.class).toInstance(Web3j.build(new HttpService("http://localhost:8545/")));
+        bind(ObjectMapper.class).toInstance(new ObjectMapper());
       }
     };
 
