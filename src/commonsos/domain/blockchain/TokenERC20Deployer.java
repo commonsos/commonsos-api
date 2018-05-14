@@ -23,9 +23,13 @@ public class TokenERC20Deployer {
     }
     System.out.print("Please enter wallet password: ");
     String password = new Scanner(System.in).nextLine();
+    System.out.print("Please enter token symbol: ");
+    String tokenSymbol = new Scanner(System.in).nextLine();
+    System.out.print("Please enter token name: ");
+    String tokenName = new Scanner(System.in).nextLine();
     Credentials owner = WalletUtils.loadCredentials(password, new File(args[0]));
     System.out.println("Deploying..");
-    MyToken contract = MyToken.deploy(web3, owner, GAS_PRICE, DEPLOYMENT_GAS_LIMIT, INITIAL_TOKEN_AMOUNT).send();
+    TokenERC20 contract = TokenERC20.deploy(web3, owner, GAS_PRICE, DEPLOYMENT_GAS_LIMIT, INITIAL_TOKEN_AMOUNT, tokenName, tokenSymbol).send();
     System.out.println("Contract deployed, address = " + contract.getContractAddress());
     System.out.println("\nDo not loose contract address!");
   }
