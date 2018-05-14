@@ -22,6 +22,7 @@ public class UserRepositoryTest extends DBTest {
       .setLastName("last name")
       .setFirstName("first name")
       .setWallet("wallet")
+      .setWalletAddress("wallet address")
       .setCommunityId(321L)
     ).getId());
 
@@ -35,6 +36,7 @@ public class UserRepositoryTest extends DBTest {
     assertThat(created.getLastName()).isEqualTo("last name");
     assertThat(created.getFirstName()).isEqualTo("first name");
     assertThat(created.getWallet()).isEqualTo("wallet");
+    assertThat(created.getWalletAddress()).isEqualTo("wallet address");
     assertThat(created.getCommunityId()).isEqualTo(321L);
   }
 

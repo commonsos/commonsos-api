@@ -12,12 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static commonsos.TestId.id;
+import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
@@ -123,7 +125,10 @@ public class UserServiceTest {
     User createdUser = new User();
     when(repository.create(any())).thenReturn(createdUser);
     when(passwordService.hash("secret78")).thenReturn("hash");
-    when(blockchainService.createWallet()).thenReturn("wallet");
+    when(blockchainService.createWallet(WALLET_PASSWORD)).thenReturn("wallet");
+    Credentials credentials = mock(Credentials.class);
+    when(credentials.getAddress()).thenReturn("wallet address");
+    when(blockchainService.credentials("wallet", WALLET_PASSWORD)).thenReturn(credentials);
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
       .setPassword("secret78")
@@ -142,6 +147,7 @@ public class UserServiceTest {
       .setDescription("description")
       .setLocation("Shibuya")
       .setWallet("wallet")
+      .setWalletAddress("wallet address")
     );
   }
 

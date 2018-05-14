@@ -27,4 +27,5 @@ public class User {
   String location;
   String avatarUrl;
   String wallet;
+  String walletAddress;
 }

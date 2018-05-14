@@ -6,6 +6,7 @@ import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
 import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.transaction.TransactionService;
+import org.web3j.crypto.Credentials;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,6 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class UserService {
+  public static final String WALLET_PASSWORD = "secret";
   @Inject UserRepository repository;
   @Inject BlockchainService blockchainService;
   @Inject TransactionService transactionService;
@@ -62,7 +64,11 @@ public class UserService {
       .setDescription(command.getDescription())
       .setLocation(command.getLocation());
 
-    user.setWallet(blockchainService.createWallet());
+    String wallet = blockchainService.createWallet(WALLET_PASSWORD);
+    Credentials credentials = blockchainService.credentials(wallet, WALLET_PASSWORD);
+
+    user.setWallet(wallet);
+    user.setWalletAddress(credentials.getAddress());
 
     return repository.create(user);
   }
