@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 
+import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
+
 @Singleton
 @Slf4j
 public class BlockchainService {
@@ -64,7 +66,7 @@ public class BlockchainService {
   public String createTransaction(User remitter, User beneficiary, BigDecimal amount) {
     Community community = communityRepository.findById(remitter.getCommunityId()).orElseThrow(RuntimeException::new);
     try {
-      Credentials remitterCredentials = credentials(remitter.getWallet(), "test");
+      Credentials remitterCredentials = credentials(remitter.getWallet(), WALLET_PASSWORD);
       String tokenContractAddress = community.getTokenContractId();
       TokenERC20 token = loadToken(remitterCredentials, tokenContractAddress);
       log.info(String.format("Creating transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, tokenContractAddress));

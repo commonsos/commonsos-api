@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class UserService {
-  public static final String WALLET_PASSWORD = "secret";
+  public static final String WALLET_PASSWORD = "test";
   @Inject UserRepository repository;
   @Inject BlockchainService blockchainService;
   @Inject TransactionService transactionService;
