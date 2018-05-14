@@ -34,6 +34,16 @@ public class CommunityRepositoryTest extends DBTest {
   }
 
   @Test
+  public void create() {
+    Long id = inTransaction(() -> repository.create(new Community().setName("Kaga community").setTokenContractId("0x1234567")).getId());
+
+    Community community = em().find(Community.class, id);
+
+    assertThat(community.getName()).isEqualTo("Kaga community");
+    assertThat(community.getTokenContractId()).isEqualTo("0x1234567");
+  }
+
+  @Test
   public void list() {
     inTransaction(() -> {
       em().persist(new Community().setName("Kaga").setTokenContractId("66"));

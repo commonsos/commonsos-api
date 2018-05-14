@@ -48,6 +48,18 @@ public class UserRepositoryTest extends DBTest {
   }
 
   @Test
+  public void update() {
+    Long id = inTransaction(() -> repository.create(new User().setUsername("worker").setCommunityId(1L)).getId());
+    User user = em().find(User.class, id);
+    user.setCommunityId(2L);
+
+    repository.update(user);
+
+    User result = em().find(User.class, id);
+    assertThat(result.getCommunityId()).isEqualTo(2L);
+  }
+
+  @Test
   public void findByUsername_notFound() {
     assertThat(repository.findByUsername("worker")).isEmpty();
   }

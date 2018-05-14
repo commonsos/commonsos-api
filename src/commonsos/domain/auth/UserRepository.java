@@ -50,4 +50,8 @@ public class UserRepository extends Repository {
       .setMaxResults(10)
       .getResultList();
   }
+
+  public void update(User user) {
+    em().merge(user);
+  }
 }

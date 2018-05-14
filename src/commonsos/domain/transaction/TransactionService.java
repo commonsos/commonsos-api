@@ -56,10 +56,6 @@ public class TransactionService {
       .setDebit(isDebit(user, transaction));
   }
 
-  public void create(Transaction transaction) {
-    repository.create(transaction);
-  }
-
   public void create(User user, TransactionCreateCommand command) {
     if (isBlank(command.getDescription()))  throw new BadRequestException();
     if (ZERO.compareTo(command.getAmount()) > -1)  throw new BadRequestException();

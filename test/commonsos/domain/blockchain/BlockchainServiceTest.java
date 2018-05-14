@@ -82,4 +82,16 @@ public class BlockchainServiceTest {
 
     assertThat(result).isEqualTo("new transaction id");
   }
+
+  @Test
+  public void createToken() throws Exception {
+    User owner = new User().setWallet("wallet");
+    Credentials credentials = mock(Credentials.class);
+    doReturn(credentials).when(service).credentials("wallet", "test");
+    doReturn("0x543210").when(service).deploy(credentials, "COM", "COM token");
+
+    String tokenAddress = service.createToken(owner, "COM", "COM token");
+
+    assertThat(tokenAddress).isEqualTo("0x543210");
+  }
 }
