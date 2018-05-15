@@ -17,6 +17,7 @@ import commonsos.domain.transaction.TransactionCreateCommand;
 import commonsos.domain.transaction.TransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.WalletUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,9 +26,7 @@ import java.math.BigInteger;
 
 import static commonsos.domain.ad.AdType.GIVE;
 import static commonsos.domain.ad.AdType.WANT;
-import static commonsos.domain.blockchain.BlockchainService.GAS_PRICE;
-import static commonsos.domain.blockchain.BlockchainService.TOKEN_TRANSFER_GAS_LIMIT;
-import static commonsos.domain.blockchain.TokenERC20Deployer.TOKEN_DEPLOYMENT_GAS_LIMIT;
+import static commonsos.domain.blockchain.BlockchainService.*;
 
 @Singleton
 @Slf4j
@@ -52,11 +51,10 @@ public class DemoData {
 
     Credentials commonsos = commonsosCredentials();
     blockchainService.transferEther(commonsos, admin.getWalletAddress(),
-      TOKEN_DEPLOYMENT_GAS_LIMIT.add(
-        new BigInteger("1000").multiply(TOKEN_TRANSFER_GAS_LIMIT).multiply(GAS_PRICE))
+      TOKEN_DEPLOYMENT_GAS_LIMIT.add(new BigInteger("1000").multiply(TOKEN_TRANSFER_GAS_LIMIT)).multiply(GAS_PRICE)
     );
 
-    log.info("Admin ether balance (WEI) is " + blockchainService.balance(admin.getWalletAddress()));
+    log.info("Admin ether balance (WEI) is " + blockchainService.etherBalance(admin.getWalletAddress()));
 
     String tokenAddress = blockchainService.createToken(admin, "KAGA", "Kaga coin");
 
@@ -133,7 +131,13 @@ public class DemoData {
   }
 
   private Credentials commonsosCredentials() {
-    String wallet = "{\"address\":\"14063fb2a2e24cf80081a946953159d86e88c36c\",\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"bb5f7281afa8d00b591b3a5018cd4e326e77203f67b48c4c9b87a9d8ead1ff24\",\"cipherparams\":{\"iv\":\"2d2d05001ca458bd568dbcba9ca1baf3\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,\"salt\":\"5c24461dd75406c8c129427aa2b8bff76138b671ea3054752f939257d0bf6443\"},\"mac\":\"236d63008c0241deb894569642d1fadf0d8df41dde4953c4fc0c7946a808add5\"},\"id\":\"8151538e-644f-4310-bffe-436b38075a04\",\"version\":3}";
-    return blockchainService.credentials(wallet, "test");
+    try {
+      String walletFile = System.getenv("COMMONSOS_WALLET_FILE");
+      log.info("Loading CommonsOS wallet from " + walletFile);
+      return WalletUtils.loadCredentials(System.getenv("COMMONSOS_WALLET_PASSWORD"), walletFile);
+    }
+    catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }
