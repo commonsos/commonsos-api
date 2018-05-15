@@ -81,7 +81,7 @@ geth init --datadir=member genesis.json
 
 #### create new wallet 
 ```bash
-geth account new
+geth --datadir=[node-folder] account new
 ```
 
 #### import existing wallet

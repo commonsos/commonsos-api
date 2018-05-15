@@ -28,9 +28,7 @@ public class TransactionService {
   @Inject AdService adService;
 
   public BigDecimal balance(User user) {
-    return repository.transactions(user).stream()
-      .map(transaction -> isDebit(user, transaction) ? transaction.getAmount().negate() : transaction.getAmount())
-      .reduce(ZERO, BigDecimal::add);
+    return new BigDecimal(blockchainService.tokenBalance(user));
   }
 
   private boolean isDebit(User user, Transaction transaction) {

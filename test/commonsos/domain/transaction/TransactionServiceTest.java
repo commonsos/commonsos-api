@@ -18,8 +18,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static commonsos.TestId.id;
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.TEN;
+import static java.math.BigInteger.TEN;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -41,7 +40,7 @@ public class TransactionServiceTest {
   public void create() {
     TransactionCreateCommand command = command("beneficiary", "10", "description", "ad id");
     User user = new User().setId(id("remitter")).setCommunityId(id("community"));
-    doReturn(TEN).when(service).balance(user);
+    doReturn(BigDecimal.TEN).when(service).balance(user);
     Ad ad = new Ad();
     when(adService.ad(id("ad id"))).thenReturn(ad);
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
@@ -53,7 +52,7 @@ public class TransactionServiceTest {
 
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
-    assertThat(transaction.getAmount()).isEqualTo(TEN);
+    assertThat(transaction.getAmount()).isEqualTo(BigDecimal.TEN);
     assertThat(transaction.getBeneficiaryId()).isEqualTo(id("beneficiary"));
     assertThat(transaction.getRemitterId()).isEqualTo(id("remitter"));
     assertThat(transaction.getDescription()).isEqualTo("description");
@@ -100,7 +99,7 @@ public class TransactionServiceTest {
   public void create_insufficientBalance() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
     User user = new User().setId(id("remitter"));
-    doReturn(TEN).when(service).balance(user);
+    doReturn(BigDecimal.TEN).when(service).balance(user);
     Ad ad = new Ad().setCreatedBy(id("beneficiary"));
     when(adService.ad(id("ad id"))).thenReturn(ad);
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
@@ -149,15 +148,12 @@ public class TransactionServiceTest {
 
   @Test
   public void balance() {
-    User user = new User().setId(id("worker"));
-    List<Transaction> transactions = asList(
-      new Transaction().setRemitterId(id("worker")).setBeneficiaryId(id("elderly")).setAmount(ONE),
-      new Transaction().setRemitterId(id("elderly")).setBeneficiaryId(id("worker")).setAmount(TEN));
-    when(repository.transactions(user)).thenReturn(transactions);
+    User user = new User();
+    when(blockchainService.tokenBalance(user)).thenReturn(TEN);
 
-    BigDecimal balance = service.balance(user);
+    BigDecimal result = service.balance(user);
 
-    assertThat(balance).isEqualTo(new BigDecimal("9"));
+    assertThat(result).isEqualByComparingTo(BigDecimal.TEN);
   }
 
   @Test
@@ -173,13 +169,13 @@ public class TransactionServiceTest {
       new Transaction()
         .setBeneficiaryId(id("beneficiary id"))
         .setRemitterId(id("remitter id"))
-        .setAmount(TEN)
+        .setAmount(BigDecimal.TEN)
         .setDescription("description")
         .setCreatedAt(createdAt));
 
     assertThat(view.getBeneficiary()).isEqualTo(beneficiary);
     assertThat(view.getRemitter()).isEqualTo(remitter);
-    assertThat(view.getAmount()).isEqualTo(TEN);
+    assertThat(view.getAmount()).isEqualTo(BigDecimal.TEN);
     assertThat(view.getDescription()).isEqualTo("description");
     assertThat(view.getCreatedAt()).isEqualTo(createdAt);
     assertThat(view.isDebit()).isTrue();

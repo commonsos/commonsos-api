@@ -9,6 +9,7 @@ import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tx.ReadonlyTransactionManager;
 import org.web3j.tx.Transfer;
 import org.web3j.utils.Files;
 
@@ -20,8 +21,8 @@ import java.math.BigInteger;
 import java.nio.file.Paths;
 
 import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
-import static commonsos.domain.blockchain.BlockchainResearch.web3;
 import static java.math.BigInteger.ONE;
+import static java.math.BigInteger.TEN;
 import static org.web3j.utils.Convert.Unit.WEI;
 
 @Singleton
@@ -29,8 +30,8 @@ import static org.web3j.utils.Convert.Unit.WEI;
 public class BlockchainService {
 
   public static final BigInteger TOKEN_TRANSFER_GAS_LIMIT = new BigInteger("90000");
-  public static final BigInteger INITIAL_TOKEN_AMOUNT = new BigInteger("2").pow(256).subtract(ONE);
-  public static final BigInteger TOKEN_DEPLOYMENT_GAS_LIMIT = new BigInteger("262568");
+  public static final BigInteger INITIAL_TOKEN_AMOUNT = new BigInteger("2").pow(256).divide(TEN.pow(18)).subtract(ONE);
+  public static final BigInteger TOKEN_DEPLOYMENT_GAS_LIMIT = new BigInteger("2625681");
   public static final BigInteger GAS_PRICE = new BigInteger("18000000000");
 
   @Inject CommunityRepository communityRepository;
@@ -108,7 +109,10 @@ public class BlockchainService {
   public String createToken(User owner, String symbol, String name) {
     Credentials credentials = credentials(owner.getWallet(), "test");
     try {
-      return deploy(credentials, symbol, name);
+      log.info("Deploying token contract: " + name + " (" + symbol + "), owner: " + owner.getWalletAddress());
+      String tokenContractId = deploy(credentials, symbol, name);
+      log.info("Deployed succeeded: " + tokenContractId);
+      return tokenContractId;
     }
     catch (Exception e) {
       throw new RuntimeException(e);
@@ -116,13 +120,31 @@ public class BlockchainService {
   }
 
   String deploy(Credentials credentials, String symbol, String name) throws Exception {
-    TokenERC20 token = TokenERC20.deploy(web3, credentials, GAS_PRICE, TOKEN_DEPLOYMENT_GAS_LIMIT, INITIAL_TOKEN_AMOUNT, name, symbol).send();
+    TokenERC20 token = TokenERC20.deploy(web3j, credentials, GAS_PRICE, TOKEN_DEPLOYMENT_GAS_LIMIT, INITIAL_TOKEN_AMOUNT, name, symbol).send();
+    System.out.println(token.balanceOf(credentials.getAddress()).send() + " " + token.symbol().send());
     return token.getContractAddress();
   }
 
-  public BigInteger balance(String address) {
+  public BigInteger etherBalance(String address) {
     try {
-      return web3.ethGetBalance(address, DefaultBlockParameterName.LATEST).sendAsync().get().getBalance();
+      log.info("Balance request for user " + address);
+      BigInteger balance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).sendAsync().get().getBalance();
+      log.info("Balance request complete, balance " + balance.toString());
+      return balance;
+    }
+    catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public BigInteger tokenBalance(User user) {
+    try {
+      log.info("Token balance request for user " + user);
+      Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
+      TokenERC20 token = TokenERC20.load(community.getTokenContractId(), web3j, new ReadonlyTransactionManager(web3j, user.getWalletAddress()), GAS_PRICE, TOKEN_TRANSFER_GAS_LIMIT);
+      BigInteger balance = token.balanceOf(user.getWalletAddress()).send();
+      log.info("Token balance request complete, balance " + balance.toString());
+      return balance;
     }
     catch (Exception e) {
       throw new RuntimeException(e);
