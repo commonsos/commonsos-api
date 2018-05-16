@@ -79,7 +79,7 @@ public class TransactionService {
 
     repository.create(transaction);
 
-    String blockchainTransactionId = blockchainService.createTransaction(user, beneficiary, transaction.getAmount());
+    String blockchainTransactionId = blockchainService.transferTokens(user, beneficiary, transaction.getAmount());
     transaction.setBlockchainTransactionId(blockchainTransactionId);
 
     repository.update(transaction);

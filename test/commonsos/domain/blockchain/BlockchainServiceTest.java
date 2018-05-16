@@ -60,7 +60,7 @@ public class BlockchainServiceTest {
   }
 
   @Test
-  public void createTransaction() throws Exception {
+  public void transferTokens() throws Exception {
     User remitter = new User().setCommunityId(id("community")).setWallet("remitter wallet");
     User beneficiary = new User().setWalletAddress("beneficiary wallet address");
 
@@ -77,7 +77,7 @@ public class BlockchainServiceTest {
     when(token.transfer("beneficiary wallet address", BigInteger.TEN).send()).thenReturn(transactionReceipt);
 
 
-    String result = service.createTransaction(remitter, beneficiary, BigDecimal.TEN);
+    String result = service.transferTokens(remitter, beneficiary, BigDecimal.TEN);
 
 
     assertThat(result).isEqualTo("new transaction id");

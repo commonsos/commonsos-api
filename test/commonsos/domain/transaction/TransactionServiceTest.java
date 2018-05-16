@@ -37,7 +37,7 @@ public class TransactionServiceTest {
   @InjectMocks @Spy TransactionService service;
 
   @Test
-  public void create() {
+  public void createTransaction() {
     TransactionCreateCommand command = command("beneficiary", "10", "description", "ad id");
     User user = new User().setId(id("remitter")).setCommunityId(id("community"));
     doReturn(BigDecimal.TEN).when(service).balance(user);
@@ -46,7 +46,7 @@ public class TransactionServiceTest {
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
     User beneficiary = new User().setCommunityId(id("community"));
     when(userService.user(id("beneficiary"))).thenReturn(beneficiary);
-    when(blockchainService.createTransaction(user, beneficiary, new BigDecimal("10"))).thenReturn("blockchain id");
+    when(blockchainService.transferTokens(user, beneficiary, new BigDecimal("10"))).thenReturn("blockchain id");
 
     service.create(user, command);
 
@@ -63,21 +63,21 @@ public class TransactionServiceTest {
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_negativeAmount() {
+  public void createTransaction_negativeAmount() {
     service.create(new User(), command("beneficiary", "-0.01", "description", "ad id"));
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_zeroAmount() {
+  public void createTransaction_zeroAmount() {
     service.create(new User(), command("beneficiary", "0.0", "description", "ad id"));
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_descriptionIsMandatory() {
+  public void createTransaction_descriptionIsMandatory() {
     service.create(new User(), command("beneficiary", "10.2", " ", null));
   }
 
-  public void create_transactionWithoutAd() {
+  public void createTransaction_withoutAd() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
     User user = new User().setId(id("remitter"));
     doReturn(new BigDecimal("10.20")).when(service).balance(user);
@@ -96,7 +96,7 @@ public class TransactionServiceTest {
   }
 
   @Test
-  public void create_insufficientBalance() {
+  public void createTransaction_insufficientBalance() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "ad id");
     User user = new User().setId(id("remitter"));
     doReturn(BigDecimal.TEN).when(service).balance(user);
@@ -109,7 +109,7 @@ public class TransactionServiceTest {
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_unknownBeneficiary() {
+  public void createTransaction_unknownBeneficiary() {
     when(userService.user(id("unknown"))).thenThrow(new BadRequestException());
     TransactionCreateCommand command = command("unknown", "10.2", "description", "33");
 
@@ -117,7 +117,7 @@ public class TransactionServiceTest {
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_unknownAd() {
+  public void createTransaction_unknownAd() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", "unknown ad");
     User user = new User().setId(id("remitter"));
     when(adService.ad(id("unknown ad"))).thenThrow(new BadRequestException());
@@ -126,7 +126,7 @@ public class TransactionServiceTest {
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_canNotPayYourself() {
+  public void createTransaction_canNotPayYourself() {
     TransactionCreateCommand command = command("beneficiary", "10.2", "description", null);
     User user = new User().setId(id("beneficiary"));
 
@@ -134,7 +134,7 @@ public class TransactionServiceTest {
   }
 
   @Test(expected = BadRequestException.class)
-  public void create_communitiesDiffer() {
+  public void createTransaction_communitiesDiffer() {
     TransactionCreateCommand command = command("beneficiary", "0.1", "description", "ad id");
     User user = new User().setId(id("remitter")).setCommunityId(id("community"));
     when(userService.user(id("beneficiary"))).thenReturn(new User().setCommunityId(id("other community")));

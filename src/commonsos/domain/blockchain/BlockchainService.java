@@ -71,7 +71,7 @@ public class BlockchainService {
     }
   }
 
-  public String createTransaction(User remitter, User beneficiary, BigDecimal amount) {
+  public String transferTokens(User remitter, User beneficiary, BigDecimal amount) {
     Community community = communityRepository.findById(remitter.getCommunityId()).orElseThrow(RuntimeException::new);
     try {
       Credentials remitterCredentials = credentials(remitter.getWallet(), WALLET_PASSWORD);
@@ -110,9 +110,9 @@ public class BlockchainService {
     Credentials credentials = credentials(owner.getWallet(), "test");
     try {
       log.info("Deploying token contract: " + name + " (" + symbol + "), owner: " + owner.getWalletAddress());
-      String tokenContractId = deploy(credentials, symbol, name);
-      log.info("Deployed succeeded: " + tokenContractId);
-      return tokenContractId;
+      String tokenContractAddress = deploy(credentials, symbol, name);
+      log.info("Deploy successful, contract address: " + tokenContractAddress);
+      return tokenContractAddress;
     }
     catch (Exception e) {
       throw new RuntimeException(e);
@@ -127,9 +127,9 @@ public class BlockchainService {
 
   public BigInteger etherBalance(String address) {
     try {
-      log.info("Balance request for user " + address);
+      log.info("Ether balance request for: " + address);
       BigInteger balance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).sendAsync().get().getBalance();
-      log.info("Balance request complete, balance " + balance.toString());
+      log.info("Ether balance request complete, balance " + balance.toString());
       return balance;
     }
     catch (Exception e) {
@@ -139,7 +139,7 @@ public class BlockchainService {
 
   public BigInteger tokenBalance(User user) {
     try {
-      log.info("Token balance request for user " + user);
+      log.info("Token balance request for: " + user.getWalletAddress());
       Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
       TokenERC20 token = TokenERC20.load(community.getTokenContractId(), web3j, new ReadonlyTransactionManager(web3j, user.getWalletAddress()), GAS_PRICE, TOKEN_TRANSFER_GAS_LIMIT);
       BigInteger balance = token.balanceOf(user.getWalletAddress()).send();
