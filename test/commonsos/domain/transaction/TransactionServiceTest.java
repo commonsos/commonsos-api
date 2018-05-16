@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.util.List;
 
 import static commonsos.TestId.id;
-import static java.math.BigInteger.TEN;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -149,7 +148,7 @@ public class TransactionServiceTest {
   @Test
   public void balance() {
     User user = new User();
-    when(blockchainService.tokenBalance(user)).thenReturn(TEN);
+    when(blockchainService.tokenBalance(user)).thenReturn(BigDecimal.TEN);
 
     BigDecimal result = service.balance(user);
 

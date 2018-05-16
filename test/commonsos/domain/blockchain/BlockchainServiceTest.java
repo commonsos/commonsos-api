@@ -73,14 +73,15 @@ public class BlockchainServiceTest {
     transactionReceipt.setTransactionHash("new transaction id");
 
     TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
-    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
-    when(token.transfer("beneficiary wallet address", BigInteger.TEN).send()).thenReturn(transactionReceipt);
+    doReturn(token).when(service).loadTokenReadOnly(remitterCredentials, "contract id");
+    when(token.transfer(any(), any()).send()).thenReturn(transactionReceipt);
 
 
     String result = service.transferTokens(remitter, beneficiary, BigDecimal.TEN);
 
 
     assertThat(result).isEqualTo("new transaction id");
+    verify(token).transfer("beneficiary wallet address", new BigInteger("10000000000000000000"));
   }
 
   @Test
@@ -93,5 +94,21 @@ public class BlockchainServiceTest {
     String tokenAddress = service.createToken(owner, "COM", "COM token");
 
     assertThat(tokenAddress).isEqualTo("0x543210");
+  }
+
+  @Test
+  public void tokenBalance() throws Exception {
+    User user = new User().setWalletAddress("wallet address").setCommunityId(id("community"));
+    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractId("contract id")));
+
+    TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
+    doReturn(token).when(service).loadTokenReadOnly("wallet address", "contract id");
+    when(token.balanceOf("wallet address").send()).thenReturn(new BigInteger("10000000000000000000"));
+
+
+    BigDecimal result = service.tokenBalance(user);
+
+
+    assertThat(result).isEqualByComparingTo(BigDecimal.TEN);
   }
 }

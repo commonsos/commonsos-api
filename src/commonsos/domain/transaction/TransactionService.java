@@ -28,7 +28,7 @@ public class TransactionService {
   @Inject AdService adService;
 
   public BigDecimal balance(User user) {
-    return new BigDecimal(blockchainService.tokenBalance(user));
+    return blockchainService.tokenBalance(user);
   }
 
   private boolean isDebit(User user, Transaction transaction) {

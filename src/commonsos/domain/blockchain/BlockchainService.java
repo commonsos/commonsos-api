@@ -30,9 +30,12 @@ import static org.web3j.utils.Convert.Unit.WEI;
 public class BlockchainService {
 
   public static final BigInteger TOKEN_TRANSFER_GAS_LIMIT = new BigInteger("90000");
-  public static final BigInteger INITIAL_TOKEN_AMOUNT = new BigInteger("2").pow(256).divide(TEN.pow(18)).subtract(ONE);
   public static final BigInteger TOKEN_DEPLOYMENT_GAS_LIMIT = new BigInteger("2625681");
   public static final BigInteger GAS_PRICE = new BigInteger("18000000000");
+
+  private static final int NUMBER_OF_DECIMALS = 18;
+  private static final BigInteger MAX_UINT_256 = new BigInteger("2").pow(256);
+  private static final BigInteger INITIAL_TOKEN_AMOUNT = MAX_UINT_256.divide(TEN.pow(NUMBER_OF_DECIMALS)).subtract(ONE);
 
   @Inject CommunityRepository communityRepository;
   @Inject ObjectMapper objectMapper;
@@ -76,10 +79,10 @@ public class BlockchainService {
     try {
       Credentials remitterCredentials = credentials(remitter.getWallet(), WALLET_PASSWORD);
       String tokenContractAddress = community.getTokenContractId();
-      TokenERC20 token = loadToken(remitterCredentials, tokenContractAddress);
-      log.info(String.format("Creating transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, tokenContractAddress));
-      TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), amount.toBigInteger()).send();
-      log.info(String.format("Transaction done, id  %s", transactionReceipt.getTransactionHash()));
+      TokenERC20 token = loadTokenReadOnly(remitterCredentials, tokenContractAddress);
+      log.info(String.format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, tokenContractAddress));
+      TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
+      log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
       return transactionReceipt.getTransactionHash();
     }
     catch (Exception e) {
@@ -87,8 +90,20 @@ public class BlockchainService {
     }
   }
 
-  TokenERC20 loadToken(Credentials remitterCredentials, String tokenContractAddress) {
+  private BigInteger toTokensWithoutDecimals(BigDecimal amount) {
+    return amount.multiply(BigDecimal.TEN.pow(NUMBER_OF_DECIMALS)).toBigIntegerExact();
+  }
+
+  private BigDecimal toTokensWithDecimals(BigInteger amount) {
+    return new BigDecimal(amount).divide(BigDecimal.TEN.pow(NUMBER_OF_DECIMALS));
+  }
+
+  TokenERC20 loadTokenReadOnly(Credentials remitterCredentials, String tokenContractAddress) {
     return TokenERC20.load(tokenContractAddress, web3j, remitterCredentials, GAS_PRICE, TOKEN_TRANSFER_GAS_LIMIT);
+  }
+
+  TokenERC20 loadTokenReadOnly(String walletAddress, String tokenContractAddress) {
+    return TokenERC20.load(tokenContractAddress, web3j, new ReadonlyTransactionManager(web3j, walletAddress), GAS_PRICE, TOKEN_TRANSFER_GAS_LIMIT);
   }
 
   public void transferEther(User remitter, String beneficiaryWalletAddress, BigInteger amount) {
@@ -137,14 +152,14 @@ public class BlockchainService {
     }
   }
 
-  public BigInteger tokenBalance(User user) {
+  public BigDecimal tokenBalance(User user) {
     try {
       log.info("Token balance request for: " + user.getWalletAddress());
       Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
-      TokenERC20 token = TokenERC20.load(community.getTokenContractId(), web3j, new ReadonlyTransactionManager(web3j, user.getWalletAddress()), GAS_PRICE, TOKEN_TRANSFER_GAS_LIMIT);
+      TokenERC20 token = loadTokenReadOnly(user.getWalletAddress(), community.getTokenContractId());
       BigInteger balance = token.balanceOf(user.getWalletAddress()).send();
       log.info("Token balance request complete, balance " + balance.toString());
-      return balance;
+      return toTokensWithDecimals(balance);
     }
     catch (Exception e) {
       throw new RuntimeException(e);
