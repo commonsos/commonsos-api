@@ -7,6 +7,8 @@ JENKINS_WORKSPACE="$( cd "$(dirname "$0")" ; pwd -P )"
 
 cd /home/commonsos
 
+. .local_environment
+
 [ -d logs ] || mkdir -p logs
 
 rm -rf commonsos-api
