@@ -132,12 +132,18 @@ public class DemoData {
 
   private Credentials commonsosCredentials() {
     try {
-      String walletFile = System.getenv("COMMONSOS_WALLET_FILE");
+      String walletFile = getEnv("COMMONSOS_WALLET_FILE");
       log.info("Loading CommonsOS wallet from " + walletFile);
-      return WalletUtils.loadCredentials(System.getenv("COMMONSOS_WALLET_PASSWORD"), walletFile);
+      return WalletUtils.loadCredentials(getEnv("COMMONSOS_WALLET_PASSWORD"), walletFile);
     }
     catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private String getEnv(String variable) {
+    String value = System.getenv(variable);
+    if (value == null) throw new RuntimeException(String.format("Environment variable %s not defined", variable));
+    return value;
   }
 }
