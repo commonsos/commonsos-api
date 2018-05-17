@@ -13,6 +13,7 @@ import commonsos.controller.auth.AccountCreateController;
 import commonsos.controller.auth.LoginController;
 import commonsos.controller.auth.LogoutController;
 import commonsos.controller.auth.UserController;
+import commonsos.controller.community.CommunityListController;
 import commonsos.controller.message.*;
 import commonsos.controller.transaction.BalanceController;
 import commonsos.controller.transaction.TransactionCreateController;
@@ -60,7 +61,7 @@ public class Server {
     get("/users", injector.getInstance(UserSearchController.class), toJson);
 
     before((request, response) -> log.info(request.pathInfo()));
-    before(new AuthenticationFilter(asList("/login", "/create-account")));
+    before(new AuthenticationFilter(asList("/login", "/create-account", "/communities")));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
@@ -76,6 +77,8 @@ public class Server {
     get("/message-threads", injector.getInstance(MessageThreadListController.class), toJson);
     post("/message-threads/:id/messages", injector.getInstance(MessagePostController.class), toJson);
     get("/message-threads/:id/messages", injector.getInstance(MessageListController.class), toJson);
+
+    get("/communities", injector.getInstance(CommunityListController.class), toJson);
 
     exception(BadRequestException.class, (exception, request, response) -> {
       log.error("Bad request", exception);
