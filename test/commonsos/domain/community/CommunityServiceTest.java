@@ -1,5 +1,6 @@
 package commonsos.domain.community;
 
+import commonsos.BadRequestException;
 import commonsos.controller.community.CommunityView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,5 +45,24 @@ public class CommunityServiceTest {
 
     assertThat(view.getId()).isEqualTo(1L);
     assertThat(view.getName()).isEqualTo("name");
+  }
+
+  @Test
+  public void communityById() {
+    Community community = new Community();
+    when(repository.findById(123L)).thenReturn(Optional.of(community));
+    CommunityView view = new CommunityView();
+    when(service.view(community)).thenReturn(view);
+
+    CommunityView result = service.community(123L);
+
+    assertThat(result).isEqualTo(view);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void communityById_notFound() {
+    when(repository.findById(123L)).thenReturn(Optional.empty());
+
+    service.community(123L);
   }
 }

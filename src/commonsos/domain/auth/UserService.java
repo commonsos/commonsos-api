@@ -5,6 +5,7 @@ import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
 import commonsos.domain.blockchain.BlockchainService;
+import commonsos.domain.community.CommunityService;
 import commonsos.domain.transaction.TransactionService;
 import org.web3j.crypto.Credentials;
 
@@ -22,6 +23,7 @@ public class UserService {
   @Inject BlockchainService blockchainService;
   @Inject TransactionService transactionService;
   @Inject PasswordService passwordService;
+  @Inject CommunityService communityService;
 
   public User checkPassword(String username, String password) {
     User user = repository.findByUsername(username).orElseThrow(AuthenticationException::new);
@@ -53,10 +55,11 @@ public class UserService {
 
   public User create(AccountCreateCommand command) {
     validate(command);
-
     if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
+    communityService.community(command.getCommunityId());
 
     User user = new User()
+      .setCommunityId(command.getCommunityId())
       .setUsername(command.getUsername())
       .setPasswordHash(passwordService.hash(command.getPassword()))
       .setFirstName(command.getFirstName())

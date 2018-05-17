@@ -14,4 +14,5 @@ public class AccountCreateCommand {
   private String lastName;
   private String description;
   private String location;
+  private Long communityId;
 }

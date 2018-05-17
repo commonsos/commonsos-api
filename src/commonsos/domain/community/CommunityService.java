@@ -1,5 +1,6 @@
 package commonsos.domain.community;
 
+import commonsos.BadRequestException;
 import commonsos.controller.community.CommunityView;
 
 import javax.inject.Inject;
@@ -19,5 +20,9 @@ public class CommunityService {
 
   CommunityView view(Community community) {
     return new CommunityView().setId(community.getId()).setName(community.getName());
+  }
+
+  public CommunityView community(long id) {
+    return repository.findById(id).map(this::view).orElseThrow(BadRequestException::new);
   }
 }

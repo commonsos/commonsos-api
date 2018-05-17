@@ -5,6 +5,7 @@ import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
 import commonsos.domain.blockchain.BlockchainService;
+import commonsos.domain.community.CommunityService;
 import commonsos.domain.transaction.TransactionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,7 @@ public class UserServiceTest {
   @Mock TransactionService transactionService;
   @Mock PasswordService passwordService;
   @Mock BlockchainService blockchainService;
+  @Mock CommunityService communityService;
   @InjectMocks @Spy UserService service;
 
   @Test
@@ -129,6 +131,7 @@ public class UserServiceTest {
     Credentials credentials = mock(Credentials.class);
     when(credentials.getAddress()).thenReturn("wallet address");
     when(blockchainService.credentials("wallet", WALLET_PASSWORD)).thenReturn(credentials);
+
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
       .setPassword("secret78")
@@ -136,6 +139,7 @@ public class UserServiceTest {
       .setLastName("last")
       .setDescription("description")
       .setLocation("Shibuya")
+      .setCommunityId(23L)
     );
 
     assertThat(result).isEqualTo(createdUser);
@@ -148,6 +152,22 @@ public class UserServiceTest {
       .setLocation("Shibuya")
       .setWallet("wallet")
       .setWalletAddress("wallet address")
+      .setCommunityId(23L)
+    );
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void create_unknownCommunity() {
+    when(communityService.community(23L)).thenThrow(BadRequestException.class);
+
+    service.create(new AccountCreateCommand()
+      .setUsername("user name")
+      .setPassword("secret78")
+      .setFirstName("first")
+      .setLastName("last")
+      .setDescription("description")
+      .setLocation("Shibuya")
+      .setCommunityId(23L)
     );
   }
 
