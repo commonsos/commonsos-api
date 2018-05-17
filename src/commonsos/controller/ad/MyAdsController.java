@@ -12,6 +12,6 @@ public class MyAdsController extends Controller {
   @Inject AdService service;
 
   @Override public Object handle(User user, Request request, Response response) {
-    return service.adsByOwner(user);
+    return service.createdBy(user);
   }
 }

@@ -58,29 +58,29 @@ public class AdServiceTest {
   }
 
   @Test
-  public void all() {
+  public void listForUser() {
     Ad ad = new Ad();
     AdView view = new AdView();
     User user = new User();
     AdService service = spy(this.service);
-    when(repository.list()).thenReturn(asList(ad));
+    when(repository.adsByCommunity(user.getCommunityId())).thenReturn(asList(ad));
     doReturn(view).when(service).view(ad, user);
 
-    List<AdView> result = service.all(user);
+    List<AdView> result = service.listFor(user);
 
     assertThat(result).containsExactly(view);
   }
 
   @Test
-  public void adsByOwner() {
+  public void adsCreatedByUser() {
     User user = new User().setId(id("worker"));
     Ad ad = new Ad().setCreatedBy(id("worker"));
     AdView adView = new AdView();
     AdService service = spy(this.service);
-    when(repository.list()).thenReturn(asList(ad, new Ad().setCreatedBy(id("elderly"))));
+    when(repository.adsByCommunity(user.getCommunityId())).thenReturn(asList(ad, new Ad().setCreatedBy(id("elderly"))));
     doReturn(adView).when(service).view(ad, user);
 
-    List<AdView> result = service.adsByOwner(user);
+    List<AdView> result = service.createdBy(user);
 
     assertThat(result).containsExactly(adView);
   }

@@ -34,12 +34,12 @@ public class AdService {
     return repository.create(ad);
   }
 
-  public List<AdView> all(User user) {
-    return repository.list().stream().map(ad -> view(ad, user)).collect(toList());
+  public List<AdView> listFor(User user) {
+    return repository.adsByCommunity(user.getCommunityId()).stream().map(ad -> view(ad, user)).collect(toList());
   }
 
-  public List<AdView> adsByOwner(User user) {
-    return repository.list().stream().filter(a -> a.getCreatedBy().equals(user.getId())).map(ad -> view(ad, user)).collect(toList());
+  public List<AdView> createdBy(User user) {
+    return repository.adsByCommunity(user.getCommunityId()).stream().filter(a -> a.getCreatedBy().equals(user.getId())).map(ad -> view(ad, user)).collect(toList());
   }
 
   protected AdView view(Ad ad, User user) {

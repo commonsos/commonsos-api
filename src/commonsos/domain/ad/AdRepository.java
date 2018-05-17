@@ -22,8 +22,10 @@ public class AdRepository extends Repository {
     return ad;
   }
 
-  public List<Ad> list() {
-    return em().createQuery("FROM Ad", Ad.class).getResultList();
+  public List<Ad> adsByCommunity(Long communityId) {
+    return em()
+      .createQuery("FROM Ad WHERE communityId = :communityId", Ad.class)
+      .setParameter("communityId", communityId).getResultList();
   }
 
   public Optional<Ad> find(Long id) {

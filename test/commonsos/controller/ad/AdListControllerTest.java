@@ -24,7 +24,7 @@ public class AdListControllerTest {
   public void handle() throws Exception {
     ArrayList<AdView> ads = new ArrayList<>();
     User user = new User();
-    when(service.all(user)).thenReturn(ads);
+    when(service.listFor(user)).thenReturn(ads);
 
     assertSame(ads, controller.handle(user, null, null));
   }

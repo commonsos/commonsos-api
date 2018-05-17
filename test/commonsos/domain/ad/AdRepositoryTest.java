@@ -1,12 +1,12 @@
 package commonsos.domain.ad;
 
 import commonsos.DBTest;
-import commonsos.TestId;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
 
+import static commonsos.TestId.id;
 import static commonsos.domain.ad.AdType.GIVE;
 import static java.math.BigDecimal.TEN;
 import static java.time.Instant.parse;
@@ -26,7 +26,7 @@ public class AdRepositoryTest extends DBTest {
 
   @Test
   public void findById_notFound() {
-    Optional<Ad> result = inTransaction(() -> repository.find(TestId.id("unknown")));
+    Optional<Ad> result = inTransaction(() -> repository.find(id("unknown")));
 
     assertFalse(result.isPresent());
   }
@@ -35,7 +35,7 @@ public class AdRepositoryTest extends DBTest {
   public void findById() {
     Long id = inTransaction(() -> repository.create(new Ad()
         .setTitle("Title")
-        .setCreatedBy(TestId.id("john"))
+        .setCreatedBy(id("john"))
         .setPoints(TEN).setType(GIVE)
         .setPhotoUrl("url://photo")
         .setCreatedAt(parse("2016-02-02T20:15:30Z"))
@@ -46,7 +46,7 @@ public class AdRepositoryTest extends DBTest {
     Ad result = repository.find(id).get();
 
     assertThat(result.getTitle()).isEqualTo("Title");
-    assertThat(result.getCreatedBy()).isEqualTo(TestId.id("john"));
+    assertThat(result.getCreatedBy()).isEqualTo(id("john"));
     assertThat(result.getType()).isEqualTo(GIVE);
     assertThat(result.getPhotoUrl()).isEqualTo("url://photo");
     assertThat(result.getCreatedAt()).isEqualTo(parse("2016-02-02T20:15:30Z"));
@@ -56,13 +56,12 @@ public class AdRepositoryTest extends DBTest {
 
   @Test
   public void list() {
-    Long id1 = inTransaction(() -> repository.create(new Ad()).getId());
-    Long id2 = inTransaction(() -> repository.create(new Ad()).getId());
+    Long id1 = inTransaction(() -> repository.create(new Ad().setCommunityId(id("community"))).getId());
+    Long id2 = inTransaction(() -> repository.create(new Ad().setCommunityId(id("other community"))).getId());
+    Long id3 = inTransaction(() -> repository.create(new Ad().setCommunityId(id("community"))).getId());
 
-    List<Ad> list = repository.list();
+    List<Ad> list = repository.adsByCommunity(id(("community")));
 
-    assertThat(list).extracting("id").containsExactly(id1, id2);
+    assertThat(list).extracting("id").containsExactly(id1, id3);
   }
-
-
 }
