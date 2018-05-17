@@ -25,4 +25,5 @@ public class Ad {
   private String location;
   private Instant createdAt;
   private String photoUrl;
+  private Long communityId;
 }

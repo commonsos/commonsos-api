@@ -42,7 +42,7 @@ public class AdServiceTest {
       .setType(WANT)
       .setPhotoUrl("url://photo");
 
-    service.create(new User().setId(id("user id")), command);
+    service.create(new User().setId(id("user id")).setCommunityId(id("community id")), command);
 
     verify(repository).create(adCaptor.capture());
     Ad ad = adCaptor.getValue();
@@ -54,6 +54,7 @@ public class AdServiceTest {
     assertThat(ad.getLocation()).isEqualTo("location");
     assertThat(ad.getType()).isEqualTo(WANT);
     assertThat(ad.getPhotoUrl()).isEqualTo("url://photo");
+    assertThat(ad.getCommunityId()).isEqualTo(id("community id"));
   }
 
   @Test
