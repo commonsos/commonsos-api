@@ -102,6 +102,6 @@ public class UserService {
 
   public List<UserView> searchUsers(User user, String query) {
     if (!user.isAdmin()) throw new ForbiddenException();
-    return repository.search(query).stream().map(this::view).collect(toList());
+    return repository.search(user.getCommunityId(), query).stream().map(this::view).collect(toList());
   }
 }

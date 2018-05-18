@@ -78,21 +78,30 @@ public class UserRepositoryTest extends DBTest {
 
   @Test
   public void search() {
-    User user1 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("foo")));
-    User user2 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("bar")));
+    User user1 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("foo").setCommunityId(id("community"))));
+    User user2 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("bar").setCommunityId(id("community"))));
 
-    assertThat(repository.search("irs")).containsExactly(user1, user2);
-    assertThat(repository.search("foo")).containsExactly(user1);
-    assertThat(repository.search("baz")).isEmpty();
-    assertThat(repository.search(" ")).isEmpty();
-    assertThat(repository.search("")).isEmpty();
+    assertThat(repository.search(id("community"), "irs")).containsExactly(user1, user2);
+    assertThat(repository.search(id("community"), "foo")).containsExactly(user1);
+    assertThat(repository.search(id("community"), "baz")).isEmpty();
+    assertThat(repository.search(id("community"), " ")).isEmpty();
+    assertThat(repository.search(id("community"), "")).isEmpty();
+  }
+
+  @Test
+  public void search_excludesOtherCommunities() {
+    User user1 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("foo").setCommunityId(id("Shibuya"))));
+    User user2 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("bar").setCommunityId(id("Kaga"))));
+
+    assertThat(repository.search(id("Shibuya"), "first")).containsExactly(user1);
+    assertThat(repository.search(id("Kaga"), "first")).containsExactly(user2);
   }
 
   @Test
   public void search_excludesAdminUser() {
-    inTransaction(() -> repository.create(new User().setFirstName("name").setAdmin(true)));
-    User user = inTransaction(() -> repository.create(new User().setFirstName("name").setAdmin(false)));
+    inTransaction(() -> repository.create(new User().setCommunityId(id("community")).setFirstName("name").setLastName("name").setAdmin(true)));
+    User user = inTransaction(() -> repository.create(new User().setCommunityId(id("community")).setFirstName("name").setLastName("name").setAdmin(false)));
 
-    assertThat(repository.search("name")).containsExactly(user);
+    assertThat(repository.search(id("community"), "name")).containsExactly(user);
   }
 }

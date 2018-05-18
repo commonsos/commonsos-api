@@ -43,9 +43,11 @@ public class UserRepository extends Repository {
     return ofNullable(em().find(User.class, id));
   }
 
-  public List<User> search(String query) {
+  public List<User> search(Long communityId, String query) {
     if (isBlank(query)) return emptyList();
-    return em().createQuery("SELECT u FROM User u WHERE u.admin = FALSE AND u.firstName LIKE :query OR lastName LIKE :query", User.class)
+    return em().createQuery("FROM User WHERE admin = FALSE AND communityId = :communityId " +
+      "AND (firstName LIKE :query OR lastName LIKE :query)", User.class)
+      .setParameter("communityId", communityId)
       .setParameter("query", "%"+query+"%")
       .setMaxResults(10)
       .getResultList();

@@ -257,7 +257,7 @@ public class UserServiceTest {
   @Test
   public void searchUsers() {
     User user = new User();
-    when(repository.search("foobar")).thenReturn(asList(user));
+    when(repository.search(user.getCommunityId(), "foobar")).thenReturn(asList(user));
     UserView userView = new UserView();
     when(service.view(user)).thenReturn(userView);
 
