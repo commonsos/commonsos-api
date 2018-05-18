@@ -2,13 +2,13 @@ CREATE TABLE users (
   id             BIGSERIAL,
   community_id   BIGINT,
   admin          BOOLEAN NOT NULL,
-  avatar_url     VARCHAR(255),
-  description    VARCHAR(255),
-  first_name     VARCHAR(255),
-  last_name      VARCHAR(255),
-  location       VARCHAR(255),
-  password_hash  VARCHAR(255),
-  username       VARCHAR(255),
+  avatar_url     TEXT,
+  description    TEXT,
+  first_name     TEXT,
+  last_name      TEXT,
+  location       TEXT,
+  password_hash  TEXT,
+  username       TEXT,
   wallet         TEXT,
   wallet_address TEXT,
   PRIMARY KEY (id)
@@ -19,12 +19,12 @@ CREATE TABLE ads (
   created_at   TIMESTAMP,
   created_by   BIGINT,
   community_id BIGINT,
-  description  VARCHAR(255),
-  location     VARCHAR(255),
-  photo_url    VARCHAR(255),
+  description  TEXT,
+  location     TEXT,
+  photo_url    TEXT,
   points       DECIMAL(19, 2),
-  title        VARCHAR(255),
-  type         VARCHAR(255),
+  title        TEXT,
+  type         TEXT,
   PRIMARY KEY (id)
 );
 
@@ -32,7 +32,7 @@ CREATE TABLE messages (
   id         BIGSERIAL,
   created_at TIMESTAMP,
   created_by BIGINT,
-  text       VARCHAR(255),
+  text       TEXT,
   thread_id  BIGINT,
   PRIMARY KEY (id)
 );
@@ -41,7 +41,7 @@ CREATE TABLE message_threads (
   id         BIGSERIAL,
   ad_id      BIGINT,
   created_by BIGINT,
-  title      VARCHAR(255),
+  title      TEXT,
   PRIMARY KEY (id)
 );
 
@@ -66,7 +66,7 @@ CREATE TABLE transactions (
   remitter_id               BIGINT,
   beneficiary_id            BIGINT,
   amount                    DECIMAL(19, 2),
-  description               VARCHAR(255),
+  description               TEXT,
   PRIMARY KEY (id)
 );
 
