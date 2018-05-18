@@ -45,24 +45,33 @@ public class DemoData {
 
     if (!emService.get().createQuery("FROM User", User.class).setMaxResults(1).getResultList().isEmpty()) return;
 
-    User admin = emService.runInTransaction(() -> userService.create(new AccountCreateCommand().setUsername("admin").setPassword("secret00").setFirstName("Coordinator").setLastName("Community").setLocation("Kaga, Ishikawa Prefecture, Japan"))
-      .setAdmin(true).setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPlkwhBse_JCK37_0WA3m_PHUpFncOVLM0s0c4cCqpV27UteuJ")
-      .setDescription("I'm a coordinator of a my community. Contact me if you have problem to solve."));
+    BigInteger initialEtherAmountForAdmin = TOKEN_DEPLOYMENT_GAS_LIMIT.add(new BigInteger("1000").multiply(TOKEN_TRANSFER_GAS_LIMIT)).multiply(GAS_PRICE);
 
     Credentials commonsos = commonsosCredentials();
-    blockchainService.transferEther(commonsos, admin.getWalletAddress(),
-      TOKEN_DEPLOYMENT_GAS_LIMIT.add(new BigInteger("1000").multiply(TOKEN_TRANSFER_GAS_LIMIT)).multiply(GAS_PRICE)
-    );
 
-    log.info("Admin ether balance (WEI) is " + blockchainService.etherBalance(admin.getWalletAddress()));
+    User admin = emService.runInTransaction(() -> userService.create(new AccountCreateCommand().setUsername("admin").setPassword("secret00").setFirstName("Coordinator").setLastName("Community").setLocation("Kaga, Ishikawa Prefecture, Japan"))
+      .setAdmin(true).setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPlkwhBse_JCK37_0WA3m_PHUpFncOVLM0s0c4cCqpV27UteuJ")
+      .setDescription("I'm a coordinator of Kaga City community. Contact me if you have problem to solve."));
+    blockchainService.transferEther(commonsos, admin.getWalletAddress(), initialEtherAmountForAdmin);
+    Community kagaCommunity = createCommunity(admin, "Kaga city", "KAGA", "Kaga coin");
+    sampleData(admin, kagaCommunity);
 
-    String tokenAddress = blockchainService.createToken(admin, "KAGA", "Kaga coin");
+    // second community
+    User admin2 = emService.runInTransaction(() -> userService.create(new AccountCreateCommand().setUsername("admin2").setPassword("secret02").setFirstName("Coordinator").setLastName("Community").setLocation("Shibuya, Tokyo"))
+      .setAdmin(true).setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPlkwhBse_JCK37_0WA3m_PHUpFncOVLM0s0c4cCqpV27UteuJ")
+      .setDescription("I'm a coordinator of Shibuya People community. Contact me if you have problem to solve."));
+    blockchainService.transferEther(commonsos, admin2.getWalletAddress(), initialEtherAmountForAdmin);
+    createCommunity(admin2, "Shibuya People", "SHI", "Shibuya coin");
 
-    Community community = emService.runInTransaction(() -> communityRepository.create(new Community().setName("Kaga").setTokenContractId(tokenAddress)));
+    // third community
+    User admin3 = emService.runInTransaction(() -> userService.create(new AccountCreateCommand().setUsername("admin3").setPassword("secret03").setFirstName("Coordinator").setLastName("Community").setLocation("Tokyo, Japan"))
+      .setAdmin(true).setAvatarUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPlkwhBse_JCK37_0WA3m_PHUpFncOVLM0s0c4cCqpV27UteuJ")
+      .setDescription("I'm a coordinator of Commons Inc community. Contact me if you have problem to solve."));
+    blockchainService.transferEther(commonsos, admin3.getWalletAddress(), initialEtherAmountForAdmin);
+    createCommunity(admin3, "Commons Inc", "ICOM", "Commons Inc coin");
+  }
 
-    admin.setCommunityId(community.getId());
-    emService.runInTransaction(() -> userRepository.update(admin));
-
+  private void sampleData(User admin, Community community) {
     User worker = emService.runInTransaction(() -> userService.create(new AccountCreateCommand().setUsername("worker").setPassword("secret00").setFirstName("Haruto").setLastName("Sato").setLocation("Shibuya, Tokyo, Japan"))
       .setAvatarUrl("https://image.jimcdn.com/app/cms/image/transf/none/path/s09a03e3ad80f8a02/image/i788e42d25ed4115e/version/1493969515/image.jpg")
       .setDescription("I am an Engineer, currently unemployed. I like helping elderly people, I can help with daily chores.").setCommunityId(community.getId()));
@@ -128,6 +137,15 @@ public class DemoData {
 
     MessageThreadView elderly2AdThread = emService.runInTransaction(() -> messageService.threadForAd(worker, elderly2Ad.getId()));
     transactionService.create(elderly2, new TransactionCreateCommand().setBeneficiaryId(worker.getId()).setAdId(elderly2Ad.getId()).setDescription("Ad: 小川くん、醤油かってきて").setAmount(BigDecimal.TEN.add(BigDecimal.TEN)));
+  }
+
+  private Community createCommunity(User admin, String name, String tokenSymbol, String tokenName) {
+    String tokenAddress = blockchainService.createToken(admin, tokenSymbol, tokenName);
+    Community community = emService.runInTransaction(() -> communityRepository.create(new Community().setName(name).setTokenContractId(tokenAddress)));
+
+    admin.setCommunityId(community.getId());
+    emService.runInTransaction(() -> userRepository.update(admin));
+    return community;
   }
 
   private Credentials commonsosCredentials() {

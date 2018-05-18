@@ -22,7 +22,7 @@ public class CommunityService {
     return new CommunityView().setId(community.getId()).setName(community.getName());
   }
 
-  public CommunityView community(long id) {
+  public CommunityView community(Long id) {
     return repository.findById(id).map(this::view).orElseThrow(BadRequestException::new);
   }
 }

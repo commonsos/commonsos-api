@@ -56,7 +56,7 @@ public class UserService {
   public User create(AccountCreateCommand command) {
     validate(command);
     if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
-    communityService.community(command.getCommunityId());
+    if (command.getCommunityId() != null) communityService.community(command.getCommunityId());
 
     User user = new User()
       .setCommunityId(command.getCommunityId())

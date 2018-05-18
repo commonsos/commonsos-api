@@ -4,6 +4,7 @@ import commonsos.AuthenticationException;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
+import commonsos.controller.community.CommunityView;
 import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.community.CommunityService;
 import commonsos.domain.transaction.TransactionService;
@@ -131,6 +132,7 @@ public class UserServiceTest {
     Credentials credentials = mock(Credentials.class);
     when(credentials.getAddress()).thenReturn("wallet address");
     when(blockchainService.credentials("wallet", WALLET_PASSWORD)).thenReturn(credentials);
+    when(communityService.community(23L)).thenReturn(mock(CommunityView.class));
 
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
@@ -168,6 +170,27 @@ public class UserServiceTest {
       .setDescription("description")
       .setLocation("Shibuya")
       .setCommunityId(23L)
+    );
+  }
+
+  @Test
+  public void create_communityIsOptional() {
+    User createdUser = new User();
+    when(repository.create(any())).thenReturn(createdUser);
+    when(passwordService.hash("secret78")).thenReturn("hash");
+    when(blockchainService.createWallet(WALLET_PASSWORD)).thenReturn("wallet");
+    Credentials credentials = mock(Credentials.class);
+    when(credentials.getAddress()).thenReturn("wallet address");
+    when(blockchainService.credentials("wallet", WALLET_PASSWORD)).thenReturn(credentials);
+
+    service.create(new AccountCreateCommand()
+      .setUsername("user name")
+      .setPassword("secret78")
+      .setFirstName("first")
+      .setLastName("last")
+      .setDescription("description")
+      .setLocation("Shibuya")
+      .setCommunityId(null)
     );
   }
 
