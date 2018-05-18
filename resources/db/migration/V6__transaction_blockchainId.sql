@@ -1,1 +1,0 @@
-ALTER TABLE transactions ADD COLUMN blockchain_transaction_id TEXT;

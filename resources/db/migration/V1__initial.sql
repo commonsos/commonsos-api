@@ -1,26 +1,30 @@
 CREATE TABLE users (
-  id            BIGSERIAL,
-  admin         BOOLEAN NOT NULL,
-  avatar_url    VARCHAR(255),
-  description   VARCHAR(255),
-  first_name    VARCHAR(255),
-  last_name     VARCHAR(255),
-  location      VARCHAR(255),
-  password_hash VARCHAR(255),
-  username      VARCHAR(255),
+  id             BIGSERIAL,
+  community_id   BIGINT,
+  admin          BOOLEAN NOT NULL,
+  avatar_url     VARCHAR(255),
+  description    VARCHAR(255),
+  first_name     VARCHAR(255),
+  last_name      VARCHAR(255),
+  location       VARCHAR(255),
+  password_hash  VARCHAR(255),
+  username       VARCHAR(255),
+  wallet         TEXT,
+  wallet_address TEXT,
   PRIMARY KEY (id)
 );
 
 CREATE TABLE ads (
-  id          BIGSERIAL,
-  created_at  TIMESTAMP,
-  created_by  BIGINT,
-  description VARCHAR(255),
-  location    VARCHAR(255),
-  photo_url   VARCHAR(255),
-  points      DECIMAL(19, 2),
-  title       VARCHAR(255),
-  type        VARCHAR(255),
+  id           BIGSERIAL,
+  created_at   TIMESTAMP,
+  created_by   BIGINT,
+  community_id BIGINT,
+  description  VARCHAR(255),
+  location     VARCHAR(255),
+  photo_url    VARCHAR(255),
+  points       DECIMAL(19, 2),
+  title        VARCHAR(255),
+  type         VARCHAR(255),
   PRIMARY KEY (id)
 );
 
@@ -55,14 +59,20 @@ ALTER TABLE message_thread_parties
 FOREIGN KEY (message_thread_id) REFERENCES message_threads;
 
 CREATE TABLE transactions (
-  id             BIGSERIAL,
-  created_at     TIMESTAMP,
-  ad_id          BIGINT,
-  remitter_id    BIGINT,
-  beneficiary_id BIGINT,
-  amount         DECIMAL(19, 2),
-  description    VARCHAR(255),
+  id                        BIGSERIAL,
+  created_at                TIMESTAMP,
+  blockchain_transaction_id TEXT,
+  ad_id                     BIGINT,
+  remitter_id               BIGINT,
+  beneficiary_id            BIGINT,
+  amount                    DECIMAL(19, 2),
+  description               VARCHAR(255),
   PRIMARY KEY (id)
 );
 
-
+CREATE TABLE communities (
+  id                BIGSERIAL,
+  name              TEXT NOT NULL,
+  token_contract_id TEXT,
+  PRIMARY KEY (id)
+);
