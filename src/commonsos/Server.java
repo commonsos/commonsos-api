@@ -27,6 +27,9 @@ import static spark.Spark.*;
 
 @Slf4j
 public class Server {
+
+  static final String LOGIN_PATH = "/login";
+
   @Inject private JsonTransformer toJson;
   @Inject private DatabaseMigrator databaseMigrator;
   @Inject private DemoData demoData;
@@ -54,7 +57,7 @@ public class Server {
   }
 
   private void initRoutes(Injector injector) {
-    post("/login", injector.getInstance(LoginController.class), toJson);
+    post(LOGIN_PATH, injector.getInstance(LoginController.class), toJson);
     post("/create-account", injector.getInstance(AccountCreateController.class), toJson);
     post("/logout", injector.getInstance(LogoutController.class), toJson);
     get("/user", injector.getInstance(UserController.class), toJson);
@@ -62,6 +65,7 @@ public class Server {
     get("/users", injector.getInstance(UserSearchController.class), toJson);
 
     before((request, response) -> log.info(request.pathInfo()));
+    before(new CsrfFilter());
     before(new AuthenticationFilter(asList("/login", "/create-account", "/communities")));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
