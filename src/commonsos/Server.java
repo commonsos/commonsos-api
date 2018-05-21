@@ -34,6 +34,7 @@ public class Server {
   private void start() {
     Injector injector = initDependencies();
     databaseMigrator.execute();
+    CookieSecuringEmbeddedJettyFactory.register();
     initRoutes(injector);
     demoData.install();
   }

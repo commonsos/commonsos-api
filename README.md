@@ -24,23 +24,32 @@ sudo -u postgres createdb -O commonsos commonsos
 
 Proxy API and Web to corresponding servers
 ```
-<VirtualHost *:80>
-        DocumentRoot /path/to/folder/containing/index.html
+<VirtualHost _default_:80>
+	Redirect permanent / https://[COMMONSOS_APP_URL]/
+</VirtualHost>
 
-        <Directory /path/to/folder/containing/index.html/>
-          Require all granted
-         	Allow from all
-        </Directory>
+<VirtualHost *:443>
+    DocumentRoot [PATH_TO_FOLDER_CONTAINING_INDEX_HTML]
 
-        ProxyPreserveHost On
+    <Directory [PATH_TO_FOLDER_CONTAINING_INDEX_HTML]>
+      Require all granted
+      Allow from all
+    </Directory>
 
-        <Location /api>
-          ProxyPass http://localhost:4567 retry=0
-          ProxyPassReverse http://localhost:4567
-        </Location>
+    ProxyPreserveHost On
 
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    <Location /api>
+      ProxyPass http://localhost:4567 retry=0
+      ProxyPassReverse http://localhost:4567
+    </Location>
+
+    SSLEngine on
+    SSLCertificateKeyFile [PATH_TO_CERTIFICATE_KEY_FILE]
+
+    Header edit Set-Cookie ^(.*)$ $1;Secure
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 ```
 
