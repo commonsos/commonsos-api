@@ -4,3 +4,5 @@ out
 .shelf
 .idea/workspace.xml
 .gradle
+dataSources
+.ideaDataSources
