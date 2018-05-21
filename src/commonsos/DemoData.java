@@ -43,7 +43,12 @@ public class DemoData {
 
   public void install() {
 
-    if (!emService.get().createQuery("FROM User", User.class).setMaxResults(1).getResultList().isEmpty()) return;
+    if (!emService.get().createQuery("FROM User", User.class).setMaxResults(1).getResultList().isEmpty()) {
+      log.info("At least one user found from database");
+      return;
+    }
+
+    log.info("Installing demo data!");
 
     BigInteger initialEtherAmountForAdmin = TOKEN_DEPLOYMENT_GAS_LIMIT.add(new BigInteger("1000").multiply(TOKEN_TRANSFER_GAS_LIMIT)).multiply(GAS_PRICE);
 
@@ -163,5 +168,9 @@ public class DemoData {
     String value = System.getenv(variable);
     if (value == null) throw new RuntimeException(String.format("Environment variable %s not defined", variable));
     return value;
+  }
+
+  public static void main(String[] args) {
+    System.out.println(new BigInteger("30").multiply(TOKEN_TRANSFER_GAS_LIMIT).multiply(GAS_PRICE));
   }
 }
