@@ -57,16 +57,18 @@ public class Server {
   }
 
   private void initRoutes(Injector injector) {
+
+    before(new LogFilter());
+    before((request, response) -> log.info(request.pathInfo()));
+    before(new CsrfFilter());
+    before(new AuthenticationFilter(asList("/login", "/create-account", "/communities")));
+
     post(LOGIN_PATH, injector.getInstance(LoginController.class), toJson);
     post("/create-account", injector.getInstance(AccountCreateController.class), toJson);
     post("/logout", injector.getInstance(LogoutController.class), toJson);
     get("/user", injector.getInstance(UserController.class), toJson);
     get("/users/:id", injector.getInstance(UserController.class), toJson);
     get("/users", injector.getInstance(UserSearchController.class), toJson);
-
-    before((request, response) -> log.info(request.pathInfo()));
-    before(new CsrfFilter());
-    before(new AuthenticationFilter(asList("/login", "/create-account", "/communities")));
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);

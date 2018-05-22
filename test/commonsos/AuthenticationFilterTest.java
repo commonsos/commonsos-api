@@ -6,6 +6,7 @@ import org.junit.Test;
 import spark.Request;
 import spark.Session;
 
+import static commonsos.controller.auth.LoginController.USER_SESSION_ATTRIBUTE_NAME;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
@@ -31,14 +32,14 @@ public class AuthenticationFilterTest {
 
   @Test
   public void userAuthenticated() {
-    when(session.attribute("user")).thenReturn(mock(User.class));
+    when(session.attribute(USER_SESSION_ATTRIBUTE_NAME)).thenReturn(mock(User.class));
 
     new AuthenticationFilter(emptyList()).handle(request, null);
   }
 
   @Test(expected = AuthenticationException.class)
   public void noUserInSession() {
-    when(session.attribute("user")).thenReturn(null);
+    when(session.attribute(USER_SESSION_ATTRIBUTE_NAME)).thenReturn(null);
 
     new AuthenticationFilter(emptyList()).handle(request, null);
   }

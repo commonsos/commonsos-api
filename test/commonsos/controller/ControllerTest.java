@@ -10,6 +10,7 @@ import spark.Response;
 import spark.Session;
 
 import static commonsos.TestId.id;
+import static commonsos.controller.auth.LoginController.USER_SESSION_ATTRIBUTE_NAME;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -22,7 +23,7 @@ public class ControllerTest {
   @Test
   public void suppliesUserParameter() {
     User user = new User().setId(id("user id"));
-    when(session.attribute("user")).thenReturn(user);
+    when(session.attribute(USER_SESSION_ATTRIBUTE_NAME)).thenReturn(user);
     when(request.session()).thenReturn(session);
     SampleController controller = spy(new SampleController());
 

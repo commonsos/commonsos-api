@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
   <property name="defaultPattern"
-            value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - [%X{userInfo}][%X{sessionId}][%X{requestId}] %msg%n"/>
+            value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - [%X{username}][%X{sessionId}][%X{requestId}] %msg%n"/>
 
   <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>

@@ -7,6 +7,8 @@ import spark.Response;
 
 import java.util.List;
 
+import static commonsos.controller.auth.LoginController.USER_SESSION_ATTRIBUTE_NAME;
+
 @Slf4j
 public class AuthenticationFilter implements Filter {
 
@@ -19,6 +21,6 @@ public class AuthenticationFilter implements Filter {
   @Override public void handle(Request request, Response response) {
     if (exclusionPaths.contains(request.pathInfo())) return;
 
-    if (request.session().attribute("user") == null) throw new AuthenticationException();
+    if (request.session().attribute(USER_SESSION_ATTRIBUTE_NAME) == null) throw new AuthenticationException();
   }
 }

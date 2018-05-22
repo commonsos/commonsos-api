@@ -1,9 +1,11 @@
 package commonsos.controller.auth;
 
 import com.google.gson.Gson;
+import commonsos.LogFilter;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserPrivateView;
 import commonsos.domain.auth.UserService;
+import org.slf4j.MDC;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -17,6 +19,7 @@ import static java.util.UUID.randomUUID;
 
 public class LoginController implements Route {
 
+  public static final String USER_SESSION_ATTRIBUTE_NAME = "user";
   @Inject Gson gson;
   @Inject UserService userService;
 
@@ -24,7 +27,8 @@ public class LoginController implements Route {
     Map map = gson.fromJson(request.body(), Map.class);
 
     User user = userService.checkPassword(String.valueOf(map.get("username")), String.valueOf(map.get("password")));
-    request.session().attribute("user", user);
+    request.session().attribute(USER_SESSION_ATTRIBUTE_NAME, user);
+    MDC.put(LogFilter.USERNAME_MDC_KEY, user.getUsername());
     String csrfToken = generateCsrfToken();
     request.session().attribute(CSRF_TOKEN_SESSION_ATTRIBUTE_NAME, csrfToken);
     response.cookie("/", CSRF_TOKEN_COOKIE_NAME, csrfToken, -1, false);
