@@ -1,7 +1,7 @@
 package commonsos.controller.auth;
 
 import com.google.gson.Gson;
-import commonsos.Csrf;
+import commonsos.CSRF;
 import commonsos.domain.auth.UserService;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class AccountCreateControllerTest {
   @Mock Request request;
   @Mock Response response;
   @Mock Session session;
-  @Mock Csrf csrf;
+  @Mock CSRF csrf;
   @Mock UserService userService;
   @InjectMocks AccountCreateController controller;
 

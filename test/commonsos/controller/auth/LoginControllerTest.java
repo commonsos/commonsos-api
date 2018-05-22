@@ -1,7 +1,7 @@
 package commonsos.controller.auth;
 
 import commonsos.AuthenticationException;
-import commonsos.Csrf;
+import commonsos.CSRF;
 import commonsos.GsonProvider;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserPrivateView;
@@ -31,7 +31,7 @@ public class LoginControllerTest {
   @Mock Response response;
   @Mock Session session;
   @Mock UserService service;
-  @Mock Csrf csrf;
+  @Mock CSRF csrf;
   @InjectMocks @Spy LoginController controller;
 
   @Before

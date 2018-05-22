@@ -1,7 +1,7 @@
 package commonsos.controller.auth;
 
 import com.google.gson.Gson;
-import commonsos.Csrf;
+import commonsos.CSRF;
 import commonsos.LogFilter;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserPrivateView;
@@ -19,7 +19,7 @@ public class LoginController implements Route {
   public static final String USER_SESSION_ATTRIBUTE_NAME = "user";
   @Inject Gson gson;
   @Inject UserService userService;
-  @Inject Csrf csrf;
+  @Inject CSRF csrf;
 
   @Override public UserPrivateView handle(Request request, Response response) {
     Map map = gson.fromJson(request.body(), Map.class);

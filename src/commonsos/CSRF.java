@@ -3,11 +3,12 @@ package commonsos;
 import spark.Request;
 import spark.Response;
 
-import static commonsos.CsrfFilter.CSRF_TOKEN_COOKIE_NAME;
-import static commonsos.CsrfFilter.CSRF_TOKEN_SESSION_ATTRIBUTE_NAME;
 import static java.util.UUID.randomUUID;
 
-public class Csrf {
+public class CSRF {
+
+  public static final String CSRF_TOKEN_COOKIE_NAME = "XSRF-TOKEN";
+  public static final String CSRF_TOKEN_SESSION_ATTRIBUTE_NAME = "XSRF-TOKEN";
 
   public void setToken(Request request, Response response) {
     String csrfToken = generateToken();

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import spark.HaltException;
 import spark.Request;
 
-import static commonsos.CsrfFilter.CSRF_TOKEN_SESSION_ATTRIBUTE_NAME;
+import static commonsos.CSRF.CSRF_TOKEN_SESSION_ATTRIBUTE_NAME;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -18,10 +18,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CsrfFilterTest {
+public class CSRFFilterTest {
   @Mock(answer = Answers.RETURNS_DEEP_STUBS) Request request;
   @Mock Logger logger;
-  @InjectMocks CsrfFilter filter = new CsrfFilter(asList("/no-csrf-check"));
+  @InjectMocks CSRFFilter filter = new CSRFFilter(asList("/no-csrf-check"));
 
   @Test
   public void handle() throws Exception {

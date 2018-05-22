@@ -8,16 +8,16 @@ import spark.Session;
 import java.util.HashSet;
 import java.util.Set;
 
-import static commonsos.CsrfFilter.CSRF_TOKEN_COOKIE_NAME;
+import static commonsos.CSRF.CSRF_TOKEN_COOKIE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class CsrfTest {
+public class CSRFTest {
 
   Request request = mock(Request.class);
   Session session = mock(Session.class);
   Response response = mock(Response.class);
-  Csrf csrf = spy(new Csrf());
+  CSRF csrf = spy(new CSRF());
 
   @Test
   public void setToken() {
@@ -27,7 +27,7 @@ public class CsrfTest {
     csrf.setToken(request, response);
 
     verify(response).cookie("/", CSRF_TOKEN_COOKIE_NAME, "random value", -1, false);
-    verify(session).attribute(CsrfFilter.CSRF_TOKEN_SESSION_ATTRIBUTE_NAME, "random value");
+    verify(session).attribute(CSRF.CSRF_TOKEN_SESSION_ATTRIBUTE_NAME, "random value");
   }
 
   @Test

@@ -1,7 +1,7 @@
 package commonsos.controller.auth;
 
 import com.google.gson.Gson;
-import commonsos.Csrf;
+import commonsos.CSRF;
 import commonsos.domain.auth.AccountCreateCommand;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserPrivateView;
@@ -16,7 +16,7 @@ public class AccountCreateController implements Route {
 
   @Inject Gson gson;
   @Inject UserService userService;
-  @Inject Csrf csrf;
+  @Inject CSRF csrf;
 
   @Override public UserPrivateView handle(Request request, Response response) {
     AccountCreateCommand command = gson.fromJson(request.body(), AccountCreateCommand.class);
