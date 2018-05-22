@@ -6,9 +6,9 @@ import spark.Filter;
 import spark.Request;
 import spark.Response;
 
+import java.util.List;
 import java.util.Objects;
 
-import static commonsos.Server.LOGIN_PATH;
 import static java.util.Arrays.asList;
 import static spark.Spark.halt;
 
@@ -18,6 +18,11 @@ public class CsrfFilter implements Filter {
 
   public static final String CSRF_TOKEN_SESSION_ATTRIBUTE_NAME = "XSRF-TOKEN";
   Logger logger = LoggerFactory.getLogger(this.getClass());
+  private List<String> exclusionPaths;
+
+  public CsrfFilter(List<String> exclusionPaths) {
+    this.exclusionPaths = exclusionPaths;
+  }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
@@ -25,9 +30,7 @@ public class CsrfFilter implements Filter {
       return;
     }
 
-    if (isLogin(request)) {
-      return;
-    }
+    if (exclusionPaths.contains(request.pathInfo())) return;
 
     String received = request.headers(CSRF_TOKEN_HEADER_NAME);
     String expected = request.session().attribute(CSRF_TOKEN_SESSION_ATTRIBUTE_NAME);
@@ -36,9 +39,5 @@ public class CsrfFilter implements Filter {
       logger.error("CSRF token mismatch! Expected {}, received {}", expected, received);
       halt(403);
     }
-  }
-
-  boolean isLogin(Request request) {
-    return asList(LOGIN_PATH).contains(request.pathInfo());
   }
 }
