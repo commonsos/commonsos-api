@@ -22,6 +22,7 @@ public class LogFilter implements Filter {
     MDC.put("sessionId", request.session().id().substring(0, 10));
     String userName = userName(request.session().attribute(USER_SESSION_ATTRIBUTE_NAME));
     MDC.put(USERNAME_MDC_KEY, userName);
+    MDC.put("ip", request.ip());
   }
 
   private String requestId(Request request) {

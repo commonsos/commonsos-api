@@ -21,6 +21,7 @@ import commonsos.controller.transaction.TransactionListController;
 import lombok.extern.slf4j.Slf4j;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
+import spark.Request;
 
 import static java.util.Arrays.asList;
 import static spark.Spark.*;
@@ -59,7 +60,7 @@ public class Server {
   private void initRoutes(Injector injector) {
 
     before(new LogFilter());
-    before((request, response) -> log.info(request.pathInfo()));
+    before((request, response) -> log.info(requestInfo(request)));
     before(new CsrfFilter());
     before(new AuthenticationFilter(asList("/login", "/create-account", "/communities")));
 
@@ -93,7 +94,7 @@ public class Server {
       response.body("");
     });
     exception(AuthenticationException.class, (exception, request, response) -> {
-      log.error("Not authenticated", exception);
+      log.error("Not authenticated");
       response.status(401);
       response.body("");
     });
@@ -112,6 +113,12 @@ public class Server {
       response.status(500);
       response.body("");
     });
+  }
+
+  private String requestInfo(Request request) {
+    String info = request.requestMethod() + " " + request.pathInfo();
+    if (request.queryString() != null) info += "?" + request.queryString();
+    return info;
   }
 
   public static void main(String[] args) {
