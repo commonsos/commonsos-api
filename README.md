@@ -22,7 +22,19 @@ sudo -u postgres createdb -O commonsos commonsos
 
 ## Apache configuration
 
-Proxy API and Web to corresponding servers
+### install
+```bash
+sudo apt-get install apache2
+
+sudo a2enmod rewrite
+sudo a2enmod ssl
+sudo a2enmod unique_id
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod headers
+```
+
+### Site configuration
 ```
 <VirtualHost _default_:80>
 	Redirect permanent / https://[COMMONSOS_APP_URL]/
@@ -47,6 +59,7 @@ Proxy API and Web to corresponding servers
     SSLCertificateKeyFile [PATH_TO_CERTIFICATE_KEY_FILE]
 
     Header edit Set-Cookie ^(.*)$ $1;Secure
+    RequestHeader set X-Request-Id %{UNIQUE_ID}e
 
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
@@ -102,7 +115,7 @@ cp [PATH_TO_YOUR_WALLET_FILE] member1/keystore/
 ### Start node with RPC to support REMIX and unlock main account
 geth --datadir=member1 --port 30303 --rpc --rpcport 8545 --rpccorsdomain "*" --rpcapi "eth,net,web3,personal" --ipcdisable --bootnodes=enode://4ac77627e4236535c8778b66b0e1c440b190642eb7bd01a18c49f6a0893ebc8009f3d1712d7a5f61322c26be2f888e3baf5c713a394f7b6d7bfd67fa2f6e1dfd@[127.0.0.1]:30301 --verbosity 1 --unlock 0x14063fb2a2e24cf80081a946953159d86e88c36c console
 ### Start miner node
-geth --datadir=miner1  --port 30399 --mine --minerthreads=1 --etherbase=0x14063fb2a2e24cf80081a946953159d86e88c36c --ipcdisable --bootnodes=enode://4ac77627e4236535c8778b66b0e1c440b190642eb7bd01a18c49f6a0893ebc8009f3d1712d7a5f61322c26be2f888e3baf5c713a394f7b6d7bfd67fa2f6e1dfd@[127.0.0.1]:30301 
+geth --datadir=miner1  --port 30399 --mine --minerthreads=1 --etherbase=0x14063fb2a2e24cf80081a946953159d86e88c36c --ipcdisable --bootnodes=enode://4ac77627e4236535c8778b66b0e1c440b190642eb7bd01a18c49f6a0893ebc8009f3d1712d7a5f61322c26be2f888e3baf5c713a394f7b6d7bfd67fa2f6e1dfd@[127.0.0.1]:30301
 
 
 # Building
