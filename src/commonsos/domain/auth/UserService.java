@@ -5,6 +5,7 @@ import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
 import commonsos.domain.blockchain.BlockchainService;
+import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityService;
 import commonsos.domain.transaction.TransactionService;
 import org.web3j.crypto.Credentials;
@@ -12,8 +13,11 @@ import org.web3j.crypto.Credentials;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
+import static commonsos.domain.blockchain.BlockchainService.GAS_PRICE;
+import static commonsos.domain.blockchain.BlockchainService.TOKEN_TRANSFER_GAS_LIMIT;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -55,8 +59,11 @@ public class UserService {
 
   public User create(AccountCreateCommand command) {
     validate(command);
+    Community community = null;
     if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
-    if (command.getCommunityId() != null) communityService.community(command.getCommunityId());
+    if (command.getCommunityId() != null) {
+      community = community(command);
+    }
 
     User user = new User()
       .setCommunityId(command.getCommunityId())
@@ -73,7 +80,20 @@ public class UserService {
     user.setWallet(wallet);
     user.setWalletAddress(credentials.getAddress());
 
+    if (community != null) {
+      User admin = walletUser(community);
+      blockchainService.transferEther(admin, user.getWalletAddress(), TOKEN_TRANSFER_GAS_LIMIT.multiply(BigInteger.TEN).multiply(GAS_PRICE));
+    }
+
     return repository.create(user);
+  }
+
+  public User walletUser(Community community) {
+    return repository.findAdminByCommunityId(community.getId());
+  }
+
+  private Community community(AccountCreateCommand command) {
+    return communityService.community(command.getCommunityId());
   }
 
   private void validate(AccountCreateCommand command) {

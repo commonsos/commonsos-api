@@ -56,4 +56,10 @@ public class UserRepository extends Repository {
   public void update(User user) {
     em().merge(user);
   }
+
+  public User findAdminByCommunityId(Long communityId) {
+    return em().createQuery("FROM User WHERE admin = TRUE and communityId = :communityId ", User.class)
+      .setParameter("communityId", communityId)
+      .getSingleResult();
+  }
 }

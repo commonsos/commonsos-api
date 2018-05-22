@@ -104,4 +104,14 @@ public class UserRepositoryTest extends DBTest {
 
     assertThat(repository.search(id("community"), "name")).containsExactly(user);
   }
+
+  @Test
+  public void findAdminByCommunityId() {
+    inTransaction(() -> repository.create(new User().setCommunityId(id("community"))));
+    User admin = inTransaction(() -> repository.create(new User().setCommunityId(id("community")).setAdmin(true)));
+
+    User result = repository.findAdminByCommunityId(id("community"));
+
+    assertThat(result).isEqualTo(admin);
+  }
 }

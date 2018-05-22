@@ -54,7 +54,7 @@ public class CommunityServiceTest {
     CommunityView view = new CommunityView();
     when(service.view(community)).thenReturn(view);
 
-    CommunityView result = service.community(123L);
+    CommunityView result = service.view(123L);
 
     assertThat(result).isEqualTo(view);
   }
@@ -63,6 +63,6 @@ public class CommunityServiceTest {
   public void communityById_notFound() {
     when(repository.findById(123L)).thenReturn(Optional.empty());
 
-    service.community(123L);
+    service.view(123L);
   }
 }

@@ -4,8 +4,8 @@ import commonsos.AuthenticationException;
 import commonsos.BadRequestException;
 import commonsos.DisplayableException;
 import commonsos.ForbiddenException;
-import commonsos.controller.community.CommunityView;
 import commonsos.domain.blockchain.BlockchainService;
+import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityService;
 import commonsos.domain.transaction.TransactionService;
 import org.junit.Test;
@@ -132,7 +132,6 @@ public class UserServiceTest {
     Credentials credentials = mock(Credentials.class);
     when(credentials.getAddress()).thenReturn("wallet address");
     when(blockchainService.credentials("wallet", WALLET_PASSWORD)).thenReturn(credentials);
-    when(communityService.community(23L)).thenReturn(mock(CommunityView.class));
 
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
@@ -264,5 +263,15 @@ public class UserServiceTest {
     List<UserView> users = service.searchUsers(new User().setAdmin(true), "foobar");
 
     assertThat(users).isEqualTo(asList(userView));
+  }
+
+  @Test
+  public void walletUser() {
+    User admin = new User();
+    when(repository.findAdminByCommunityId(id("community"))).thenReturn(admin);
+
+    User result = service.walletUser(new Community().setId(id("community")));
+
+    assertThat(result).isEqualTo(admin);
   }
 }
