@@ -53,7 +53,7 @@ public class LogFilterTest {
     when(session.attribute(USER_SESSION_ATTRIBUTE_NAME)).thenReturn(new User().setUsername("john"));
     filter.handle(request, response);
 
-    assertThat(MDC.get("userName")).isEqualTo("john");
+    assertThat(MDC.get("username")).isEqualTo("john");
   }
 
   @Test
@@ -61,7 +61,7 @@ public class LogFilterTest {
     when(session.attribute(USER_SESSION_ATTRIBUTE_NAME)).thenReturn(null);
     filter.handle(request, response);
 
-    assertThat(MDC.get("userName")).isEqualTo("");
+    assertThat(MDC.get("username")).isEqualTo("");
   }
 
   @Test
