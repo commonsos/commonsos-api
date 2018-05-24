@@ -59,6 +59,7 @@ public class MessageThreadRepository extends Repository {
       "SELECT COUNT(*) " +
         "FROM MessageThread mt JOIN MessageThreadParty mtp ON mt.id = mtp.messageThreadId " +
         "WHERE mtp.user = :user " +
+        "AND mt.id IN(SELECT threadId FROM Message WHERE threadId = mt.id) "+
         "AND (mtp.visitedAt IS NULL OR mtp.visitedAt < (SELECT MAX(m.createdAt) FROM Message m WHERE m.threadId = mt.id))", Long.class)
       .setParameter("user", user).getSingleResult());
   }

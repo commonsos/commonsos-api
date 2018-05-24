@@ -118,22 +118,38 @@ public class MessageThreadRepositoryTest extends DBTest {
     User user = inTransaction(() -> userRepository.create(new User()));
     User user2 = inTransaction(() -> userRepository.create(new User()));
 
-    threadWithCounterPartyMessage(user, user2, null);
-    threadWithCounterPartyMessage(user, user2, now().minus(10, SECONDS));
-    threadWithCounterPartyMessage(user, user2, now().plus(10, SECONDS));
+    threadWithMessages(user, user2, null);
+    threadWithMessages(user, user2, now().minus(10, SECONDS));
+    threadWithMessages(user, user2, now().plus(10, SECONDS));
 
     int result = repository.unreadMessageThreadCount(user);
 
     assertThat(result).isEqualTo(2);
   }
 
-  private MessageThread threadWithCounterPartyMessage(User myUser, User otherUser, Instant visitedAt) {
+  @Test
+  public void unreadMessageThreadCount_excludesThreadsWithoutMessages() {
+    User user = inTransaction(() -> userRepository.create(new User()));
+    User user2 = inTransaction(() -> userRepository.create(new User()));
+
+    MessageThreadParty myParty = new MessageThreadParty().setUser(user);
+    MessageThreadParty counterParty = new MessageThreadParty().setUser(user2);
+    MessageThread thread = new MessageThread().setParties(asList(myParty, counterParty));
+    inTransaction(() -> repository.create(thread));
+
+    int result = repository.unreadMessageThreadCount(user);
+
+    assertThat(result).isEqualTo(0);
+  }
+
+  private MessageThread threadWithMessages(User myUser, User otherUser, Instant visitedAt) {
     MessageThreadParty myParty = new MessageThreadParty().setUser(myUser).setVisitedAt(visitedAt);
     MessageThreadParty counterParty = new MessageThreadParty().setUser(otherUser);
     MessageThread thread = new MessageThread().setParties(asList(myParty, counterParty));
     inTransaction(() -> {
       repository.create(thread).getId();
       messageRepository.create(new Message().setThreadId(thread.getId()).setCreatedAt(now())).setCreatedBy(otherUser.getId());
+      messageRepository.create(new Message().setThreadId(thread.getId()).setCreatedAt(now())).setCreatedBy(myUser.getId());
     });
 
     return thread;
