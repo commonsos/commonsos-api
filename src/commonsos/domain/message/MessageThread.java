@@ -1,6 +1,5 @@
 package commonsos.domain.message;
 
-import commonsos.domain.auth.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,11 +17,8 @@ public class MessageThread {
   private Long adId;
   private String title;
   private Long createdBy;
-  @ManyToMany
-  @JoinTable(
-    name = "message_thread_parties",
-    joinColumns = { @JoinColumn(name = "message_thread_id") },
-    inverseJoinColumns = { @JoinColumn(name = "user_id") }
-  )
-  private List<User> parties = new ArrayList<>();
+
+  @OneToMany(cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "message_thread_id", referencedColumnName = "id")
+  private List<MessageThreadParty> parties = new ArrayList<>();
 }

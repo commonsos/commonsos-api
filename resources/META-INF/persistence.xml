@@ -14,6 +14,7 @@
     <class>commonsos.domain.transaction.Transaction</class>
     <class>commonsos.domain.message.Message</class>
     <class>commonsos.domain.message.MessageThread</class>
+    <class>commonsos.domain.message.MessageThreadParty</class>
     <class>commonsos.domain.community.Community</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>

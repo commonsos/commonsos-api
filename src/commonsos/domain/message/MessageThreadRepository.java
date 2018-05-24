@@ -40,12 +40,16 @@ public class MessageThreadRepository extends Repository {
 
   public List<MessageThread> listByUser(User user) {
     return em()
-      .createQuery("SELECT mt FROM MessageThread mt JOIN mt.parties ps WHERE ps.id = :userId", MessageThread.class)
-      .setParameter("userId", user.getId())
+      .createQuery("SELECT mt FROM MessageThread mt JOIN mt.parties p WHERE p.user = :user", MessageThread.class)
+      .setParameter("user", user)
       .getResultList();
   }
 
   public Optional<MessageThread> thread(Long id) {
     return ofNullable(em().find(MessageThread.class, id));
+  }
+
+  public void update(MessageThreadParty party) {
+    em().merge(party);
   }
 }

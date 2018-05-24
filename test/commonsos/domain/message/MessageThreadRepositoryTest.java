@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static commonsos.TestId.id;
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 public class MessageThreadRepositoryTest extends DBTest {
 
@@ -38,15 +41,26 @@ public class MessageThreadRepositoryTest extends DBTest {
     User myself = inTransaction(() -> userRepository.create(new User()));
     User counterparty = inTransaction(() -> userRepository.create(new User()));
 
-    MessageThread messageThread = new MessageThread()
-      .setParties(asList(myself, counterparty));
+    List<MessageThreadParty> parties = asList(party(myself), party(counterparty));
+    MessageThread messageThread = new MessageThread().setParties(parties);
     Long id = inTransaction(() -> repository.create(messageThread).getId());
 
     MessageThread result = em().find(MessageThread.class, id);
     assertThat(result).isNotNull();
     assertThat(result.getId()).isNotNull();
 
-    assertThat(result.getParties()).containsExactly(myself, counterparty);
+    MessageThreadParty party1 = result.getParties().get(0);
+    MessageThreadParty party2 = result.getParties().get(1);
+
+    assertThat(party1.getUser()).isEqualTo(myself);
+    assertThat(party1.getVisitedAt()).isNull();
+
+    assertThat(party2.getUser()).isEqualTo(counterparty);
+    assertThat(party2.getVisitedAt()).isNull();
+  }
+
+  private MessageThreadParty party(User myself) {
+    return new MessageThreadParty().setUser(myself);
   }
 
   @Test
@@ -54,9 +68,9 @@ public class MessageThreadRepositoryTest extends DBTest {
     User user = inTransaction(() -> userRepository.create(new User()));
     User otherUser = inTransaction(() -> userRepository.create(new User()));
 
-    MessageThread thread1 = new MessageThread().setParties(asList(user, otherUser));
-    MessageThread thread2 = new MessageThread().setParties(asList(otherUser));
-    MessageThread thread3 = new MessageThread().setParties(asList(otherUser, user));
+    MessageThread thread1 = new MessageThread().setParties(asList(party(user), party(otherUser)));
+    MessageThread thread2 = new MessageThread().setParties(asList(party(otherUser)));
+    MessageThread thread3 = new MessageThread().setParties(asList(party(otherUser), party(user)));
 
     Long id1 = inTransaction(() -> repository.create(thread1).getId());
     Long id2 = inTransaction(() -> repository.create(thread2).getId());
@@ -70,7 +84,7 @@ public class MessageThreadRepositoryTest extends DBTest {
   @Test
   public void threadById() {
     User user = inTransaction(() -> userRepository.create(new User()));
-    Long id = inTransaction(() -> repository.create(new MessageThread().setParties(asList(user))).getId());
+    Long id = inTransaction(() -> repository.create(new MessageThread().setParties(asList(party(user)))).getId());
 
     Optional<MessageThread> result = repository.thread(id);
 
@@ -81,5 +95,19 @@ public class MessageThreadRepositoryTest extends DBTest {
   @Test
   public void threadById_notFound() {
     assertThat(repository.thread(1L)).isEmpty();
+  }
+
+  @Test
+  public void updateParty() {
+    User user = inTransaction(() -> userRepository.create(new User()));
+    MessageThreadParty party = new MessageThreadParty().setUser(user);
+    MessageThread thread = new MessageThread().setParties(asList(party));
+    inTransaction(() -> repository.create(thread).getId());
+
+    party.setVisitedAt(now());
+    inTransaction(() -> repository.update(party));
+
+    MessageThreadParty actual = em().find(MessageThreadParty.class, party.getId());
+    assertThat(actual.getVisitedAt()).isCloseTo(now(), within(1, SECONDS));
   }
 }

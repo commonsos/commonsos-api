@@ -39,7 +39,7 @@ public class MessageService {
   }
 
   private MessageThread checkAccess(User user, MessageThread thread) {
-    if (!thread.getParties().contains(user)) throw new ForbiddenException();
+    if (!isUserAllowedToAccessMessageThread(user, thread)) throw new ForbiddenException();
     return thread;
   }
 
@@ -50,14 +50,15 @@ public class MessageService {
     MessageThread messageThread = new MessageThread()
       .setCreatedBy(user.getId())
       .setTitle(ad.getTitle()).setAdId(adId)
-      .setParties(asList(adCreator, user));
+      .setParties(asList(new MessageThreadParty().setUser(adCreator), new MessageThreadParty().setUser(user)));
 
     return messageThreadRepository.create(messageThread);
   }
 
   public MessageThreadView view(User user, MessageThread thread) {
     List<UserView> parties = thread.getParties().stream()
-      .filter(u -> !u.equals(user))
+      .filter(p -> !p.getUser().equals(user))
+      .map(MessageThreadParty::getUser)
       .map(userService::view)
       .collect(toList());
 
@@ -107,8 +108,20 @@ public class MessageService {
 
   public List<MessageView> messages(User user, Long threadId) {
     MessageThread thread = messageThreadRepository.thread(threadId).orElseThrow(BadRequestException::new);
-    if (!thread.getParties().contains(user)) throw new ForbiddenException();
+    if (!isUserAllowedToAccessMessageThread(user, thread)) throw new ForbiddenException();
+
+    markVisited(user, thread);
 
     return messageRepository.listByThread(threadId).stream().map(this::view).collect(toList());
+  }
+
+  private void markVisited(User user, MessageThread thread) {
+    MessageThreadParty me = thread.getParties().stream().filter(p -> p.getUser().equals(user)).findFirst().orElseThrow(RuntimeException::new);
+    me.setVisitedAt(now());
+    messageThreadRepository.update(me);
+  }
+
+  private boolean isUserAllowedToAccessMessageThread(User user, MessageThread thread) {
+    return thread.getParties().stream().anyMatch(p -> p.getUser().equals(user));
   }
 }
