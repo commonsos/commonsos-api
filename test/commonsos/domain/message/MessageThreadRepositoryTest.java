@@ -5,6 +5,7 @@ import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserRepository;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ public class MessageThreadRepositoryTest extends DBTest {
 
   UserRepository userRepository = new UserRepository(entityManagerService);
   MessageThreadRepository repository = new MessageThreadRepository(entityManagerService);
+  MessageRepository messageRepository = new MessageRepository(entityManagerService);
 
   @Test
   public void byAdId() {
@@ -109,5 +111,31 @@ public class MessageThreadRepositoryTest extends DBTest {
 
     MessageThreadParty actual = em().find(MessageThreadParty.class, party.getId());
     assertThat(actual.getVisitedAt()).isCloseTo(now(), within(1, SECONDS));
+  }
+
+  @Test
+  public void unreadMessageThreadCount() {
+    User user = inTransaction(() -> userRepository.create(new User()));
+    User user2 = inTransaction(() -> userRepository.create(new User()));
+
+    threadWithCounterPartyMessage(user, user2, null);
+    threadWithCounterPartyMessage(user, user2, now().minus(10, SECONDS));
+    threadWithCounterPartyMessage(user, user2, now().plus(10, SECONDS));
+
+    int result = repository.unreadMessageThreadCount(user);
+
+    assertThat(result).isEqualTo(2);
+  }
+
+  private MessageThread threadWithCounterPartyMessage(User myUser, User otherUser, Instant visitedAt) {
+    MessageThreadParty myParty = new MessageThreadParty().setUser(myUser).setVisitedAt(visitedAt);
+    MessageThreadParty counterParty = new MessageThreadParty().setUser(otherUser);
+    MessageThread thread = new MessageThread().setParties(asList(myParty, counterParty));
+    inTransaction(() -> {
+      repository.create(thread).getId();
+      messageRepository.create(new Message().setThreadId(thread.getId()).setCreatedAt(now())).setCreatedBy(otherUser.getId());
+    });
+
+    return thread;
   }
 }

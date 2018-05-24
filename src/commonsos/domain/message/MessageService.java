@@ -124,4 +124,8 @@ public class MessageService {
   private boolean isUserAllowedToAccessMessageThread(User user, MessageThread thread) {
     return thread.getParties().stream().anyMatch(p -> p.getUser().equals(user));
   }
+
+  public int unreadMessageThreadCount(User user) {
+    return messageThreadRepository.unreadMessageThreadCount(user);
+  }
 }

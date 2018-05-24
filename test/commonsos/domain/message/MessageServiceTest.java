@@ -259,4 +259,14 @@ public class MessageServiceTest {
 
     service.messages(new User().setId(id("me")), id("thread id"));
   }
+
+  @Test
+  public void unreadMessageThreadCount() {
+    User user = new User();
+    when(messageThreadRepository.unreadMessageThreadCount(user)).thenReturn(321);
+
+    int result = service.unreadMessageThreadCount(user);
+
+    assertThat(result).isEqualTo(321);
+  }
 }
