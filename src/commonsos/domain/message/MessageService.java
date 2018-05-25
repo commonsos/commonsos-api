@@ -82,18 +82,20 @@ public class MessageService {
   }
 
   public List<MessageThreadView> threads(User user) {
+    List<Long> unreadMessageThreadIds = messageThreadRepository.unreadMessageThreadIds(user);
     List<MessageThreadView> threadViews = messageThreadRepository
       .listByUser(user)
       .stream()
       .map(thread -> view(user, thread))
       .filter(t -> t.getLastMessage() != null)
+      .map(p -> p.setUnread(unreadMessageThreadIds.contains(p.getId())))
       .collect(toList());
-    sortThreadsByLastMessageTime(threadViews);
-    return threadViews;
+    return sortThreadsByLastMessageTime(threadViews);
   }
 
-  void sortThreadsByLastMessageTime(List<MessageThreadView> threadViews) {
+  List<MessageThreadView> sortThreadsByLastMessageTime(List<MessageThreadView> threadViews) {
     threadViews.sort(comparing((MessageThreadView t) -> t.getLastMessage().getCreatedAt()).reversed());
+    return threadViews;
   }
 
   public MessageView postMessage(User user, MessagePostCommand command) {

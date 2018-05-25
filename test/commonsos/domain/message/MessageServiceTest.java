@@ -119,7 +119,7 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void view() {
+  public void messageThreadView() {
     User user = new User().setId(id("myself"));
     User counterparty = new User().setId(id("counterparty"));
     Message message = new Message().setId(33L);
@@ -143,6 +143,7 @@ public class MessageServiceTest {
     assertThat(view.getTitle()).isEqualTo("title");
     assertThat(view.getParties()).containsExactly(conterpartyView);
     assertThat(view.getLastMessage()).isEqualTo(messageView);
+    assertThat(view.isUnread()).isEqualTo(false);
   }
 
   @Test
@@ -167,15 +168,16 @@ public class MessageServiceTest {
   @Test
   public void threads() {
     User user = new User();
-    MessageThread thread = new MessageThread();
+    MessageThread thread = new MessageThread().setId(id("unread"));
     when(messageThreadRepository.listByUser(user)).thenReturn(asList(thread));
-    MessageThreadView threadView = new MessageThreadView().setLastMessage(new MessageView());
-    doReturn(threadView).when(service).view(user, thread);
+    MessageThreadView view = new MessageThreadView().setId(id("unread")).setLastMessage(new MessageView());
+    doReturn(view).when(service).view(user, thread);
+    when(messageThreadRepository.unreadMessageThreadIds(user)).thenReturn(asList(id("unread")));
 
     List<MessageThreadView> result = service.threads(user);
 
-    verify(service).sortThreadsByLastMessageTime(asList(threadView));
-    assertThat(result).containsExactly(threadView);
+    assertThat(result).containsExactly(view);
+    assertThat(view.isUnread()).isTrue();
   }
 
   @Test
