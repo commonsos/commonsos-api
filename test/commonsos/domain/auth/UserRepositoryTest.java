@@ -78,11 +78,11 @@ public class UserRepositoryTest extends DBTest {
 
   @Test
   public void search() {
-    User user1 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("foo").setCommunityId(id("community"))));
+    User user1 = inTransaction(() -> repository.create(new User().setFirstName("FIRST").setLastName("foo").setCommunityId(id("community"))));
     User user2 = inTransaction(() -> repository.create(new User().setFirstName("first").setLastName("bar").setCommunityId(id("community"))));
 
     assertThat(repository.search(id("community"), "irs")).containsExactly(user1, user2);
-    assertThat(repository.search(id("community"), "foo")).containsExactly(user1);
+    assertThat(repository.search(id("community"), "FOO")).containsExactly(user1);
     assertThat(repository.search(id("community"), "baz")).isEmpty();
     assertThat(repository.search(id("community"), " ")).isEmpty();
     assertThat(repository.search(id("community"), "")).isEmpty();
