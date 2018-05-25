@@ -79,7 +79,7 @@ public class BlockchainService {
     try {
       Credentials remitterCredentials = credentials(remitter.getWallet(), WALLET_PASSWORD);
       String tokenContractAddress = community.getTokenContractId();
-      TokenERC20 token = loadTokenReadOnly(remitterCredentials, tokenContractAddress);
+      TokenERC20 token = loadToken(remitterCredentials, tokenContractAddress);
       log.info(String.format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, tokenContractAddress));
       TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
       log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
@@ -98,7 +98,7 @@ public class BlockchainService {
     return new BigDecimal(amount).divide(BigDecimal.TEN.pow(NUMBER_OF_DECIMALS));
   }
 
-  TokenERC20 loadTokenReadOnly(Credentials remitterCredentials, String tokenContractAddress) {
+  TokenERC20 loadToken(Credentials remitterCredentials, String tokenContractAddress) {
     return TokenERC20.load(tokenContractAddress, web3j, remitterCredentials, GAS_PRICE, TOKEN_TRANSFER_GAS_LIMIT);
   }
 

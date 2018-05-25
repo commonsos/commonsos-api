@@ -73,7 +73,7 @@ public class BlockchainServiceTest {
     transactionReceipt.setTransactionHash("new transaction id");
 
     TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
-    doReturn(token).when(service).loadTokenReadOnly(remitterCredentials, "contract id");
+    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
     when(token.transfer(any(), any()).send()).thenReturn(transactionReceipt);
 
 
