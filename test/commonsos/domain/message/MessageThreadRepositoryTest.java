@@ -3,7 +3,6 @@ package commonsos.domain.message;
 import commonsos.DBTest;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserRepository;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -128,7 +127,7 @@ public class MessageThreadRepositoryTest extends DBTest {
     assertThat(result).isEqualTo(2);
   }
 
-  @Test @Ignore
+  @Test
   public void unreadMessageThreadCount_excludesThreadsWithoutMessages() {
     User user = inTransaction(() -> userRepository.create(new User()));
     User user2 = inTransaction(() -> userRepository.create(new User()));

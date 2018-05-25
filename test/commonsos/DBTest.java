@@ -56,6 +56,7 @@ public abstract class DBTest {
 
   @After
   public void tearDown() {
+    executeSQL("DROP ALL OBJECTS", entityManagerFactory);
     entityManagerService.close();
   }
 
