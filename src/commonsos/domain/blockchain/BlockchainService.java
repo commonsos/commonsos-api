@@ -2,6 +2,7 @@ package commonsos.domain.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserService;
 import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class BlockchainService {
   private static final BigInteger INITIAL_TOKEN_AMOUNT = MAX_UINT_256.divide(TEN.pow(NUMBER_OF_DECIMALS)).subtract(ONE);
 
   @Inject CommunityRepository communityRepository;
+  @Inject UserService userService;
   @Inject ObjectMapper objectMapper;
   @Inject Web3j web3j;
 
@@ -75,6 +77,25 @@ public class BlockchainService {
   }
 
   public String transferTokens(User remitter, User beneficiary, BigDecimal amount) {
+    return remitter.isAdmin() ?
+      transferTokensAdmin(remitter, beneficiary, amount) :
+      transferTokensRegular(remitter, beneficiary, amount);
+  }
+
+  private String transferTokensRegular(User remitter, User beneficiary, BigDecimal amount) {
+    try {
+      TokenERC20 token = userCommunityTokenAsAdmin(remitter);
+      log.info(String.format("Creating delegated token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
+      TransactionReceipt transactionReceipt = token.transferFrom(remitter.getWalletAddress(), beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
+      log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
+      return transactionReceipt.getTransactionHash();
+    }
+    catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String transferTokensAdmin(User remitter, User beneficiary, BigDecimal amount) {
     try {
       TokenERC20 token = userCommunityToken(remitter);
       log.info(String.format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
@@ -177,6 +198,13 @@ public class BlockchainService {
   TokenERC20 userCommunityToken(User user) {
     Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
     Credentials credentials = credentials(user.getWallet(), WALLET_PASSWORD);
+    return loadToken(credentials, community.getTokenContractId());
+  }
+
+  TokenERC20 userCommunityTokenAsAdmin(User user) {
+    Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
+    User walletUser = userService.walletUser(community);
+    Credentials credentials = credentials(walletUser.getWallet(), WALLET_PASSWORD);
     return loadToken(credentials, community.getTokenContractId());
   }
 }

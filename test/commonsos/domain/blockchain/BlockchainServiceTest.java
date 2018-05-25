@@ -2,6 +2,7 @@ package commonsos.domain.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import commonsos.domain.auth.User;
+import commonsos.domain.auth.UserService;
 import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityRepository;
 import org.junit.Rule;
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 import static commonsos.TestId.id;
 import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
+import static java.math.BigDecimal.TEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.*;
@@ -34,6 +36,7 @@ public class BlockchainServiceTest {
 
   @Rule public TemporaryFolder tempDirectory = new TemporaryFolder();
   @Mock CommunityRepository communityRepository;
+  @Mock UserService userService;
   @InjectMocks @Spy BlockchainService service;
 
   @Test
@@ -61,8 +64,8 @@ public class BlockchainServiceTest {
   }
 
   @Test
-  public void transferTokens() throws Exception {
-    User remitter = new User().setCommunityId(id("community")).setWallet("remitter wallet");
+  public void transferTokens_asAdmin() throws Exception {
+    User remitter = new User().setAdmin(true).setCommunityId(id("community")).setWallet("remitter wallet");
     User beneficiary = new User().setWalletAddress("beneficiary wallet address");
 
     TransactionReceipt transactionReceipt = new TransactionReceipt();
@@ -73,11 +76,31 @@ public class BlockchainServiceTest {
     when(token.transfer(any(), any()).send()).thenReturn(transactionReceipt);
 
 
-    String result = service.transferTokens(remitter, beneficiary, BigDecimal.TEN);
+    String result = service.transferTokens(remitter, beneficiary, TEN);
 
 
     assertThat(result).isEqualTo("new transaction id");
     verify(token).transfer("beneficiary wallet address", new BigInteger("10000000000000000000"));
+  }
+
+  @Test
+  public void transferTokens_asRegularUser() throws Exception {
+    User remitter = new User().setCommunityId(id("community")).setWalletAddress("remitter wallet address");
+    User beneficiary = new User().setWalletAddress("beneficiary wallet address");
+
+    TransactionReceipt transactionReceipt = new TransactionReceipt();
+    transactionReceipt.setTransactionHash("new transaction id");
+
+    TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
+    doReturn(token).when(service).userCommunityTokenAsAdmin(remitter);
+    when(token.transferFrom(any(), any(), any()).send()).thenReturn(transactionReceipt);
+
+
+    String result = service.transferTokens(remitter, beneficiary, TEN);
+
+
+    assertThat(result).isEqualTo("new transaction id");
+    verify(token).transferFrom("remitter wallet address", "beneficiary wallet address", new BigInteger("10000000000000000000"));
   }
 
   @Test
@@ -92,6 +115,27 @@ public class BlockchainServiceTest {
     doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
 
     TokenERC20 result = service.userCommunityToken(user);
+
+    assertThat(result).isEqualTo(token);
+  }
+
+  @Test
+  public void userCommunityTokenAsAdmin() {
+    User user = new User().setCommunityId(id("community")).setWallet("wallet");
+    Community community = new Community().setTokenContractId("contract id");
+    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(community));
+    User admin = new User().setWallet("wallet");
+    when(userService.walletUser(community)).thenReturn(admin);
+
+    Credentials remitterCredentials = mock(Credentials.class);
+    doReturn(remitterCredentials).when(service).credentials("wallet", WALLET_PASSWORD);
+
+    TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
+    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
+
+
+    TokenERC20 result = service.userCommunityTokenAsAdmin(user);
+
 
     assertThat(result).isEqualTo(token);
   }
@@ -121,6 +165,6 @@ public class BlockchainServiceTest {
     BigDecimal result = service.tokenBalance(user);
 
 
-    assertThat(result).isEqualByComparingTo(BigDecimal.TEN);
+    assertThat(result).isEqualByComparingTo(TEN);
   }
 }
