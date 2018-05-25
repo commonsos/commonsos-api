@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.util.Optional;
 
 import static commonsos.TestId.id;
+import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.*;
@@ -64,16 +65,11 @@ public class BlockchainServiceTest {
     User remitter = new User().setCommunityId(id("community")).setWallet("remitter wallet");
     User beneficiary = new User().setWalletAddress("beneficiary wallet address");
 
-    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractId("contract id")));
-
-    Credentials remitterCredentials = mock(Credentials.class);
-    doReturn(remitterCredentials).when(service).credentials("remitter wallet", "test");
-
     TransactionReceipt transactionReceipt = new TransactionReceipt();
     transactionReceipt.setTransactionHash("new transaction id");
 
     TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
-    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
+    doReturn(token).when(service).userCommunityToken(remitter);
     when(token.transfer(any(), any()).send()).thenReturn(transactionReceipt);
 
 
@@ -82,6 +78,22 @@ public class BlockchainServiceTest {
 
     assertThat(result).isEqualTo("new transaction id");
     verify(token).transfer("beneficiary wallet address", new BigInteger("10000000000000000000"));
+  }
+
+  @Test
+  public void userCommunityToken() {
+    User user = new User().setCommunityId(id("community")).setWallet("wallet");
+    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractId("contract id")));
+
+    Credentials remitterCredentials = mock(Credentials.class);
+    doReturn(remitterCredentials).when(service).credentials("wallet", WALLET_PASSWORD);
+
+    TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
+    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
+
+    TokenERC20 result = service.userCommunityToken(user);
+
+    assertThat(result).isEqualTo(token);
   }
 
   @Test

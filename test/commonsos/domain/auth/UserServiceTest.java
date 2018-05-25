@@ -125,13 +125,16 @@ public class UserServiceTest {
 
   @Test
   public void create() {
-    User createdUser = new User();
-    when(repository.create(any())).thenReturn(createdUser);
+    Community community = new Community().setId(id("community"));
+    when(communityService.community(id("community"))).thenReturn(community);
+    when(repository.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
     when(passwordService.hash("secret78")).thenReturn("hash");
     when(blockchainService.createWallet(WALLET_PASSWORD)).thenReturn("wallet");
     Credentials credentials = mock(Credentials.class);
     when(credentials.getAddress()).thenReturn("wallet address");
     when(blockchainService.credentials("wallet", WALLET_PASSWORD)).thenReturn(credentials);
+    User communityAdmin = new User().setAdmin(true);
+    when(repository.findAdminByCommunityId(id("community"))).thenReturn(communityAdmin);
 
     User result = service.create(new AccountCreateCommand()
       .setUsername("user name")
@@ -140,11 +143,10 @@ public class UserServiceTest {
       .setLastName("last")
       .setDescription("description")
       .setLocation("Shibuya")
-      .setCommunityId(23L)
+      .setCommunityId(id("community"))
     );
 
-    assertThat(result).isEqualTo(createdUser);
-    verify(repository).create(new User()
+    User expectedUser = new User()
       .setUsername("user name")
       .setPasswordHash("hash")
       .setFirstName("first")
@@ -153,8 +155,11 @@ public class UserServiceTest {
       .setLocation("Shibuya")
       .setWallet("wallet")
       .setWalletAddress("wallet address")
-      .setCommunityId(23L)
-    );
+      .setCommunityId(id("community"));
+
+    assertThat(result).isEqualTo(expectedUser);
+    verify(blockchainService).delegateUser(expectedUser, communityAdmin);
+    verify(repository).create(expectedUser);
   }
 
   @Test(expected = BadRequestException.class)

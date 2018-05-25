@@ -83,6 +83,7 @@ public class UserService {
     if (community != null) {
       User admin = walletUser(community);
       blockchainService.transferEther(admin, user.getWalletAddress(), TOKEN_TRANSFER_GAS_LIMIT.multiply(BigInteger.TEN).multiply(GAS_PRICE));
+      blockchainService.delegateUser(user, admin);
     }
 
     return repository.create(user);

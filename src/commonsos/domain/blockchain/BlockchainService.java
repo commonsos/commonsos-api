@@ -75,12 +75,9 @@ public class BlockchainService {
   }
 
   public String transferTokens(User remitter, User beneficiary, BigDecimal amount) {
-    Community community = communityRepository.findById(remitter.getCommunityId()).orElseThrow(RuntimeException::new);
     try {
-      Credentials remitterCredentials = credentials(remitter.getWallet(), WALLET_PASSWORD);
-      String tokenContractAddress = community.getTokenContractId();
-      TokenERC20 token = loadToken(remitterCredentials, tokenContractAddress);
-      log.info(String.format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, tokenContractAddress));
+      TokenERC20 token = userCommunityToken(remitter);
+      log.info(String.format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
       TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
       log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
       return transactionReceipt.getTransactionHash();
@@ -164,5 +161,22 @@ public class BlockchainService {
     catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void delegateUser(User user, User delegated) {
+    try {
+      TokenERC20 token = userCommunityToken(user);
+      TransactionReceipt receipt = token.approve(delegated.getWalletAddress(), INITIAL_TOKEN_AMOUNT).send();
+      System.out.println(String.format("Wallet %s delegated %s. Gas used %d", user.getWalletAddress(), delegated.getWalletAddress(), receipt.getGasUsed()));
+    }
+    catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  TokenERC20 userCommunityToken(User user) {
+    Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
+    Credentials credentials = credentials(user.getWallet(), WALLET_PASSWORD);
+    return loadToken(credentials, community.getTokenContractId());
   }
 }
