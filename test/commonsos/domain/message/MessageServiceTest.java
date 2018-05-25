@@ -263,10 +263,10 @@ public class MessageServiceTest {
   @Test
   public void unreadMessageThreadCount() {
     User user = new User();
-    when(messageThreadRepository.unreadMessageThreadCount(user)).thenReturn(321);
+    when(messageThreadRepository.unreadMessageThreadIds(user)).thenReturn(asList(1L, 2L, 3L));
 
     int result = service.unreadMessageThreadCount(user);
 
-    assertThat(result).isEqualTo(321);
+    assertThat(result).isEqualTo(3);
   }
 }

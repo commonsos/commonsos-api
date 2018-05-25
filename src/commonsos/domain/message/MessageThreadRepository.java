@@ -10,7 +10,6 @@ import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.Math.toIntExact;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
@@ -54,13 +53,13 @@ public class MessageThreadRepository extends Repository {
     em().merge(party);
   }
 
-  public int unreadMessageThreadCount(User user) {
-    return toIntExact(em().createQuery(
-      "SELECT COUNT(*) " +
+  public List<Long> unreadMessageThreadIds(User user) {
+    return em().createQuery(
+      "SELECT mt.id " +
         "FROM MessageThread mt JOIN MessageThreadParty mtp ON mt.id = mtp.messageThreadId " +
         "WHERE mtp.user = :user " +
         "AND mt.id IN(SELECT threadId FROM Message WHERE threadId = mt.id) "+
         "AND (mtp.visitedAt IS NULL OR mtp.visitedAt < (SELECT MAX(m.createdAt) FROM Message m WHERE m.threadId = mt.id))", Long.class)
-      .setParameter("user", user).getSingleResult());
+      .setParameter("user", user).getResultList();
   }
 }

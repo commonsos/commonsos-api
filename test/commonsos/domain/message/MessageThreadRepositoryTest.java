@@ -118,13 +118,13 @@ public class MessageThreadRepositoryTest extends DBTest {
     User user = inTransaction(() -> userRepository.create(new User()));
     User user2 = inTransaction(() -> userRepository.create(new User()));
 
-    threadWithMessages(user, user2, null);
-    threadWithMessages(user, user2, now().minus(10, SECONDS));
+    Long threadId1 = threadWithMessages(user, user2, null).getId();
+    Long threadId2 = threadWithMessages(user, user2, now().minus(10, SECONDS)).getId();
     threadWithMessages(user, user2, now().plus(10, SECONDS));
 
-    int result = repository.unreadMessageThreadCount(user);
+    List<Long> result = repository.unreadMessageThreadIds(user);
 
-    assertThat(result).isEqualTo(2);
+    assertThat(result).containsExactly(threadId1, threadId2);
   }
 
   @Test
@@ -137,9 +137,9 @@ public class MessageThreadRepositoryTest extends DBTest {
     MessageThread thread = new MessageThread().setParties(asList(myParty, counterParty));
     inTransaction(() -> repository.create(thread));
 
-    int result = repository.unreadMessageThreadCount(user);
+    List<Long> result = repository.unreadMessageThreadIds(user);
 
-    assertThat(result).isEqualTo(0);
+    assertThat(result).isEmpty();
   }
 
   private MessageThread threadWithMessages(User myUser, User otherUser, Instant visitedAt) {
@@ -147,7 +147,7 @@ public class MessageThreadRepositoryTest extends DBTest {
     MessageThreadParty counterParty = new MessageThreadParty().setUser(otherUser);
     MessageThread thread = new MessageThread().setParties(asList(myParty, counterParty));
     inTransaction(() -> {
-      repository.create(thread).getId();
+      repository.create(thread);
       messageRepository.create(new Message().setThreadId(thread.getId()).setCreatedAt(now())).setCreatedBy(otherUser.getId());
       messageRepository.create(new Message().setThreadId(thread.getId()).setCreatedAt(now())).setCreatedBy(myUser.getId());
     });

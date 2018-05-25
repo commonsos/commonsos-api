@@ -126,6 +126,6 @@ public class MessageService {
   }
 
   public int unreadMessageThreadCount(User user) {
-    return messageThreadRepository.unreadMessageThreadCount(user);
+    return messageThreadRepository.unreadMessageThreadIds(user).size();
   }
 }
