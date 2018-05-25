@@ -1,6 +1,7 @@
 package commonsos.domain.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import commonsos.DisplayableException;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.community.Community;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
+import java.util.concurrent.Callable;
 
 import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
 import static java.math.BigInteger.ONE;
@@ -83,29 +85,23 @@ public class BlockchainService {
   }
 
   private String transferTokensRegular(User remitter, User beneficiary, BigDecimal amount) {
-    try {
+    return handleBlockchainException(() -> {
       TokenERC20 token = userCommunityTokenAsAdmin(remitter);
       log.info(String.format("Creating delegated token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
       TransactionReceipt transactionReceipt = token.transferFrom(remitter.getWalletAddress(), beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
       log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
       return transactionReceipt.getTransactionHash();
-    }
-    catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    });
   }
 
   private String transferTokensAdmin(User remitter, User beneficiary, BigDecimal amount) {
-    try {
+    return handleBlockchainException(() -> {
       TokenERC20 token = userCommunityToken(remitter);
       log.info(String.format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
       TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
       log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
       return transactionReceipt.getTransactionHash();
-    }
-    catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    });
   }
 
   private BigInteger toTokensWithoutDecimals(BigDecimal amount) {
@@ -129,27 +125,33 @@ public class BlockchainService {
   }
 
   public void transferEther(Credentials remitter, String beneficiaryWalletAddress, BigInteger amount) {
-    try {
+    handleBlockchainException(() -> {
       log.info(String.format("Creating ether transaction from %s to %s amount %d", remitter.getAddress(), beneficiaryWalletAddress, amount));
       TransactionReceipt transactionReceipt = Transfer.sendFunds(web3j, remitter, beneficiaryWalletAddress, new BigDecimal(amount), WEI).send();
       log.info("Ether transaction complete, id = " + transactionReceipt.getTransactionHash());
+      return null;
+    });
+  }
+
+  <T> T handleBlockchainException(Callable<T> callable) {
+    try {
+      return callable.call();
     }
     catch (Exception e) {
+      if (e.getMessage().contains("insufficient funds for gas"))
+        throw new DisplayableException("error.outOfEther");
       throw new RuntimeException(e);
     }
   }
 
   public String createToken(User owner, String symbol, String name) {
-    Credentials credentials = credentials(owner.getWallet(), "test");
-    try {
+    return handleBlockchainException(() -> {
+      Credentials credentials = credentials(owner.getWallet(), "test");
       log.info("Deploying token contract: " + name + " (" + symbol + "), owner: " + owner.getWalletAddress());
       String tokenContractAddress = deploy(credentials, symbol, name);
       log.info("Deploy successful, contract address: " + tokenContractAddress);
       return tokenContractAddress;
-    }
-    catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    });
   }
 
   String deploy(Credentials credentials, String symbol, String name) throws Exception {

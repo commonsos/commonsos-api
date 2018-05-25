@@ -1,6 +1,7 @@
 package commonsos.domain.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import commonsos.DisplayableException;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.community.Community;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 import static commonsos.TestId.id;
 import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
@@ -166,5 +168,34 @@ public class BlockchainServiceTest {
 
 
     assertThat(result).isEqualByComparingTo(TEN);
+  }
+
+  @Test
+  public void handleBlockchainException() {
+    Callable<String> action = () -> "result";
+
+    String result = service.handleBlockchainException(action);
+
+    assertThat(result).isEqualTo("result");
+  }
+
+  @Test(expected = DisplayableException.class)
+  public void handleBlockchainException_handlesInsufficientEtherError() {
+    Callable<Void> failingAction = () -> {
+      if (true) throw new RuntimeException("insufficient funds for gas");
+      return null;
+    };
+
+    service.handleBlockchainException(failingAction);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void handleBlockchainException_passesThroughRandomError() {
+    Callable<Void> failingAction = () -> {
+      if (true) throw new RuntimeException("bad luck");
+      return null;
+    };
+
+    service.handleBlockchainException(failingAction);
   }
 }
