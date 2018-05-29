@@ -84,7 +84,7 @@ public class TransactionService {
     repository.create(transaction);
 
     String blockchainTransactionId = blockchainService.transferTokens(user, beneficiary, transaction.getAmount());
-    transaction.setBlockchainTransactionId(blockchainTransactionId);
+    transaction.setBlockchainTransactionHash(blockchainTransactionId);
 
     repository.update(transaction);
   }
@@ -99,13 +99,13 @@ public class TransactionService {
     Transaction transaction = result.get();
 
     if (transaction.getBlockchainCompletedAt() != null) {
-      log.info(format("Transaction %s already marked completed at %s", transaction.getBlockchainTransactionId(), transaction.getBlockchainCompletedAt()));
+      log.info(format("Transaction %s already marked completed at %s", transaction.getBlockchainTransactionHash(), transaction.getBlockchainCompletedAt()));
       return;
     }
 
     transaction.setBlockchainCompletedAt(now());
     repository.update(transaction);
 
-    log.info(format("Transaction %s marked completed", transaction.getBlockchainTransactionId()));
+    log.info(format("Transaction %s marked completed", transaction.getBlockchainTransactionHash()));
   }
 }

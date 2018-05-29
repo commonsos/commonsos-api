@@ -26,7 +26,7 @@ public class TransactionRepositoryTest extends DBTest {
       .setDescription("description")
       .setCreatedAt(parse("2017-10-24T11:22:33Z"))
       .setAmount(TEN))
-      .setBlockchainTransactionId("blockchain id")
+      .setBlockchainTransactionHash("blockchain id")
       .getId());
 
     Transaction result = em().find(Transaction.class, id);
@@ -39,7 +39,7 @@ public class TransactionRepositoryTest extends DBTest {
     assertThat(result.getDescription()).isEqualTo("description");
     assertThat(result.getCreatedAt()).isEqualTo(parse("2017-10-24T11:22:33Z"));
     assertThat(result.getAmount()).isEqualTo(new BigDecimal("10.00"));
-    assertThat(result.getBlockchainTransactionId()).isEqualTo("blockchain id");
+    assertThat(result.getBlockchainTransactionHash()).isEqualTo("blockchain id");
   }
 
   @Test
@@ -70,8 +70,8 @@ public class TransactionRepositoryTest extends DBTest {
 
   @Test
   public void findByBlockchainTransactionHash() {
-    inTransaction(() -> repository.create(new Transaction().setBlockchainTransactionId("other value")));
-    Long id = inTransaction(() -> repository.create(new Transaction().setBlockchainTransactionId("hash value")).getId());
+    inTransaction(() -> repository.create(new Transaction().setBlockchainTransactionHash("other value")));
+    Long id = inTransaction(() -> repository.create(new Transaction().setBlockchainTransactionHash("hash value")).getId());
 
     Optional<Transaction> result = repository.findByBlockchainTransactionHash("hash value");
 

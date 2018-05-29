@@ -40,7 +40,7 @@ public class TransactionRepository extends Repository {
   public Optional<Transaction> findByBlockchainTransactionHash(String blockchainTransactionHash) {
     try {
       return of(em()
-        .createQuery("From Transaction WHERE blockchainTransactionId = :hash", Transaction.class)
+        .createQuery("From Transaction WHERE blockchainTransactionHash = :hash", Transaction.class)
         .setParameter("hash", blockchainTransactionHash)
         .getSingleResult());
     }

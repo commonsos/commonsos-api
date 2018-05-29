@@ -23,6 +23,6 @@ public class Transaction {
   private Long adId;
   private BigDecimal amount;
   private Instant createdAt;
-  private String blockchainTransactionId;
+  private String blockchainTransactionHash;
   private Instant blockchainCompletedAt;
 }

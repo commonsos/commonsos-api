@@ -1,0 +1,1 @@
+ALTER TABLE transactions RENAME COLUMN blockchain_transaction_id TO blockchain_transaction_hash;

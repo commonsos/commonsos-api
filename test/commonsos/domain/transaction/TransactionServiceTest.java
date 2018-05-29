@@ -60,7 +60,7 @@ public class TransactionServiceTest {
     assertThat(transaction.getAdId()).isEqualTo(id("ad id"));
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
     verify(repository).update(transaction);
-    assertThat(transaction.getBlockchainTransactionId()).isEqualTo("blockchain id");
+    assertThat(transaction.getBlockchainTransactionHash()).isEqualTo("blockchain id");
   }
 
   @Test(expected = BadRequestException.class)
