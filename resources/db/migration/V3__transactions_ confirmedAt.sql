@@ -1,0 +1,1 @@
+ALTER TABLE transactions ADD COLUMN blockchain_completed_at TIMESTAMP;

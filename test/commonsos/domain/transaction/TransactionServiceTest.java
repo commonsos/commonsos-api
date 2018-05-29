@@ -22,6 +22,8 @@ import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -194,5 +196,37 @@ public class TransactionServiceTest {
     List<TransactionView> result = service.transactions(user);
 
     assertThat(result).isEqualTo(asList(transactionView2, transactionView1));
+  }
+
+  @Test
+  public void markTransactionCompleted() {
+    Transaction transaction = new Transaction();
+    when(repository.findByBlockchainTransactionHash("hash")).thenReturn(of(transaction));
+
+    service.markTransactionCompleted("hash");
+
+    assertThat(transaction.getBlockchainCompletedAt()).isCloseTo(now(), within(1, SECONDS));
+    verify(repository).update(transaction);
+  }
+
+  @Test
+  public void markTransactionCompleted_txNotFound() {
+    when(repository.findByBlockchainTransactionHash("hash")).thenReturn(empty());
+
+    service.markTransactionCompleted("hash");
+
+    verify(repository).findByBlockchainTransactionHash("hash");
+    verifyNoMoreInteractions(repository);
+  }
+
+  @Test
+  public void markTransactionCompleted_alreadyCompleted() {
+    Transaction transaction = new Transaction().setBlockchainCompletedAt(now());
+    when(repository.findByBlockchainTransactionHash("hash")).thenReturn(of(transaction));
+
+    service.markTransactionCompleted("hash");
+
+    verify(repository).findByBlockchainTransactionHash("hash");
+    verifyNoMoreInteractions(repository);
   }
 }

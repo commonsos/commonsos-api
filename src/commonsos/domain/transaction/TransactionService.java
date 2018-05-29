@@ -8,19 +8,23 @@ import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
 import commonsos.domain.blockchain.BlockchainService;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
+import static java.lang.String.format;
 import static java.math.BigDecimal.ZERO;
+import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
 import static spark.utils.StringUtils.isBlank;
 
 @Singleton
+@Slf4j
 public class TransactionService {
   @Inject TransactionRepository repository;
   @Inject BlockchainService blockchainService;
@@ -75,7 +79,7 @@ public class TransactionService {
       .setBeneficiaryId(command.getBeneficiaryId())
       .setDescription(command.getDescription())
       .setAdId(command.getAdId())
-      .setCreatedAt(Instant.now());
+      .setCreatedAt(now());
 
     repository.create(transaction);
 
@@ -83,5 +87,25 @@ public class TransactionService {
     transaction.setBlockchainTransactionId(blockchainTransactionId);
 
     repository.update(transaction);
+  }
+
+  public void markTransactionCompleted(String blockChainTransactionHash) {
+    Optional<Transaction> result = repository.findByBlockchainTransactionHash(blockChainTransactionHash);
+    if (!result.isPresent()) {
+      log.warn(format("Cannot mark transaction completed, hash %s not found", blockChainTransactionHash));
+      return;
+    }
+
+    Transaction transaction = result.get();
+
+    if (transaction.getBlockchainCompletedAt() != null) {
+      log.info(format("Transaction %s already marked completed at %s", transaction.getBlockchainTransactionId(), transaction.getBlockchainCompletedAt()));
+      return;
+    }
+
+    transaction.setBlockchainCompletedAt(now());
+    repository.update(transaction);
+
+    log.info(format("Transaction %s marked completed", transaction.getBlockchainTransactionId()));
   }
 }

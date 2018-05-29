@@ -5,6 +5,7 @@ import commonsos.domain.auth.User;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static commonsos.TestId.id;
 import static java.math.BigDecimal.ONE;
@@ -65,6 +66,22 @@ public class TransactionRepositoryTest extends DBTest {
     inTransaction(() -> repository.create(transaction(id("foo"), id("bar"))).getId());
 
     assertThat(repository.transactions(user)).extracting("id").containsExactly(id1, id2);
+  }
+
+  @Test
+  public void findByBlockchainTransactionHash() {
+    inTransaction(() -> repository.create(new Transaction().setBlockchainTransactionId("other value")));
+    Long id = inTransaction(() -> repository.create(new Transaction().setBlockchainTransactionId("hash value")).getId());
+
+    Optional<Transaction> result = repository.findByBlockchainTransactionHash("hash value");
+
+    assertThat(result).isNotEmpty();
+    assertThat(result.get().getId()).isEqualTo(id);
+  }
+
+  @Test
+  public void findByHash_notFound() {
+    assertThat(repository.findByBlockchainTransactionHash("hash value")).isEmpty();
   }
 
   private Transaction transaction(Long remitterId, Long beneficiary) {

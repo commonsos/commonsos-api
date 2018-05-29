@@ -18,6 +18,7 @@ import commonsos.controller.message.*;
 import commonsos.controller.transaction.BalanceController;
 import commonsos.controller.transaction.TransactionCreateController;
 import commonsos.controller.transaction.TransactionListController;
+import commonsos.domain.blockchain.BlockchainEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
@@ -32,12 +33,14 @@ public class Server {
   @Inject private JsonTransformer toJson;
   @Inject private DatabaseMigrator databaseMigrator;
   @Inject private DemoData demoData;
+  @Inject private BlockchainEventService blockchainEventService;
 
   private void start() {
     Injector injector = initDependencies();
     databaseMigrator.execute();
     CookieSecuringEmbeddedJettyFactory.register();
     initRoutes(injector);
+    blockchainEventService.listenEvents();
     demoData.install();
   }
 

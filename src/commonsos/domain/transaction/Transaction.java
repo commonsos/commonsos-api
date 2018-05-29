@@ -24,4 +24,5 @@ public class Transaction {
   private BigDecimal amount;
   private Instant createdAt;
   private String blockchainTransactionId;
+  private Instant blockchainCompletedAt;
 }

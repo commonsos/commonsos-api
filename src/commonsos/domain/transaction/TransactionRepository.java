@@ -6,7 +6,12 @@ import commonsos.domain.auth.User;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.persistence.NoResultException;
 import java.util.List;
+import java.util.Optional;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 @Singleton
 public class TransactionRepository extends Repository {
@@ -30,5 +35,17 @@ public class TransactionRepository extends Repository {
 
   public void update(Transaction transaction) {
     em().merge(transaction);
+  }
+
+  public Optional<Transaction> findByBlockchainTransactionHash(String blockchainTransactionHash) {
+    try {
+      return of(em()
+        .createQuery("From Transaction WHERE blockchainTransactionId = :hash", Transaction.class)
+        .setParameter("hash", blockchainTransactionHash)
+        .getSingleResult());
+    }
+    catch (NoResultException e) {
+        return empty();
+    }
   }
 }
