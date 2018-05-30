@@ -7,9 +7,15 @@ import commonsos.domain.auth.UserService;
 import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.encoders.Hex;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.ReadonlyTransactionManager;
 import org.web3j.tx.Transfer;
@@ -21,9 +27,13 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
+import static commonsos.domain.blockchain.TokenERC20.FUNC_TRANSFERFROM;
+import static java.lang.String.format;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.TEN;
 import static org.web3j.utils.Convert.Unit.WEI;
@@ -33,6 +43,7 @@ import static org.web3j.utils.Convert.Unit.WEI;
 public class BlockchainService {
 
   public static final BigInteger TOKEN_TRANSFER_GAS_LIMIT = new BigInteger("90000");
+  public static final BigInteger TOKEN_TRANSFER_FROM_GAS_LIMIT = new BigInteger("339000");
   public static final BigInteger TOKEN_DEPLOYMENT_GAS_LIMIT = new BigInteger("2625681");
   public static final BigInteger GAS_PRICE = new BigInteger("18000000000");
 
@@ -85,21 +96,50 @@ public class BlockchainService {
   }
 
   private String transferTokensRegular(User remitter, User beneficiary, BigDecimal amount) {
+    Community community = communityRepository.findById(remitter.getCommunityId()).orElseThrow(RuntimeException::new);
+    User walletUser = userService.walletUser(community);
+
+    log.info(format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, community.getTokenContractId()));
+
+    EthSendTransaction response = contractTransferFrom(
+      credentials(walletUser.getWallet(), WALLET_PASSWORD),
+      community.getTokenContractId(),
+      remitter.getWalletAddress(),
+      beneficiary.getWalletAddress(),
+      toTokensWithoutDecimals(amount)
+    );
+
+    if (response.hasError())
+      throw new RuntimeException("Error processing transaction request: " + response.getError().getMessage());
+
+    log.info(format("Token transaction sent, hash %s", response.getTransactionHash()));
+    return response.getTransactionHash();
+  }
+
+  EthSendTransaction contractTransferFrom(Credentials sender, String contractAddress, String from, String to, BigInteger amount) {
     return handleBlockchainException(() -> {
-      TokenERC20 token = userCommunityTokenAsAdmin(remitter);
-      log.info(String.format("Creating delegated token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
-      TransactionReceipt transactionReceipt = token.transferFrom(remitter.getWalletAddress(), beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
-      log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
-      return transactionReceipt.getTransactionHash();
+      BigInteger nonce = web3j.ethGetTransactionCount(sender.getAddress(), DefaultBlockParameterName.LATEST).send().getTransactionCount();
+      String encodedFunction = FunctionEncoder.encode(new Function(
+        FUNC_TRANSFERFROM,
+        Arrays.<Type>asList(
+          new org.web3j.abi.datatypes.Address(from),
+          new org.web3j.abi.datatypes.Address(to),
+          new org.web3j.abi.datatypes.generated.Uint256(amount)),
+        Collections.<TypeReference<?>>emptyList()));
+
+      RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, GAS_PRICE, TOKEN_TRANSFER_FROM_GAS_LIMIT, contractAddress, encodedFunction);
+
+      byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, sender);
+      return web3j.ethSendRawTransaction("0x" + Hex.toHexString(signedMessage)).send();
     });
   }
 
   private String transferTokensAdmin(User remitter, User beneficiary, BigDecimal amount) {
     return handleBlockchainException(() -> {
       TokenERC20 token = userCommunityToken(remitter);
-      log.info(String.format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
+      log.info(format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
       TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
-      log.info(String.format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
+      log.info(format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
       return transactionReceipt.getTransactionHash();
     });
   }
@@ -126,7 +166,7 @@ public class BlockchainService {
 
   public void transferEther(Credentials remitter, String beneficiaryWalletAddress, BigInteger amount) {
     handleBlockchainException(() -> {
-      log.info(String.format("Creating ether transaction from %s to %s amount %d", remitter.getAddress(), beneficiaryWalletAddress, amount));
+      log.info(format("Creating ether transaction from %s to %s amount %d", remitter.getAddress(), beneficiaryWalletAddress, amount));
       TransactionReceipt transactionReceipt = Transfer.sendFunds(web3j, remitter, beneficiaryWalletAddress, new BigDecimal(amount), WEI).send();
       log.info("Ether transaction complete, id = " + transactionReceipt.getTransactionHash());
       return null;
@@ -190,7 +230,7 @@ public class BlockchainService {
     try {
       TokenERC20 token = userCommunityToken(user);
       TransactionReceipt receipt = token.approve(delegated.getWalletAddress(), INITIAL_TOKEN_AMOUNT).send();
-      System.out.println(String.format("Wallet %s delegated %s. Gas used %d", user.getWalletAddress(), delegated.getWalletAddress(), receipt.getGasUsed()));
+      log.info(format("Wallet %s delegated %s. Gas used %d", user.getWalletAddress(), delegated.getWalletAddress(), receipt.getGasUsed()));
     }
     catch (Exception e) {
       throw new RuntimeException(e);
