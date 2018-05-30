@@ -13,11 +13,14 @@ import commonsos.domain.community.CommunityRepository;
 import commonsos.domain.message.MessagePostCommand;
 import commonsos.domain.message.MessageService;
 import commonsos.domain.message.MessageThreadView;
+import commonsos.domain.transaction.Transaction;
 import commonsos.domain.transaction.TransactionCreateCommand;
 import commonsos.domain.transaction.TransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
+import org.web3j.protocol.Web3j;
+import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,6 +43,7 @@ public class DemoData {
   @Inject MessageService messageService;
   @Inject BlockchainService blockchainService;
   @Inject CommunityRepository communityRepository;
+  @Inject Web3j web3j;
 
   public void install() {
 
@@ -116,8 +120,13 @@ public class DemoData {
       .setAvatarUrl("https://qph.fs.quoracdn.net/main-qimg-42b85e5f162e21ce346da83e8fa569bd-c")
     );
 
-    transactionService.create(admin, new TransactionCreateCommand().setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality"));
-    transactionService.create(admin, new TransactionCreateCommand().setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality"));
+    waitTransactionCompleted(
+      transactionService.create(admin, new TransactionCreateCommand().setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly1.getId()).setDescription("Funds from municipality"))
+    );
+
+    waitTransactionCompleted(
+      transactionService.create(admin, new TransactionCreateCommand().setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality"))
+    );
 
     Ad workerAd = emService.runInTransaction(() -> adService.create(worker, new AdCreateCommand()
       .setType(GIVE)
@@ -167,6 +176,18 @@ public class DemoData {
 
     MessageThreadView elderly2AdThread = emService.runInTransaction(() -> messageService.threadForAd(worker, elderly2Ad.getId()));
     transactionService.create(elderly2, new TransactionCreateCommand().setBeneficiaryId(worker.getId()).setAdId(elderly2Ad.getId()).setDescription("Ad: 小川くん、醤油かってきて").setAmount(BigDecimal.TEN.add(BigDecimal.TEN)));
+  }
+
+  private void waitTransactionCompleted(Transaction transaction) {
+    PollingTransactionReceiptProcessor receiptProcessor = new PollingTransactionReceiptProcessor(web3j, 1000, 300);
+
+    try {
+      receiptProcessor.waitForTransactionReceipt(transaction.getBlockchainTransactionHash());
+    }
+    catch (Exception e) {
+      log.warn("Failed", e);
+      throw new RuntimeException(e);
+    }
   }
 
   private Community createCommunity(User admin, String name, String tokenSymbol, String tokenName) {
