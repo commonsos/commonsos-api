@@ -172,6 +172,7 @@ public class TransactionServiceTest {
         .setRemitterId(id("remitter id"))
         .setAmount(BigDecimal.TEN)
         .setDescription("description")
+        .setBlockchainCompletedAt(now())
         .setCreatedAt(createdAt));
 
     assertThat(view.getBeneficiary()).isEqualTo(beneficiary);
@@ -179,6 +180,7 @@ public class TransactionServiceTest {
     assertThat(view.getAmount()).isEqualTo(BigDecimal.TEN);
     assertThat(view.getDescription()).isEqualTo("description");
     assertThat(view.getCreatedAt()).isEqualTo(createdAt);
+    assertThat(view.isCompleted()).isEqualTo(true);
     assertThat(view.isDebit()).isTrue();
   }
 

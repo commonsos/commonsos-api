@@ -55,6 +55,7 @@ public class TransactionService {
       .setAmount(transaction.getAmount())
       .setDescription(transaction.getDescription())
       .setCreatedAt(transaction.getCreatedAt())
+      .setCompleted(transaction.getBlockchainCompletedAt() != null)
       .setDebit(isDebit(user, transaction));
   }
 

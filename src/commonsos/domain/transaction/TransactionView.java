@@ -15,5 +15,6 @@ public class TransactionView {
   private BigDecimal amount;
   private String description;
   private Instant createdAt;
+  private boolean completed;
   private boolean debit;
 }
