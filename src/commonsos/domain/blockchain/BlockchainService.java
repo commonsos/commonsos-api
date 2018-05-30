@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static commonsos.domain.auth.UserService.WALLET_PASSWORD;
+import static commonsos.domain.blockchain.TokenERC20.FUNC_TRANSFER;
 import static commonsos.domain.blockchain.TokenERC20.FUNC_TRANSFERFROM;
 import static java.lang.String.format;
 import static java.math.BigInteger.ONE;
@@ -135,12 +136,38 @@ public class BlockchainService {
   }
 
   private String transferTokensAdmin(User remitter, User beneficiary, BigDecimal amount) {
+    Community community = communityRepository.findById(remitter.getCommunityId()).orElseThrow(RuntimeException::new);
+
+    log.info(format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, community.getTokenContractAddress()));
+
+    EthSendTransaction response = contractTransfer(
+      community.getTokenContractAddress(),
+      credentials(remitter.getWallet(), WALLET_PASSWORD),
+      beneficiary.getWalletAddress(),
+      toTokensWithoutDecimals(amount)
+    );
+
+    if (response.hasError())
+      throw new RuntimeException("Error processing transaction request: " + response.getError().getMessage());
+
+    log.info(format("Token transaction sent, hash %s", response.getTransactionHash()));
+    return response.getTransactionHash();
+  }
+
+  EthSendTransaction contractTransfer(String contractAddress, Credentials from, String toAddress, BigInteger amount) {
     return handleBlockchainException(() -> {
-      TokenERC20 token = userCommunityToken(remitter);
-      log.info(format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, token.getContractAddress()));
-      TransactionReceipt transactionReceipt = token.transfer(beneficiary.getWalletAddress(), toTokensWithoutDecimals(amount)).send();
-      log.info(format("Token transaction done, id  %s", transactionReceipt.getTransactionHash()));
-      return transactionReceipt.getTransactionHash();
+      BigInteger nonce = web3j.ethGetTransactionCount(from.getAddress(), DefaultBlockParameterName.LATEST).send().getTransactionCount();
+      String encodedFunction = FunctionEncoder.encode(new Function(
+        FUNC_TRANSFER,
+        Arrays.<Type>asList(
+          new org.web3j.abi.datatypes.Address(toAddress),
+          new org.web3j.abi.datatypes.generated.Uint256(amount)),
+        Collections.<TypeReference<?>>emptyList()));
+
+      RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, GAS_PRICE, TOKEN_TRANSFER_FROM_GAS_LIMIT, contractAddress, encodedFunction);
+
+      byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, from);
+      return web3j.ethSendRawTransaction("0x" + Hex.toHexString(signedMessage)).send();
     });
   }
 
