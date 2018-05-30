@@ -14,7 +14,6 @@ import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.ReadonlyTransactionManager;
@@ -56,6 +55,7 @@ public class BlockchainService {
   @Inject UserService userService;
   @Inject ObjectMapper objectMapper;
   @Inject Web3j web3j;
+  @Inject NonceProvider nonceProvider;
 
   public String createWallet(String password) {
     File filePath = null;
@@ -119,7 +119,7 @@ public class BlockchainService {
 
   EthSendTransaction contractTransferFrom(Credentials sender, String contractAddress, String from, String to, BigInteger amount) {
     return handleBlockchainException(() -> {
-      BigInteger nonce = web3j.ethGetTransactionCount(sender.getAddress(), DefaultBlockParameterName.LATEST).send().getTransactionCount();
+      BigInteger nonce = nonceProvider.nonceFor(sender);
       String encodedFunction = FunctionEncoder.encode(new Function(
         FUNC_TRANSFERFROM,
         Arrays.<Type>asList(
@@ -156,7 +156,7 @@ public class BlockchainService {
 
   EthSendTransaction contractTransfer(String contractAddress, Credentials from, String toAddress, BigInteger amount) {
     return handleBlockchainException(() -> {
-      BigInteger nonce = web3j.ethGetTransactionCount(from.getAddress(), DefaultBlockParameterName.LATEST).send().getTransactionCount();
+      BigInteger nonce = nonceProvider.nonceFor(from);
       String encodedFunction = FunctionEncoder.encode(new Function(
         FUNC_TRANSFER,
         Arrays.<Type>asList(

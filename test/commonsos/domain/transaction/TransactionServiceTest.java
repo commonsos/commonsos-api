@@ -47,10 +47,11 @@ public class TransactionServiceTest {
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
     User beneficiary = new User().setCommunityId(id("community"));
     when(userService.user(id("beneficiary"))).thenReturn(beneficiary);
-    when(blockchainService.transferTokens(user, beneficiary, new BigDecimal("10"))).thenReturn("blockchain id");
+    when(blockchainService.transferTokens(user, beneficiary, new BigDecimal("10"))).thenReturn("blockchain hash");
 
-    service.create(user, command);
+    Transaction result = service.create(user, command);
 
+    assertThat(result.getBlockchainTransactionHash()).isEqualTo("blockchain hash");
     verify(repository).create(captor.capture());
     Transaction transaction = captor.getValue();
     assertThat(transaction.getAmount()).isEqualTo(BigDecimal.TEN);
@@ -60,7 +61,7 @@ public class TransactionServiceTest {
     assertThat(transaction.getAdId()).isEqualTo(id("ad id"));
     assertThat(transaction.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
     verify(repository).update(transaction);
-    assertThat(transaction.getBlockchainTransactionHash()).isEqualTo("blockchain id");
+    assertThat(transaction.getBlockchainTransactionHash()).isEqualTo("blockchain hash");
   }
 
   @Test(expected = BadRequestException.class)

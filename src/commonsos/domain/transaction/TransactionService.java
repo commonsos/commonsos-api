@@ -59,7 +59,7 @@ public class TransactionService {
       .setDebit(isDebit(user, transaction));
   }
 
-  public void create(User user, TransactionCreateCommand command) {
+  public Transaction create(User user, TransactionCreateCommand command) {
     if (isBlank(command.getDescription()))  throw new BadRequestException();
     if (ZERO.compareTo(command.getAmount()) > -1)  throw new BadRequestException();
     if (user.getId().equals(command.getBeneficiaryId())) throw new BadRequestException();
@@ -88,6 +88,8 @@ public class TransactionService {
     transaction.setBlockchainTransactionHash(blockchainTransactionId);
 
     repository.update(transaction);
+
+    return transaction;
   }
 
   public void markTransactionCompleted(String blockChainTransactionHash) {
