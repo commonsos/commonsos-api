@@ -200,18 +200,6 @@ public class BlockchainService {
     return token.getContractAddress();
   }
 
-  public BigInteger etherBalance(String address) {
-    try {
-      log.info("Ether balance request for: " + address);
-      BigInteger balance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).sendAsync().get().getBalance();
-      log.info("Ether balance request complete, balance " + balance.toString());
-      return balance;
-    }
-    catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public BigDecimal tokenBalance(User user) {
     try {
       log.info("Token balance request for: " + user.getWalletAddress());
