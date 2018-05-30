@@ -23,7 +23,7 @@ public class CommunityRepository extends Repository {
   }
 
   public List<Community> list() {
-    return em().createQuery("FROM Community WHERE tokenContractId IS NOT NULL", Community.class).getResultList();
+    return em().createQuery("FROM Community WHERE tokenContractAddress IS NOT NULL", Community.class).getResultList();
   }
 
   public Community create(Community community) {

@@ -171,7 +171,7 @@ public class DemoData {
 
   private Community createCommunity(User admin, String name, String tokenSymbol, String tokenName) {
     String tokenAddress = blockchainService.createToken(admin, tokenSymbol, tokenName);
-    Community community = emService.runInTransaction(() -> communityRepository.create(new Community().setName(name).setTokenContractId(tokenAddress)));
+    Community community = emService.runInTransaction(() -> communityRepository.create(new Community().setName(name).setTokenContractAddress(tokenAddress)));
 
     admin.setCommunityId(community.getId());
     emService.runInTransaction(() -> userRepository.update(admin));

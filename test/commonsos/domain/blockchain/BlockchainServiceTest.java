@@ -95,7 +95,7 @@ public class BlockchainServiceTest {
     User remitter = new User().setCommunityId(id("community")).setWalletAddress("remitter address");
     User beneficiary = new User().setWalletAddress("beneficiary address");
 
-    Community community = new Community().setTokenContractId("contract address");
+    Community community = new Community().setTokenContractAddress("contract address");
     when(communityRepository.findById(remitter.getCommunityId())).thenReturn(Optional.of(community));
 
     User walletUser = new User().setWalletAddress("admin wallet address").setWallet("admin wallet");
@@ -121,7 +121,7 @@ public class BlockchainServiceTest {
     User remitter = new User().setCommunityId(id("community")).setWalletAddress("remitter address");
     User beneficiary = new User().setWalletAddress("beneficiary address");
 
-    Community community = new Community().setTokenContractId("contract address");
+    Community community = new Community().setTokenContractAddress("contract address");
     when(communityRepository.findById(remitter.getCommunityId())).thenReturn(Optional.of(community));
 
     User walletUser = new User().setWalletAddress("admin wallet address").setWallet("admin wallet");
@@ -145,13 +145,13 @@ public class BlockchainServiceTest {
   @Test
   public void userCommunityToken() {
     User user = new User().setCommunityId(id("community")).setWallet("wallet");
-    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractId("contract id")));
+    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractAddress("contract address")));
 
     Credentials remitterCredentials = mock(Credentials.class);
     doReturn(remitterCredentials).when(service).credentials("wallet", WALLET_PASSWORD);
 
     TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
-    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
+    doReturn(token).when(service).loadToken(remitterCredentials, "contract address");
 
     TokenERC20 result = service.userCommunityToken(user);
 
@@ -161,7 +161,7 @@ public class BlockchainServiceTest {
   @Test
   public void userCommunityTokenAsAdmin() {
     User user = new User().setCommunityId(id("community")).setWallet("wallet");
-    Community community = new Community().setTokenContractId("contract id");
+    Community community = new Community().setTokenContractAddress("contract address");
     when(communityRepository.findById(id("community"))).thenReturn(Optional.of(community));
     User admin = new User().setWallet("wallet");
     when(userService.walletUser(community)).thenReturn(admin);
@@ -170,7 +170,7 @@ public class BlockchainServiceTest {
     doReturn(remitterCredentials).when(service).credentials("wallet", WALLET_PASSWORD);
 
     TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
-    doReturn(token).when(service).loadToken(remitterCredentials, "contract id");
+    doReturn(token).when(service).loadToken(remitterCredentials, "contract address");
 
 
     TokenERC20 result = service.userCommunityTokenAsAdmin(user);
@@ -194,10 +194,10 @@ public class BlockchainServiceTest {
   @Test
   public void tokenBalance() throws Exception {
     User user = new User().setWalletAddress("wallet address").setCommunityId(id("community"));
-    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractId("contract id")));
+    when(communityRepository.findById(id("community"))).thenReturn(Optional.of(new Community().setTokenContractAddress("contract address")));
 
     TokenERC20 token = mock(TokenERC20.class, RETURNS_DEEP_STUBS);
-    doReturn(token).when(service).loadTokenReadOnly("wallet address", "contract id");
+    doReturn(token).when(service).loadTokenReadOnly("wallet address", "contract address");
     when(token.balanceOf("wallet address").send()).thenReturn(new BigInteger("10000000000000000000"));
 
 

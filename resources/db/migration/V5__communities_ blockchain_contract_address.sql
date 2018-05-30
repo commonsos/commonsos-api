@@ -1,0 +1,1 @@
+ALTER TABLE communities RENAME COLUMN token_contract_id TO token_contract_address;

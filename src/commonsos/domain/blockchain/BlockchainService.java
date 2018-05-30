@@ -99,11 +99,11 @@ public class BlockchainService {
     Community community = communityRepository.findById(remitter.getCommunityId()).orElseThrow(RuntimeException::new);
     User walletUser = userService.walletUser(community);
 
-    log.info(format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, community.getTokenContractId()));
+    log.info(format("Creating token transaction from %s to %s amount %.0f contract %s", remitter.getWalletAddress(), beneficiary.getWalletAddress(), amount, community.getTokenContractAddress()));
 
     EthSendTransaction response = contractTransferFrom(
       credentials(walletUser.getWallet(), WALLET_PASSWORD),
-      community.getTokenContractId(),
+      community.getTokenContractAddress(),
       remitter.getWalletAddress(),
       beneficiary.getWalletAddress(),
       toTokensWithoutDecimals(amount)
@@ -204,7 +204,7 @@ public class BlockchainService {
     try {
       log.info("Token balance request for: " + user.getWalletAddress());
       Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
-      TokenERC20 token = loadTokenReadOnly(user.getWalletAddress(), community.getTokenContractId());
+      TokenERC20 token = loadTokenReadOnly(user.getWalletAddress(), community.getTokenContractAddress());
       BigInteger balance = token.balanceOf(user.getWalletAddress()).send();
       log.info("Token balance request complete, balance " + balance.toString());
       return toTokensWithDecimals(balance);
@@ -228,13 +228,13 @@ public class BlockchainService {
   TokenERC20 userCommunityToken(User user) {
     Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
     Credentials credentials = credentials(user.getWallet(), WALLET_PASSWORD);
-    return loadToken(credentials, community.getTokenContractId());
+    return loadToken(credentials, community.getTokenContractAddress());
   }
 
   TokenERC20 userCommunityTokenAsAdmin(User user) {
     Community community = communityRepository.findById(user.getCommunityId()).orElseThrow(RuntimeException::new);
     User walletUser = userService.walletUser(community);
     Credentials credentials = credentials(walletUser.getWallet(), WALLET_PASSWORD);
-    return loadToken(credentials, community.getTokenContractId());
+    return loadToken(credentials, community.getTokenContractAddress());
   }
 }
