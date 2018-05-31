@@ -18,7 +18,9 @@ import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.ReadonlyTransactionManager;
 import org.web3j.tx.Transfer;
+import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.utils.Files;
+import org.web3j.utils.Numeric;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,6 +44,7 @@ import static org.web3j.utils.Convert.Unit.WEI;
 @Slf4j
 public class BlockchainService {
 
+  public static final BigInteger ETHER_TRANSFER_GAS_LIMIT = new BigInteger("21000");
   public static final BigInteger TOKEN_TRANSFER_GAS_LIMIT = new BigInteger("90000");
   public static final BigInteger TOKEN_TRANSFER_FROM_GAS_LIMIT = new BigInteger("339000");
   public static final BigInteger TOKEN_DEPLOYMENT_GAS_LIMIT = new BigInteger("2625681");
@@ -119,7 +122,7 @@ public class BlockchainService {
 
   EthSendTransaction contractTransferFrom(Credentials sender, String contractAddress, String from, String to, BigInteger amount) {
     return handleBlockchainException(() -> {
-      BigInteger nonce = nonceProvider.nonceFor(sender);
+      BigInteger nonce = nonceProvider.nonceFor(sender.getAddress());
       String encodedFunction = FunctionEncoder.encode(new Function(
         FUNC_TRANSFERFROM,
         Arrays.<Type>asList(
@@ -156,7 +159,7 @@ public class BlockchainService {
 
   EthSendTransaction contractTransfer(String contractAddress, Credentials from, String toAddress, BigInteger amount) {
     return handleBlockchainException(() -> {
-      BigInteger nonce = nonceProvider.nonceFor(from);
+      BigInteger nonce = nonceProvider.nonceFor(from.getAddress());
       String encodedFunction = FunctionEncoder.encode(new Function(
         FUNC_TRANSFER,
         Arrays.<Type>asList(
@@ -187,10 +190,41 @@ public class BlockchainService {
     return TokenERC20.load(tokenContractAddress, web3j, new ReadonlyTransactionManager(web3j, walletAddress), GAS_PRICE, TOKEN_TRANSFER_GAS_LIMIT);
   }
 
-  public void transferEther(User remitter, String beneficiaryWalletAddress, BigInteger amount) {
-    transferEther(credentials(remitter.getWallet(), WALLET_PASSWORD), beneficiaryWalletAddress, amount);
+  public void transferEther(User remitter, String beneficiaryAddress, BigInteger amount) {
+    log.info(String.format("transferEther %d to %s", amount, beneficiaryAddress));
+    Credentials credentials = credentials(remitter.getWallet(), WALLET_PASSWORD);
+    TransactionReceipt receipt = sendEther(credentials, beneficiaryAddress, amount);
+    if (!receipt.isStatusOK()) throw new RuntimeException("Ether transaction " + receipt.getTransactionHash() + " failed");
+    log.info(String.format("Ether transaction receipt received for %s, gas used %d", receipt.getTransactionHash(), receipt.getGasUsed()));
   }
 
+  private TransactionReceipt sendEther(Credentials remitter, String beneficiaryAddress, BigInteger amount) {
+    return waitForReceipt(sendEtherAsync(remitter, beneficiaryAddress, amount).getTransactionHash());
+  }
+
+  private EthSendTransaction sendEtherAsync(Credentials remitter, String beneficiaryAddress, BigInteger amount) {
+    return handleBlockchainException(() -> {
+      BigInteger nonce = nonceProvider.nonceFor(remitter.getAddress());
+
+      RawTransaction rawTransaction = RawTransaction
+        .createEtherTransaction(nonce, GAS_PRICE, ETHER_TRANSFER_GAS_LIMIT, beneficiaryAddress, amount);
+
+      byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, remitter);
+
+      EthSendTransaction response = web3j.ethSendRawTransaction(Numeric.toHexString(signedMessage)).send();
+      log.info("Ether transaction sent, hash " + response.getTransactionHash());
+      return response;
+    });
+  }
+
+  private TransactionReceipt waitForReceipt(String hash) {
+    return handleBlockchainException(() -> {
+      PollingTransactionReceiptProcessor receiptProcessor = new PollingTransactionReceiptProcessor(web3j, 1000, 300);
+      return receiptProcessor.waitForTransactionReceipt(hash);
+    });
+  }
+
+  @Deprecated
   public void transferEther(Credentials remitter, String beneficiaryWalletAddress, BigInteger amount) {
     handleBlockchainException(() -> {
       log.info(format("Creating ether transaction from %s to %s amount %d", remitter.getAddress(), beneficiaryWalletAddress, amount));
