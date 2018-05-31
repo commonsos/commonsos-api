@@ -7,9 +7,11 @@ import commonsos.domain.auth.User;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.NoResultException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static java.math.BigDecimal.ZERO;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -47,5 +49,13 @@ public class TransactionRepository extends Repository {
     catch (NoResultException e) {
         return empty();
     }
+  }
+
+  public BigDecimal pendingTransactionsAmount(Long userId) {
+    BigDecimal amount = em()
+      .createQuery("SELECT SUM(amount) FROM Transaction WHERE blockchainCompletedAt IS NULL AND remitterId = :userId", BigDecimal.class)
+      .setParameter("userId", userId)
+      .getSingleResult();
+    return amount != null ? amount :  ZERO;
   }
 }

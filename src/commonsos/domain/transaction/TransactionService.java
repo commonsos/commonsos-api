@@ -32,7 +32,8 @@ public class TransactionService {
   @Inject AdService adService;
 
   public BigDecimal balance(User user) {
-    return blockchainService.tokenBalance(user);
+    BigDecimal tokenBalance = blockchainService.tokenBalance(user);
+    return tokenBalance.subtract(repository.pendingTransactionsAmount(user.getId()));
   }
 
   private boolean isDebit(User user, Transaction transaction) {

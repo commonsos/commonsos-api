@@ -150,12 +150,13 @@ public class TransactionServiceTest {
 
   @Test
   public void balance() {
-    User user = new User();
+    User user = new User().setId(id("user id"));
     when(blockchainService.tokenBalance(user)).thenReturn(BigDecimal.TEN);
+    when(repository.pendingTransactionsAmount(id("user id"))).thenReturn(BigDecimal.ONE);
 
     BigDecimal result = service.balance(user);
 
-    assertThat(result).isEqualByComparingTo(BigDecimal.TEN);
+    assertThat(result).isEqualByComparingTo(new BigDecimal("9"));
   }
 
   @Test

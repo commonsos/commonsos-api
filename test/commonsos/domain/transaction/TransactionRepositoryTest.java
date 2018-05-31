@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static commonsos.TestId.id;
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.*;
+import static java.time.Instant.now;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,5 +86,23 @@ public class TransactionRepositoryTest extends DBTest {
 
   private Transaction transaction(Long remitterId, Long beneficiary) {
     return new Transaction().setBeneficiaryId(beneficiary).setRemitterId(remitterId);
+  }
+
+  @Test
+  public void pendingTransactionsAmount() {
+    inTransaction(() -> repository.create(new Transaction().setRemitterId(id("user")).setAmount(TEN)));
+    inTransaction(() -> repository.create(new Transaction().setRemitterId(id("other user")).setAmount(TEN)));
+    inTransaction(() -> repository.create(new Transaction().setRemitterId(id("user")).setAmount(ONE).setBlockchainCompletedAt(now())));
+
+    BigDecimal amount = repository.pendingTransactionsAmount(id("user"));
+
+    assertThat(amount).isEqualByComparingTo(TEN);
+  }
+
+  @Test
+  public void pendingTransactionsAmount_none() {
+    BigDecimal amount = repository.pendingTransactionsAmount(id("user"));
+
+    assertThat(amount).isEqualByComparingTo(ZERO);
   }
 }
