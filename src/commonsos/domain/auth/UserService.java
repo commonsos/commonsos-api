@@ -60,7 +60,7 @@ public class UserService {
   public User create(AccountCreateCommand command) {
     validate(command);
     Community community = null;
-    if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("Username is already taken");
+    if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("error.usernameTaken");
     if (command.getCommunityId() != null) {
       community = community(command);
     }

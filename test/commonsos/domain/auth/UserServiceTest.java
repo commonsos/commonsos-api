@@ -205,7 +205,7 @@ public class UserServiceTest {
 
     DisplayableException thrown = catchThrowableOfType(()-> service.create(command), DisplayableException.class);
 
-    assertThat(thrown).hasMessage("Username is already taken");
+    assertThat(thrown).hasMessage("error.usernameTaken");
   }
 
   @Test(expected = BadRequestException.class)

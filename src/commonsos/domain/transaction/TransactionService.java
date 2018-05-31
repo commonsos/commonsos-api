@@ -70,7 +70,7 @@ public class TransactionService {
       if (!adService.isPayableByUser(user, ad)) throw new BadRequestException();
     }
     BigDecimal balance = balance(user);
-    if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("Not enough funds");
+    if (balance.compareTo(command.getAmount()) < 0) throw new DisplayableException("error.notEnoughFunds");
 
     if (!user.getCommunityId().equals(beneficiary.getCommunityId())) throw new BadRequestException();
 

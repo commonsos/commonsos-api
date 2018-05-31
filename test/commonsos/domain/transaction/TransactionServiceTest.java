@@ -107,7 +107,7 @@ public class TransactionServiceTest {
     when(adService.isPayableByUser(user, ad)).thenReturn(true);
     DisplayableException thrown = catchThrowableOfType(() -> service.create(user, command), DisplayableException.class);
 
-    assertThat(thrown).hasMessage("Not enough funds");
+    assertThat(thrown).hasMessage("error.notEnoughFunds");
   }
 
   @Test(expected = BadRequestException.class)
