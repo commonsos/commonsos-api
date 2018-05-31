@@ -17,7 +17,6 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.ReadonlyTransactionManager;
-import org.web3j.tx.Transfer;
 import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.utils.Files;
 import org.web3j.utils.Numeric;
@@ -38,7 +37,6 @@ import static commonsos.domain.blockchain.TokenERC20.FUNC_TRANSFERFROM;
 import static java.lang.String.format;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.TEN;
-import static org.web3j.utils.Convert.Unit.WEI;
 
 @Singleton
 @Slf4j
@@ -191,8 +189,12 @@ public class BlockchainService {
   }
 
   public void transferEther(User remitter, String beneficiaryAddress, BigInteger amount) {
-    log.info(String.format("transferEther %d to %s", amount, beneficiaryAddress));
     Credentials credentials = credentials(remitter.getWallet(), WALLET_PASSWORD);
+    transferEther(credentials, beneficiaryAddress, amount);
+  }
+
+  public void transferEther(Credentials credentials, String beneficiaryAddress, BigInteger amount) {
+    log.info(String.format("transferEther %d to %s", amount, beneficiaryAddress));
     TransactionReceipt receipt = sendEther(credentials, beneficiaryAddress, amount);
     if (!receipt.isStatusOK()) throw new RuntimeException("Ether transaction " + receipt.getTransactionHash() + " failed");
     log.info(String.format("Ether transaction receipt received for %s, gas used %d", receipt.getTransactionHash(), receipt.getGasUsed()));
@@ -221,16 +223,6 @@ public class BlockchainService {
     return handleBlockchainException(() -> {
       PollingTransactionReceiptProcessor receiptProcessor = new PollingTransactionReceiptProcessor(web3j, 1000, 300);
       return receiptProcessor.waitForTransactionReceipt(hash);
-    });
-  }
-
-  @Deprecated
-  public void transferEther(Credentials remitter, String beneficiaryWalletAddress, BigInteger amount) {
-    handleBlockchainException(() -> {
-      log.info(format("Creating ether transaction from %s to %s amount %d", remitter.getAddress(), beneficiaryWalletAddress, amount));
-      TransactionReceipt transactionReceipt = Transfer.sendFunds(web3j, remitter, beneficiaryWalletAddress, new BigDecimal(amount), WEI).send();
-      log.info("Ether transaction complete, id = " + transactionReceipt.getTransactionHash());
-      return null;
     });
   }
 
