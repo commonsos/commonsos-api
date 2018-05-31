@@ -83,8 +83,7 @@ public class BlockchainService {
     try {
       WalletFile walletFile = objectMapper.readValue(wallet, WalletFile.class);
       ECKeyPair keyPair = Wallet.decrypt(password, walletFile);
-      Credentials credentials = Credentials.create(keyPair);
-      return credentials;
+      return Credentials.create(keyPair);
     }
     catch (Exception e) {
       throw new RuntimeException();
@@ -249,7 +248,6 @@ public class BlockchainService {
 
   String deploy(Credentials credentials, String symbol, String name) throws Exception {
     TokenERC20 token = TokenERC20.deploy(web3j, credentials, GAS_PRICE, TOKEN_DEPLOYMENT_GAS_LIMIT, INITIAL_TOKEN_AMOUNT, name, symbol).send();
-    System.out.println(token.balanceOf(credentials.getAddress()).send() + " " + token.symbol().send());
     return token.getContractAddress();
   }
 
