@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.Request;
@@ -27,44 +26,38 @@ public class NonceProviderTest {
 
   @Test
   public void nonceFor_readsInitialValueFromNetwork() throws IOException {
-    Credentials credentials = credentials("address");
-
     Request request = buildResponseWith("99");
 
     when(web3j.ethGetTransactionCount("address", DefaultBlockParameterName.LATEST)).thenReturn(request);
 
-    assertThat(provider.nonceFor(credentials)).isEqualTo(99);
+    assertThat(provider.nonceFor("address")).isEqualTo(99);
   }
 
   @Test
   public void nonceFor_areSequential() throws IOException {
-    Credentials credentials = credentials("address");
     Request request = buildResponseWith("99");
 
     when(web3j.ethGetTransactionCount("address", DefaultBlockParameterName.LATEST)).thenReturn(request);
 
-    assertThat(provider.nonceFor(credentials)).isEqualTo(99);
-    assertThat(provider.nonceFor(credentials)).isEqualTo(100);
-    assertThat(provider.nonceFor(credentials)).isEqualTo(101);
+    assertThat(provider.nonceFor("address")).isEqualTo(99);
+    assertThat(provider.nonceFor("address")).isEqualTo(100);
+    assertThat(provider.nonceFor("address")).isEqualTo(101);
   }
 
   @Test
   public void nonceFor_addressesHaveSeparateNonces() throws IOException {
-    Credentials credentials1 = credentials("address1");
-    Credentials credentials2 = credentials("address2");
-
     Request request = buildResponseWith("99");
 
     when(web3j.ethGetTransactionCount("address1", DefaultBlockParameterName.LATEST)).thenReturn(request);
     when(web3j.ethGetTransactionCount("address2", DefaultBlockParameterName.LATEST)).thenReturn(request);
 
-    assertThat(provider.nonceFor(credentials1)).isEqualTo(99);
-    assertThat(provider.nonceFor(credentials1)).isEqualTo(100);
+    assertThat(provider.nonceFor("address1")).isEqualTo(99);
+    assertThat(provider.nonceFor("address1")).isEqualTo(100);
 
-    assertThat(provider.nonceFor(credentials2)).isEqualTo(99);
-    assertThat(provider.nonceFor(credentials2)).isEqualTo(100);
+    assertThat(provider.nonceFor("address2")).isEqualTo(99);
+    assertThat(provider.nonceFor("address2")).isEqualTo(100);
 
-    assertThat(provider.nonceFor(credentials1)).isEqualTo(101);
+    assertThat(provider.nonceFor("address1")).isEqualTo(101);
   }
 
   private Request buildResponseWith(String transactionCount) throws IOException {
@@ -74,11 +67,4 @@ public class NonceProviderTest {
     when(request.send()).thenReturn(response);
     return request;
   }
-
-  private Credentials credentials(String address) {
-    Credentials credentials = mock(Credentials.class);
-    when(credentials.getAddress()).thenReturn(address);
-    return credentials;
-  }
-
 }

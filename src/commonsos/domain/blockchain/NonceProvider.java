@@ -1,7 +1,6 @@
 package commonsos.domain.blockchain;
 
 import lombok.extern.slf4j.Slf4j;
-import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
@@ -25,9 +24,7 @@ public class NonceProvider {
 
   private ConcurrentMap<String, AtomicLong> userNonce = new ConcurrentHashMap();
 
-  BigInteger nonceFor(Credentials credentials) {
-    String address = credentials.getAddress();
-
+  BigInteger nonceFor(String address) {
     userNonce.computeIfAbsent(address, networkNonceProvider());
 
     long nonce = userNonce.get(address).getAndIncrement();
