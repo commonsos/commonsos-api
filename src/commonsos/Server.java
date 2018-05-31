@@ -63,7 +63,7 @@ public class Server {
     before(new LogFilter());
     before((request, response) -> log.info(requestInfo(request)));
     before(new CSRFFilter(asList("/login", "/logout", "/create-account")));
-    before(new AuthenticationFilter(asList("/login", "/create-account", "/communities")));
+    before(new AuthenticationFilter(asList("/login", "/logout", "/create-account", "/communities")));
 
     post("/login", injector.getInstance(LoginController.class), toJson);
     post("/create-account", injector.getInstance(AccountCreateController.class), toJson);

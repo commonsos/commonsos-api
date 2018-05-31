@@ -15,7 +15,7 @@ public class LogoutControllerTest {
   public void logout() {
     when(request.session(false)).thenReturn(session);
 
-    new LogoutController().handle(null, request, null);
+    new LogoutController().handle(request, null);
 
     verify(session).invalidate();
   }
@@ -24,6 +24,6 @@ public class LogoutControllerTest {
   public void logout_sessionNotPresent() {
     when(request.session(false)).thenReturn(null);
 
-    new LogoutController().handle(null, request, null);
+    new LogoutController().handle(request, null);
   }
 }
