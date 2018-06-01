@@ -125,4 +125,9 @@ public class UserService {
     if (!user.isAdmin()) throw new ForbiddenException();
     return repository.search(user.getCommunityId(), query).stream().map(this::view).collect(toList());
   }
+
+  public void setAvatar(User user, String url) {
+    user.setAvatarUrl(url);
+    repository.update(user);
+  }
 }

@@ -279,4 +279,14 @@ public class UserServiceTest {
 
     assertThat(result).isEqualTo(admin);
   }
+
+  @Test
+  public void setAvatar() {
+    User user = new User();
+
+    service.setAvatar(user, "/url");
+
+    assertThat(user.getAvatarUrl()).isEqualTo("/url");
+    verify(repository).update(user);
+  }
 }
