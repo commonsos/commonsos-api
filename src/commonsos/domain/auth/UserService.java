@@ -12,6 +12,7 @@ import org.web3j.crypto.Credentials;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -28,6 +29,7 @@ public class UserService {
   @Inject TransactionService transactionService;
   @Inject PasswordService passwordService;
   @Inject CommunityService communityService;
+  @Inject ImageService imageService;
 
   public User checkPassword(String username, String password) {
     User user = repository.findByUsername(username).orElseThrow(AuthenticationException::new);
@@ -126,7 +128,9 @@ public class UserService {
     return repository.search(user.getCommunityId(), query).stream().map(this::view).collect(toList());
   }
 
-  public void setAvatar(User user, String url) {
+  public void updateAvatar(User user, InputStream image) {
+    String url = imageService.create(image);
+    imageService.delete(user.getAvatarUrl());
     user.setAvatarUrl(url);
     repository.update(user);
   }

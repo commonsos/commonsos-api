@@ -37,7 +37,7 @@ public class ImageService {
       .build();
   }
 
-  public String upload(InputStream inputStream) {
+  public String create(InputStream inputStream) {
     String filename = UUID.randomUUID().toString();
     metadata();
     s3client.putObject(new PutObjectRequest(BUCKET_NAME, filename, inputStream, null)
@@ -52,7 +52,7 @@ public class ImageService {
     return objectMetadata;
   }
 
-  private void delete(String url) {
+  public void delete(String url) {
     s3client.deleteObject(BUCKET_NAME, url.substring(url.lastIndexOf('/') + 1));
   }
 }

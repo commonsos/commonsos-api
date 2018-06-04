@@ -16,6 +16,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.web3j.crypto.Credentials;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class UserServiceTest {
   @Mock PasswordService passwordService;
   @Mock BlockchainService blockchainService;
   @Mock CommunityService communityService;
+  @Mock ImageService imageService;
   @InjectMocks @Spy UserService service;
 
   @Test
@@ -281,12 +283,15 @@ public class UserServiceTest {
   }
 
   @Test
-  public void setAvatar() {
-    User user = new User();
+  public void updateAvatar() {
+    User user = new User().setAvatarUrl("/old");
+    ByteArrayInputStream image = new ByteArrayInputStream(new byte[] {1, 2, 3});
+    when(imageService.create(image)).thenReturn("/url");
 
-    service.setAvatar(user, "/url");
+    service.updateAvatar(user, image);
 
     assertThat(user.getAvatarUrl()).isEqualTo("/url");
     verify(repository).update(user);
+    verify(imageService).delete("/old");
   }
 }
