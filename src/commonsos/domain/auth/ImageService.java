@@ -21,14 +21,14 @@ import java.util.UUID;
 @Slf4j
 public class ImageService {
 
-  static final String BUCKET_NAME = "commonsos-app";
-
-  AWSCredentials credentials;
-  AmazonS3 s3client;
+  private AWSCredentials credentials;
+  private AmazonS3 s3client;
+  private String bucketName;
 
   @Inject Configuration config;
 
   @Inject void init() {
+    bucketName = config.awsS3BucketName();
     credentials = new BasicAWSCredentials(config.awsAccessKey(), config.awsSecurityKey());
     s3client = AmazonS3ClientBuilder
       .standard()
@@ -40,10 +40,10 @@ public class ImageService {
   public String create(InputStream inputStream) {
     String filename = UUID.randomUUID().toString();
     metadata();
-    s3client.putObject(new PutObjectRequest(BUCKET_NAME, filename, inputStream, null)
+    s3client.putObject(new PutObjectRequest(bucketName, filename, inputStream, null)
       .withMetadata(metadata())
       .withCannedAcl(CannedAccessControlList.PublicRead));
-    return "https://s3-us-east-2.amazonaws.com/" + BUCKET_NAME + "/" + filename;
+    return "https://s3-us-east-2.amazonaws.com/" + bucketName + "/" + filename;
   }
 
   private ObjectMetadata metadata() {
@@ -54,6 +54,6 @@ public class ImageService {
   }
 
   public void delete(String url) {
-    s3client.deleteObject(BUCKET_NAME, url.substring(url.lastIndexOf('/') + 1));
+    s3client.deleteObject(bucketName, url.substring(url.lastIndexOf('/') + 1));
   }
 }

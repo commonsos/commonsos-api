@@ -25,8 +25,20 @@ public class ConfigurationTest {
     assertThat(configuration.awsSecurityKey()).isEqualTo("value2");
   }
 
+  @Test
+  public void awwS3BucketName() {
+    doReturn("value3").when(configuration).environmentVariable("AWS_S3_BUCKET_NAME", "commonsos-app");
+
+    assertThat(configuration.awsS3BucketName()).isEqualTo("value3");
+  }
+
   @Test(expected = RuntimeException.class)
   public void environmentVariable_notFound() {
     configuration.environmentVariable("RANDOM_KEY");
+  }
+
+  @Test
+  public void environmentVariable_usesDefault() {
+    assertThat(configuration.environmentVariable("RANDOM_KEY", "value4")).isEqualTo("value4");
   }
 }
