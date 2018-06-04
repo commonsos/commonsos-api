@@ -39,7 +39,6 @@ public class ImageService {
 
   public String create(InputStream inputStream) {
     String filename = UUID.randomUUID().toString();
-    metadata();
     s3client.putObject(new PutObjectRequest(bucketName, filename, inputStream, null)
       .withMetadata(metadata())
       .withCannedAcl(CannedAccessControlList.PublicRead));
