@@ -49,6 +49,7 @@ public class ImageService {
   private ObjectMetadata metadata() {
     ObjectMetadata objectMetadata = new ObjectMetadata();
     objectMetadata.setContentType("image");
+    objectMetadata.setCacheControl("public, max-age=3600000");
     return objectMetadata;
   }
 
