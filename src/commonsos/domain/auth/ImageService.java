@@ -23,15 +23,19 @@ public class ImageService {
 
   static final String BUCKET_NAME = "commonsos-app";
 
+  AWSCredentials credentials;
+  AmazonS3 s3client;
+
   @Inject Configuration config;
 
-  AWSCredentials credentials = new BasicAWSCredentials(config.awsAccessKey(), config.awsSecurityKey());
-
-  AmazonS3 s3client = AmazonS3ClientBuilder
-    .standard()
-    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-    .withRegion(Regions.US_EAST_2)
-    .build();
+  @Inject void init() {
+    credentials = new BasicAWSCredentials(config.awsAccessKey(), config.awsSecurityKey());
+    s3client = AmazonS3ClientBuilder
+      .standard()
+      .withCredentials(new AWSStaticCredentialsProvider(credentials))
+      .withRegion(Regions.US_EAST_2)
+      .build();
+  }
 
   public String upload(InputStream inputStream) {
     String filename = UUID.randomUUID().toString();
