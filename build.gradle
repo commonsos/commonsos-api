@@ -37,6 +37,8 @@ dependencies {
   compile 'org.flywaydb:flyway-core:5.0.7'
   compile 'org.postgresql:postgresql:42.2.2'
 
+  compile 'com.amazonaws:aws-java-sdk-s3:1.11.338'
+
   compile 'org.web3j:core:3.4.0'
 
   testCompile 'junit:junit:4.12'

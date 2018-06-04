@@ -11,6 +11,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import spark.Request;
 import spark.Session;
 
+import java.io.ByteArrayInputStream;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +30,7 @@ public class ProfilePhotoUploadControllerTest {
   public void handle() {
     when(request.session()).thenReturn(session);
     when(request.body()).thenReturn("data:image/png;base64,QUJD");
-    when(imageService.uploadImage("ABC".getBytes())).thenReturn("/url");
+    when(imageService.upload(new ByteArrayInputStream("ABC".getBytes()))).thenReturn("/url");
 
     controller.handle(user, request, null);
 

@@ -9,9 +9,8 @@ import spark.Request;
 import spark.Response;
 
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
 import java.util.Base64;
-
-import static commonsos.controller.auth.LoginController.USER_SESSION_ATTRIBUTE_NAME;
 
 @Slf4j
 public class ProfilePhotoUploadController extends Controller {
@@ -22,10 +21,8 @@ public class ProfilePhotoUploadController extends Controller {
   @Override public Object handle(User user, Request request, Response response) {
     byte[] bytes = decodeImage(request);
 
-    String url = imageService.uploadImage(bytes);
+    String url = imageService.upload(new ByteArrayInputStream(bytes));
     userService.setAvatar(user, url);
-
-    request.session().attribute(USER_SESSION_ATTRIBUTE_NAME, user);
     return "";
   }
 
