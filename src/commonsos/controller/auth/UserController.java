@@ -13,7 +13,7 @@ import static spark.utils.StringUtils.isNotBlank;
 
 public class UserController extends Controller {
 
-  @Inject UserService userService;
+  @Inject private UserService userService;
 
   @Override public Object handle(User user, Request request, Response response) {
     if (isNotBlank(request.params("id"))) {

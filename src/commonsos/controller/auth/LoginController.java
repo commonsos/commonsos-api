@@ -3,6 +3,7 @@ package commonsos.controller.auth;
 import com.google.gson.Gson;
 import commonsos.CSRF;
 import commonsos.LogFilter;
+import commonsos.UserSession;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserPrivateView;
 import commonsos.domain.auth.UserService;
@@ -25,10 +26,10 @@ public class LoginController implements Route {
     Map map = gson.fromJson(request.body(), Map.class);
 
     User user = userService.checkPassword(String.valueOf(map.get("username")), String.valueOf(map.get("password")));
-    request.session().attribute(USER_SESSION_ATTRIBUTE_NAME, user);
+    UserSession userSession = new UserSession().setUserId(user.getId()).setUsername(user.getUsername());
+    request.session().attribute(USER_SESSION_ATTRIBUTE_NAME, userSession);
     MDC.put(LogFilter.USERNAME_MDC_KEY, user.getUsername());
     csrf.setToken(request, response);
     return userService.privateView(user);
   }
-
 }

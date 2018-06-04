@@ -1,6 +1,5 @@
 package commonsos;
 
-import commonsos.domain.auth.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.MDC;
@@ -50,7 +49,7 @@ public class LogFilterTest {
 
   @Test
   public void userName() throws Exception {
-    when(session.attribute(USER_SESSION_ATTRIBUTE_NAME)).thenReturn(new User().setUsername("john"));
+    when(session.attribute(USER_SESSION_ATTRIBUTE_NAME)).thenReturn(new UserSession().setUsername("john"));
     filter.handle(request, response);
 
     assertThat(MDC.get("username")).isEqualTo("john");
