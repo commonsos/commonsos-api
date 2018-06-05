@@ -1,6 +1,7 @@
 package commonsos.domain.auth;
 
 import commonsos.*;
+import commonsos.controller.auth.DelegateWalletTask;
 import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityService;
@@ -35,6 +36,7 @@ public class UserServiceTest {
   @Mock BlockchainService blockchainService;
   @Mock CommunityService communityService;
   @Mock ImageService imageService;
+  @Mock JobService jobsService;
   @InjectMocks @Spy UserService service;
 
   @Test
@@ -124,6 +126,7 @@ public class UserServiceTest {
 
   @Test
   public void create() {
+    when(blockchainService.isConnected()).thenReturn(true);
     Community community = new Community().setId(id("community"));
     when(communityService.community(id("community"))).thenReturn(community);
     when(repository.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -157,12 +160,22 @@ public class UserServiceTest {
       .setCommunityId(id("community"));
 
     assertThat(result).isEqualTo(expectedUser);
-    verify(blockchainService).delegateUser(expectedUser, communityAdmin);
     verify(repository).create(expectedUser);
+    verify(jobsService).submit(result, new DelegateWalletTask(result, communityAdmin));
+  }
+
+  @Test
+  public void create_failFastIfBlockchainIsDown() {
+    AccountCreateCommand command = new AccountCreateCommand();
+    doNothing().when(service).validate(command);
+    RuntimeException thrown = catchThrowableOfType(() -> service.create(command), RuntimeException.class);
+
+    assertThat(thrown).hasMessage("Cannot create user, technical error with blockchain");
   }
 
   @Test(expected = BadRequestException.class)
   public void create_unknownCommunity() {
+    when(blockchainService.isConnected()).thenReturn(true);
     when(communityService.community(23L)).thenThrow(BadRequestException.class);
 
     service.create(new AccountCreateCommand()
@@ -178,6 +191,7 @@ public class UserServiceTest {
 
   @Test
   public void create_communityIsOptional() {
+    when(blockchainService.isConnected()).thenReturn(true);
     User createdUser = new User();
     when(repository.create(any())).thenReturn(createdUser);
     when(passwordService.hash("secret78")).thenReturn("hash");
@@ -199,6 +213,7 @@ public class UserServiceTest {
 
   @Test
   public void create_usernameAlreadyTaken() {
+    when(blockchainService.isConnected()).thenReturn(true);
     when(repository.findByUsername("worker")).thenReturn(Optional.of(new User()));
     AccountCreateCommand command = validCommand();
 

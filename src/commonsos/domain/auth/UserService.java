@@ -1,32 +1,35 @@
 package commonsos.domain.auth;
 
 import commonsos.*;
+import commonsos.controller.auth.DelegateWalletTask;
 import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityService;
 import commonsos.domain.transaction.TransactionService;
+import lombok.extern.slf4j.Slf4j;
 import org.web3j.crypto.Credentials;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 
-import static commonsos.domain.blockchain.BlockchainService.GAS_PRICE;
-import static commonsos.domain.blockchain.BlockchainService.TOKEN_TRANSFER_GAS_LIMIT;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
+@Slf4j
 public class UserService {
   public static final String WALLET_PASSWORD = "test";
+
   @Inject UserRepository repository;
   @Inject BlockchainService blockchainService;
   @Inject TransactionService transactionService;
   @Inject PasswordService passwordService;
   @Inject CommunityService communityService;
   @Inject ImageService imageService;
+  @Inject JobService jobService;
+
 
   public User checkPassword(String username, String password) {
     User user = repository.findByUsername(username).orElseThrow(AuthenticationException::new);
@@ -58,6 +61,7 @@ public class UserService {
 
   public User create(AccountCreateCommand command) {
     validate(command);
+    if (!blockchainService.isConnected()) throw new RuntimeException("Cannot create user, technical error with blockchain");
     Community community = null;
     if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("error.usernameTaken");
     if (command.getCommunityId() != null) {
@@ -81,8 +85,7 @@ public class UserService {
 
     if (community != null) {
       User admin = walletUser(community);
-      blockchainService.transferEther(admin, user.getWalletAddress(), TOKEN_TRANSFER_GAS_LIMIT.multiply(BigInteger.TEN).multiply(GAS_PRICE));
-      blockchainService.delegateUser(user, admin);
+      jobService.submit(user, new DelegateWalletTask(user, admin));
     }
 
     return repository.create(user);
@@ -96,7 +99,7 @@ public class UserService {
     return communityService.community(command.getCommunityId());
   }
 
-  private void validate(AccountCreateCommand command) {
+  void validate(AccountCreateCommand command) {
     if (command.getUsername() == null || command.getUsername().length() < 4) throw new BadRequestException();
     if (command.getPassword() == null || command.getPassword().length() < 8) throw new BadRequestException();
     if (command.getFirstName() == null || command.getFirstName().length() < 1) throw new BadRequestException();

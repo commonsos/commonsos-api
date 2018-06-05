@@ -58,6 +58,17 @@ public class BlockchainService {
   @Inject Web3j web3j;
   @Inject NonceProvider nonceProvider;
 
+  public boolean isConnected() {
+    try {
+      web3j.ethBlockNumber().send();
+      return true;
+    }
+    catch (Exception e) {
+      log.warn("Blockchain error "+ e.getMessage());
+      return false;
+    }
+  }
+
   public String createWallet(String password) {
     File filePath = null;
     try {
@@ -265,11 +276,11 @@ public class BlockchainService {
     }
   }
 
-  public void delegateUser(User user, User delegated) {
+  public void delegateTokenTransferRight(User walletOwner, User delegate) {
     try {
-      TokenERC20 token = userCommunityToken(user);
-      TransactionReceipt receipt = token.approve(delegated.getWalletAddress(), INITIAL_TOKEN_AMOUNT).send();
-      log.info(format("Wallet %s delegated %s. Gas used %d", user.getWalletAddress(), delegated.getWalletAddress(), receipt.getGasUsed()));
+      TokenERC20 token = userCommunityToken(walletOwner);
+      TransactionReceipt receipt = token.approve(delegate.getWalletAddress(), INITIAL_TOKEN_AMOUNT).send();
+      log.info(format("Wallet %s delegated %s. Gas used %d", walletOwner.getWalletAddress(), delegate.getWalletAddress(), receipt.getGasUsed()));
     }
     catch (Exception e) {
       throw new RuntimeException(e);
