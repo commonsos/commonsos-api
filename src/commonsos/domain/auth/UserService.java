@@ -127,7 +127,9 @@ public class UserService {
 
   public void updateAvatar(User user, InputStream image) {
     String url = imageService.create(image);
-    imageService.delete(user.getAvatarUrl());
+    if (user.getAvatarUrl() != null) {
+      imageService.delete(user.getAvatarUrl());
+    }
     user.setAvatarUrl(url);
     repository.update(user);
   }

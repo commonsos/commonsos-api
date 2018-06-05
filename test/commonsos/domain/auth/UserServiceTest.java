@@ -293,6 +293,19 @@ public class UserServiceTest {
   }
 
   @Test
+  public void updateAvatar_userHasNoAvatarYet() {
+    User user = new User().setAvatarUrl(null);
+    ByteArrayInputStream image = new ByteArrayInputStream(new byte[] {1, 2, 3});
+    when(imageService.create(image)).thenReturn("/url");
+
+    service.updateAvatar(user, image);
+
+    assertThat(user.getAvatarUrl()).isEqualTo("/url");
+    verify(repository).update(user);
+    verify(imageService, never()).delete(any());
+  }
+
+  @Test
   public void userSession() {
     User user = new User().setId(id("user id")).setUsername("user name");
 
