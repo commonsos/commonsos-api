@@ -1,8 +1,8 @@
 package commonsos;
 
-import commonsos.domain.ad.Ad;
 import commonsos.domain.ad.AdCreateCommand;
 import commonsos.domain.ad.AdService;
+import commonsos.domain.ad.AdView;
 import commonsos.domain.auth.AccountCreateCommand;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserRepository;
@@ -128,7 +128,7 @@ public class DemoData {
       transactionService.create(admin, new TransactionCreateCommand().setAmount(new BigDecimal("2000")).setBeneficiaryId(elderly2.getId()).setDescription("Funds from municipality"))
     );
 
-    Ad workerAd = emService.runInTransaction(() -> adService.create(worker, new AdCreateCommand()
+    AdView workerAd = emService.runInTransaction(() -> adService.create(worker, new AdCreateCommand()
       .setType(GIVE)
       .setTitle("House cleaning")
       .setDescription("Vacuum cleaning, moist cleaning, floors etc")
@@ -137,7 +137,7 @@ public class DemoData {
       .setPhotoUrl("/static/temp/sample-photo-apartment1.jpg"))
     );
 
-    Ad elderly1Ad = emService.runInTransaction(() -> adService.create(elderly1, new AdCreateCommand()
+    AdView elderly1Ad = emService.runInTransaction(() -> adService.create(elderly1, new AdCreateCommand()
       .setType(WANT)
       .setTitle("Shopping agent")
       .setDescription("Thank you for reading this article. I had traffic accident last year and chronic pain on left leg\uD83D\uDE22 I want anyone to help me by going shopping to a grocery shop once a week.")
@@ -146,7 +146,7 @@ public class DemoData {
       .setPhotoUrl("/static/temp/shop.jpeg")
     ));
 
-    Ad elderly2Ad = emService.runInTransaction(() -> adService.create(elderly2, new AdCreateCommand()
+    AdView elderly2Ad = emService.runInTransaction(() -> adService.create(elderly2, new AdCreateCommand()
       .setType(WANT)
       .setTitle("小川くん、醤油かってきて")
       .setDescription("刺し身買ってきたから")

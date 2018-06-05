@@ -22,7 +22,7 @@ public class AdService {
   @Inject UserService userService;
   @Inject ImageService imageService;
 
-  public Ad create(User user, AdCreateCommand command) {
+  public AdView create(User user, AdCreateCommand command) {
     Ad ad = new Ad()
       .setCreatedBy(user.getId())
       .setCreatedAt(now())
@@ -34,7 +34,7 @@ public class AdService {
       .setPhotoUrl(command.getPhotoUrl())
       .setCommunityId(user.getCommunityId());
 
-    return repository.create(ad);
+    return view(repository.create(ad), user);
   }
 
   public List<AdView> listFor(User user) {

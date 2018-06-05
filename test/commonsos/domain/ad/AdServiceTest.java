@@ -46,10 +46,15 @@ public class AdServiceTest {
       .setLocation("location")
       .setType(WANT)
       .setPhotoUrl("url://photo");
+    User user = new User().setId(id("user id")).setCommunityId(id("community id"));
+    Ad createdAd = new Ad();
+    when(repository.create(adCaptor.capture())).thenReturn(createdAd);
+    AdView adView = new AdView();
+    doReturn(adView).when(service).view(createdAd, user);
 
-    service.create(new User().setId(id("user id")).setCommunityId(id("community id")), command);
+    AdView result = service.create(user, command);
 
-    verify(repository).create(adCaptor.capture());
+    assertThat(result).isEqualTo(adView);
     Ad ad = adCaptor.getValue();
     assertThat(ad.getCreatedBy()).isEqualTo(id("user id"));
     assertThat(ad.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
