@@ -17,9 +17,8 @@ public class UserAvatarUpdateController extends Controller {
 
   @Inject UserService userService;
 
-  @Override public Object handle(User user, Request request, Response response) {
-    userService.updateAvatar(user, image(request));
-    return "";
+  @Override public String handle(User user, Request request, Response response) {
+    return userService.updateAvatar(user, image(request));
   }
 
   InputStream image(Request request) {

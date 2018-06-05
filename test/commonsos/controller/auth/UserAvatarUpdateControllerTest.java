@@ -14,7 +14,6 @@ import java.io.ByteArrayInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,10 +28,11 @@ public class UserAvatarUpdateControllerTest {
   public void handle() {
     when(request.body()).thenReturn("data:image/png;base64,QUJD");
     ArgumentCaptor<ByteArrayInputStream> streamArgument = ArgumentCaptor.forClass(ByteArrayInputStream.class);
-    doNothing().when(userService).updateAvatar(eq(user), streamArgument.capture());
+    when(userService.updateAvatar(eq(user), streamArgument.capture())).thenReturn("/url");
 
-    controller.handle(user, request, null);
+    String result = controller.handle(user, request, null);
 
+    assertThat(result).isEqualTo("/url");
     assertThat(streamArgument.getValue()).hasSameContentAs(new ByteArrayInputStream("ABC".getBytes()));
   }
 }

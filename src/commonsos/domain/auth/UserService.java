@@ -125,13 +125,14 @@ public class UserService {
     return repository.search(user.getCommunityId(), query).stream().map(this::view).collect(toList());
   }
 
-  public void updateAvatar(User user, InputStream image) {
+  public String updateAvatar(User user, InputStream image) {
     String url = imageService.create(image);
     if (user.getAvatarUrl() != null) {
       imageService.delete(user.getAvatarUrl());
     }
     user.setAvatarUrl(url);
     repository.update(user);
+    return url;
   }
 
   public UserSession session(User user) {

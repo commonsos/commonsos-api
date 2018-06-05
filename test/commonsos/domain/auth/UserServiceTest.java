@@ -285,8 +285,9 @@ public class UserServiceTest {
     ByteArrayInputStream image = new ByteArrayInputStream(new byte[] {1, 2, 3});
     when(imageService.create(image)).thenReturn("/url");
 
-    service.updateAvatar(user, image);
+    String result = service.updateAvatar(user, image);
 
+    assertThat(result).isEqualTo("/url");
     assertThat(user.getAvatarUrl()).isEqualTo("/url");
     verify(repository).update(user);
     verify(imageService).delete("/old");
@@ -298,8 +299,9 @@ public class UserServiceTest {
     ByteArrayInputStream image = new ByteArrayInputStream(new byte[] {1, 2, 3});
     when(imageService.create(image)).thenReturn("/url");
 
-    service.updateAvatar(user, image);
+    String result = service.updateAvatar(user, image);
 
+    assertThat(result).isEqualTo("/url");
     assertThat(user.getAvatarUrl()).isEqualTo("/url");
     verify(repository).update(user);
     verify(imageService, never()).delete(any());
