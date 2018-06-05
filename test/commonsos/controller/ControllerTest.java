@@ -13,8 +13,12 @@ import spark.Request;
 import spark.Response;
 import spark.Session;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import static commonsos.TestId.id;
 import static commonsos.controller.auth.LoginController.USER_SESSION_ATTRIBUTE_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,8 +43,16 @@ public class ControllerTest {
     verify(controller).handle(user, request, response);
   }
 
-  private static class SampleController extends Controller {
+  @Test
+  public void image() {
+    when(request.body()).thenReturn("data:image/png;base64,QUJD");
 
+    InputStream result = controller.image(request);
+
+    assertThat(result).hasSameContentAs(new ByteArrayInputStream("ABC".getBytes()));
+  }
+
+  private static class SampleController extends Controller {
     @Override protected Object handle(User user, Request request, Response response) {
       return null;
     }

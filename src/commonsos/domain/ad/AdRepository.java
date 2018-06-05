@@ -31,4 +31,9 @@ public class AdRepository extends Repository {
   public Optional<Ad> find(Long id) {
     return ofNullable(em().find(Ad.class, id));
   }
+
+  public Ad update(Ad ad) {
+    em().merge(ad);
+    return ad;
+  }
 }

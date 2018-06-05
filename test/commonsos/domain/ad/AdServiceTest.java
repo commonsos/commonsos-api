@@ -1,6 +1,8 @@
 package commonsos.domain.ad;
 
 import commonsos.BadRequestException;
+import commonsos.ForbiddenException;
+import commonsos.domain.auth.ImageService;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
@@ -9,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +23,7 @@ import static java.math.BigDecimal.*;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.mockito.Mockito.*;
@@ -29,6 +33,7 @@ public class AdServiceTest {
 
   @Mock AdRepository repository;
   @Mock UserService userService;
+  @Mock ImageService imageService;
   @Captor ArgumentCaptor<Ad> adCaptor;
   @InjectMocks @Spy AdService service;
 
@@ -152,7 +157,7 @@ public class AdServiceTest {
 
   @Test(expected=BadRequestException.class)
   public void ad_notFound() {
-    when(repository.find(id("ad id"))).thenReturn(Optional.empty());
+    when(repository.find(id("ad id"))).thenReturn(empty());
 
     service.ad(id("ad id"));
   }
@@ -168,5 +173,53 @@ public class AdServiceTest {
     AdView result = service.view(user, id("ad id"));
 
     assertThat(result).isEqualTo(adView);
+  }
+
+  @Test
+  public void updatePhoto() {
+    User user = new User().setId(id("creator id"));
+    InputStream photo = mock(InputStream.class);
+    when(imageService.create(photo)).thenReturn("/url");
+    Ad ad = new Ad().setCreatedBy(id("creator id")).setPhotoUrl("/old");
+    when(repository.find(id("ad id"))).thenReturn(Optional.of(ad));
+
+    String result = service.updatePhoto(user, new AdPhotoUpdateCommand().setAdId(id("ad id")).setPhoto(photo));
+
+    assertThat(result).isEqualTo("/url");
+    assertThat(ad.getPhotoUrl()).isEqualTo("/url");
+    verify(imageService).delete("/old");
+    verify(repository).update(ad);
+  }
+
+ @Test
+  public void updatePhoto_adWithoutPhoto() {
+    User user = new User().setId(id("creator id"));
+    InputStream photo = mock(InputStream.class);
+    when(imageService.create(photo)).thenReturn("/url");
+    Ad ad = new Ad().setCreatedBy(id("creator id")).setPhotoUrl(null);
+    when(repository.find(id("ad id"))).thenReturn(Optional.of(ad));
+
+    String result = service.updatePhoto(user, new AdPhotoUpdateCommand().setAdId(id("ad id")).setPhoto(photo));
+
+    assertThat(result).isEqualTo("/url");
+    assertThat(ad.getPhotoUrl()).isEqualTo("/url");
+    verify(imageService, never()).delete(any());
+    verify(repository).update(ad);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void updatePhoto_requiresCreatorUser() {
+    User user = new User().setId(id("other user id"));
+    Ad ad = new Ad().setCreatedBy(id("creator user id"));
+    when(repository.find(id("ad id"))).thenReturn(Optional.of(ad));
+
+    service.updatePhoto(user, new AdPhotoUpdateCommand().setAdId(id("ad id")));
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void updatePhoto_adNotFound() {
+    when(repository.find(id("ad id"))).thenReturn(empty());
+
+    service.updatePhoto(new User(), new AdPhotoUpdateCommand().setAdId(id("ad id")));
   }
 }

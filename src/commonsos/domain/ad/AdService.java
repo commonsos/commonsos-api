@@ -1,6 +1,8 @@
 package commonsos.domain.ad;
 
 import commonsos.BadRequestException;
+import commonsos.ForbiddenException;
+import commonsos.domain.auth.ImageService;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 
@@ -18,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 public class AdService {
   @Inject AdRepository repository;
   @Inject UserService userService;
+  @Inject ImageService imageService;
 
   public Ad create(User user, AdCreateCommand command) {
     Ad ad = new Ad()
@@ -74,5 +77,17 @@ public class AdService {
 
   public Ad ad(Long id) {
     return repository.find(id).orElseThrow(BadRequestException::new);
+  }
+
+  public String updatePhoto(User user, AdPhotoUpdateCommand command) {
+    Ad ad = repository.find(command.getAdId()).orElseThrow(BadRequestException::new);
+    if (!ad.getCreatedBy().equals(user.getId())) throw new ForbiddenException();
+    String url = imageService.create(command.getPhoto());
+    if (ad.getPhotoUrl() != null) {
+      imageService.delete(ad.getPhotoUrl());
+    }
+    ad.setPhotoUrl(url);
+    repository.update(ad);
+    return url;
   }
 }

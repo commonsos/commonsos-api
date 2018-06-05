@@ -8,6 +8,9 @@ import spark.Response;
 import spark.Route;
 
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Base64;
 
 import static commonsos.controller.auth.LoginController.USER_SESSION_ATTRIBUTE_NAME;
 
@@ -22,4 +25,9 @@ public abstract class Controller implements Route {
   }
 
   abstract protected Object handle(User user, Request request, Response response);
+
+  public InputStream image(Request request) {
+    String base64 = request.body().replaceFirst("data:image/.*;base64,", "");
+    return new ByteArrayInputStream(Base64.getDecoder().decode(base64));
+  }
 }

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.inject.*;
-import commonsos.controller.ad.AdController;
-import commonsos.controller.ad.AdCreateController;
-import commonsos.controller.ad.AdListController;
-import commonsos.controller.ad.MyAdsController;
+import commonsos.controller.ad.*;
 import commonsos.controller.admin.UserSearchController;
 import commonsos.controller.auth.*;
 import commonsos.controller.community.CommunityListController;
@@ -73,6 +70,7 @@ public class Server {
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
     get("/ads", injector.getInstance(AdListController.class), toJson);
     get("/ads/:id", injector.getInstance(AdController.class), toJson);
+    post("/ads/:id/photo", injector.getInstance(AdPhotoUpdateController.class), toJson);
     get("/my-ads", injector.getInstance(MyAdsController.class), toJson);
 
     get("/balance", injector.getInstance(BalanceController.class), toJson);
