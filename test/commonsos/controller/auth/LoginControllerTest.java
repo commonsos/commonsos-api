@@ -20,7 +20,6 @@ import spark.Response;
 import spark.Session;
 
 import static commonsos.LogFilter.USERNAME_MDC_KEY;
-import static commonsos.TestId.id;
 import static commonsos.controller.auth.LoginController.USER_SESSION_ATTRIBUTE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -44,16 +43,18 @@ public class LoginControllerTest {
 
   @Test
   public void handle() {
-    User user = new User().setUsername("john").setId(id("user"));
+    User user = new User().setUsername("john");
     when(service.checkPassword("john", "pwd")).thenReturn(user);
     when(request.body()).thenReturn("{\"username\": \"john\", \"password\": \"pwd\"}");
     UserPrivateView userView = new UserPrivateView();
     when(service.privateView(user)).thenReturn(userView);
+    UserSession userSession = new UserSession();
+    when(service.session(user)).thenReturn(userSession);
 
     UserPrivateView result = controller.handle(request, response);
 
     verify(csrf).setToken(request, response);
-    verify(session).attribute(USER_SESSION_ATTRIBUTE_NAME, new UserSession().setUserId(id("user")).setUsername("john"));
+    verify(session).attribute(USER_SESSION_ATTRIBUTE_NAME, userSession);
     assertThat(result).isSameAs(userView);
     assertThat(MDC.get(USERNAME_MDC_KEY)).isEqualTo("john");
   }

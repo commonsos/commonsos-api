@@ -1,9 +1,6 @@
 package commonsos.domain.auth;
 
-import commonsos.AuthenticationException;
-import commonsos.BadRequestException;
-import commonsos.DisplayableException;
-import commonsos.ForbiddenException;
+import commonsos.*;
 import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityService;
@@ -133,5 +130,9 @@ public class UserService {
     imageService.delete(user.getAvatarUrl());
     user.setAvatarUrl(url);
     repository.update(user);
+  }
+
+  public UserSession session(User user) {
+    return new UserSession().setUserId(user.getId()).setUsername(user.getUsername());
   }
 }

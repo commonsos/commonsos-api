@@ -1,9 +1,6 @@
 package commonsos.domain.auth;
 
-import commonsos.AuthenticationException;
-import commonsos.BadRequestException;
-import commonsos.DisplayableException;
-import commonsos.ForbiddenException;
+import commonsos.*;
 import commonsos.domain.blockchain.BlockchainService;
 import commonsos.domain.community.Community;
 import commonsos.domain.community.CommunityService;
@@ -293,5 +290,12 @@ public class UserServiceTest {
     assertThat(user.getAvatarUrl()).isEqualTo("/url");
     verify(repository).update(user);
     verify(imageService).delete("/old");
+  }
+
+  @Test
+  public void userSession() {
+    User user = new User().setId(id("user id")).setUsername("user name");
+
+    assertThat(service.session(user)).isEqualTo(new UserSession().setUserId(id("user id")).setUsername("user name"));
   }
 }
