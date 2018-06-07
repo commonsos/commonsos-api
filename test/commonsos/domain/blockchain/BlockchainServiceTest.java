@@ -15,10 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.web3j.crypto.CipherException;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.Wallet;
-import org.web3j.crypto.WalletFile;
+import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 
@@ -42,7 +39,7 @@ public class BlockchainServiceTest {
   @Rule public TemporaryFolder tempDirectory = new TemporaryFolder();
   @Mock CommunityRepository communityRepository;
   @Mock UserService userService;
-  @Mock Web3j web3j;
+  @Mock(answer = RETURNS_DEEP_STUBS) Web3j web3j;
   @InjectMocks @Spy BlockchainService service;
 
   @Test
@@ -78,7 +75,6 @@ public class BlockchainServiceTest {
     when(communityRepository.findById(remitter.getCommunityId())).thenReturn(Optional.of(community));
 
     EthSendTransaction response = mock(EthSendTransaction.class);
-    when(response.hasError()).thenReturn(false);
     when(response.getTransactionHash()).thenReturn("transaction hash");
 
     Credentials credentials = mock(Credentials.class);
@@ -93,24 +89,34 @@ public class BlockchainServiceTest {
   }
 
   @Test
-  public void transferTokens_asAdmin_fails() throws Exception {
-    User remitter = new User().setAdmin(true).setCommunityId(id("community")).setWallet("remitter wallet");
-    User beneficiary = new User().setWalletAddress("beneficiary address");
+  public void signAndSend() throws IOException {
+    Credentials credentials = mock(Credentials.class);
+    RawTransaction rawTransaction = mock(RawTransaction.class);
+    doReturn("signed message").when(service).signMessage(credentials, rawTransaction);
+    EthSendTransaction response = mock(EthSendTransaction.class);
+    when(response.hasError()).thenReturn(false);
+    when(web3j.ethSendRawTransaction("signed message").send()).thenReturn(response);
 
-    Community community = new Community().setTokenContractAddress("contract address");
-    when(communityRepository.findById(remitter.getCommunityId())).thenReturn(Optional.of(community));
+    EthSendTransaction result = service.signAndSend(credentials, rawTransaction);
 
+    assertThat(result).isSameAs(response);
+  }
+
+  @Test
+  public void signAndSend_throwsExceptionInCaseOfReponseError() throws IOException {
+    Credentials credentials = mock(Credentials.class);
+    RawTransaction rawTransaction = mock(RawTransaction.class);
+    doReturn("signed message").when(service).signMessage(credentials, rawTransaction);
     EthSendTransaction response = mock(EthSendTransaction.class, Mockito.RETURNS_DEEP_STUBS);
     when(response.hasError()).thenReturn(true);
     when(response.getError().getMessage()).thenReturn("blockchain error");
+    when(web3j.ethSendRawTransaction("signed message").send()).thenReturn(response);
 
-    Credentials credentials = mock(Credentials.class);
-    doReturn(credentials).when(service).credentials("remitter wallet", WALLET_PASSWORD);
-    doReturn(response).when(service).contractTransfer("contract address", credentials, "beneficiary address", new BigInteger("10000000000000000000"));
+    RuntimeException thrown = catchThrowableOfType(() -> {
+      service.signAndSend(credentials, rawTransaction);
+    }, RuntimeException.class);
 
-
-    RuntimeException thrown = catchThrowableOfType(()-> service.transferTokens(remitter, beneficiary, TEN), RuntimeException.class);
-    assertThat(thrown).hasMessage("Error processing transaction request: blockchain error");
+    assertThat(thrown).hasMessage("blockchain error");
   }
 
   @Test

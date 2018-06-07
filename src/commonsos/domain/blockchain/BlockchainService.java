@@ -19,7 +19,6 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.ReadonlyTransactionManager;
 import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.utils.Files;
-import org.web3j.utils.Numeric;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -140,9 +139,7 @@ public class BlockchainService {
         Collections.<TypeReference<?>>emptyList()));
 
       RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, GAS_PRICE, TOKEN_TRANSFER_FROM_GAS_LIMIT, contractAddress, encodedFunction);
-
-      byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, sender);
-      return web3j.ethSendRawTransaction("0x" + Hex.toHexString(signedMessage)).send();
+      return signAndSend(sender, rawTransaction);
     });
   }
 
@@ -157,9 +154,6 @@ public class BlockchainService {
       beneficiary.getWalletAddress(),
       toTokensWithoutDecimals(amount)
     );
-
-    if (response.hasError())
-      throw new RuntimeException("Error processing transaction request: " + response.getError().getMessage());
 
     log.info(format("Token transaction sent, hash %s", response.getTransactionHash()));
     return response.getTransactionHash();
@@ -176,10 +170,20 @@ public class BlockchainService {
         Collections.<TypeReference<?>>emptyList()));
 
       RawTransaction rawTransaction = RawTransaction.createTransaction(nonce, GAS_PRICE, TOKEN_TRANSFER_FROM_GAS_LIMIT, contractAddress, encodedFunction);
-
-      byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, from);
-      return web3j.ethSendRawTransaction("0x" + Hex.toHexString(signedMessage)).send();
+      return signAndSend(from, rawTransaction);
     });
+  }
+
+  EthSendTransaction signAndSend(Credentials sender, RawTransaction rawTransaction) throws java.io.IOException {
+    String signedMessage = signMessage(sender, rawTransaction);
+    EthSendTransaction response = web3j.ethSendRawTransaction(signedMessage).send();
+    if (response.hasError())
+      throw new RuntimeException(response.getError().getMessage());
+    return response;
+  }
+
+  String signMessage(Credentials sender, RawTransaction rawTransaction) {
+    return "0x" + Hex.toHexString(TransactionEncoder.signMessage(rawTransaction, sender));
   }
 
   private BigInteger toTokensWithoutDecimals(BigDecimal amount) {
@@ -221,9 +225,7 @@ public class BlockchainService {
       RawTransaction rawTransaction = RawTransaction
         .createEtherTransaction(nonce, GAS_PRICE, ETHER_TRANSFER_GAS_LIMIT, beneficiaryAddress, amount);
 
-      byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, remitter);
-
-      EthSendTransaction response = web3j.ethSendRawTransaction(Numeric.toHexString(signedMessage)).send();
+      EthSendTransaction response = signAndSend(remitter, rawTransaction);
       log.info("Ether transaction sent, hash " + response.getTransactionHash());
       return response;
     });
