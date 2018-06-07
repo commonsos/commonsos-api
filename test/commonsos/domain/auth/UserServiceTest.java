@@ -328,4 +328,14 @@ public class UserServiceTest {
 
     assertThat(service.session(user)).isEqualTo(new UserSession().setUserId(id("user id")).setUsername("user name"));
   }
+
+  @Test
+  public void updateUser() {
+    User user = new User().setFirstName("me").setLastName("myself").setDescription("nice");
+    UserUpdateCommand command = new UserUpdateCommand().setFirstName("John").setLastName("Doe").setDescription("About me").setLocation("Nice place");
+
+    service.updateUser(user, command);
+
+    verify(repository).update(new User().setFirstName("John").setLastName("Doe").setDescription("About me").setLocation("Nice place"));
+  }
 }

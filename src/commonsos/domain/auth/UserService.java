@@ -44,6 +44,8 @@ public class UserService {
       .setAdmin(user.isAdmin())
       .setBalance(balance)
       .setFullName(fullName(user))
+      .setFirstName(user.getFirstName())
+      .setLastName(user.getLastName())
       .setLocation(user.location)
       .setDescription(user.getDescription())
       .setAvatarUrl(user.getAvatarUrl());
@@ -140,5 +142,15 @@ public class UserService {
 
   public UserSession session(User user) {
     return new UserSession().setUserId(user.getId()).setUsername(user.getUsername());
+  }
+
+  public User updateUser(User user, UserUpdateCommand command) {
+    log.info(command.toString());
+    user.setFirstName(command.getFirstName());
+    user.setLastName(command.getLastName());
+    user.setDescription(command.getDescription());
+    user.setLocation(command.getLocation());
+    repository.update(user);
+    return user;
   }
 }
