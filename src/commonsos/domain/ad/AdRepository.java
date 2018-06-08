@@ -22,10 +22,19 @@ public class AdRepository extends Repository {
     return ad;
   }
 
-  public List<Ad> adsByCommunity(Long communityId) {
+  public List<Ad> ads(Long communityId) {
     return em()
       .createQuery("FROM Ad WHERE communityId = :communityId", Ad.class)
       .setParameter("communityId", communityId).getResultList();
+  }
+
+  public List<Ad> ads(Long communityId, String filter) {
+    return em()
+      .createQuery("FROM Ad WHERE communityId = :communityId " +
+        "AND (LOWER(description) LIKE LOWER(:filter) OR LOWER(title) LIKE LOWER(:filter))", Ad.class)
+      .setParameter("communityId", communityId)
+      .setParameter("filter", "%"+filter+"%")
+      .getResultList();
   }
 
   public Optional<Ad> find(Long id) {

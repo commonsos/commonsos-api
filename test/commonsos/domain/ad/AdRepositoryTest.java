@@ -60,8 +60,30 @@ public class AdRepositoryTest extends DBTest {
     Long id2 = inTransaction(() -> repository.create(new Ad().setCommunityId(id("other community"))).getId());
     Long id3 = inTransaction(() -> repository.create(new Ad().setCommunityId(id("community"))).getId());
 
-    List<Ad> list = repository.adsByCommunity(id(("community")));
+    List<Ad> list = repository.ads(id(("community")));
 
     assertThat(list).extracting("id").containsExactly(id1, id3);
+  }
+
+  @Test
+  public void list_filtered_includesOnlyUserCommunity() {
+    Long id1 = inTransaction(() -> repository.create(new Ad().setDescription("text").setCommunityId(id("community"))).getId());
+    Long id2 = inTransaction(() -> repository.create(new Ad().setDescription("text").setCommunityId(id("other community"))).getId());
+
+    List<Ad> list = repository.ads(id("community"), "text");
+
+    assertThat(list).extracting("id").containsExactly(id1);
+  }
+
+  @Test
+  public void list_filtered() {
+    Long id1 = inTransaction(() -> repository.create(new Ad().setDescription("this does match").setCommunityId(id("community"))).getId());
+    Long id2 = inTransaction(() -> repository.create(new Ad().setDescription("no match").setCommunityId(id("community"))).getId());
+    Long id3 = inTransaction(() -> repository.create(new Ad().setDescription("this dOeS match").setCommunityId(id("community"))).getId());
+    Long id4 = inTransaction(() -> repository.create(new Ad().setTitle("this dOeS match").setCommunityId(id("community"))).getId());
+
+    List<Ad> list = repository.ads(id("community"), "does");
+
+    assertThat(list).extracting("id").containsExactly(id1, id3, id4);
   }
 }
