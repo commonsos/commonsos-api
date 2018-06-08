@@ -79,6 +79,7 @@ public class Server {
     post("/transactions", injector.getInstance(TransactionCreateController.class), toJson);
 
     post("/message-threads/for-ad/:adId", injector.getInstance(MessageThreadForAdController.class), toJson);
+    post("/message-threads/user/:userId", injector.getInstance(MessageThreadWithUserController.class), toJson);
     get("/message-threads/unread-count", injector.getInstance(MessageThreadUnreadCountController.class), toJson);
     get("/message-threads/:id", injector.getInstance(MessageThreadController.class), toJson);
     get("/message-threads", injector.getInstance(MessageThreadListController.class), toJson);

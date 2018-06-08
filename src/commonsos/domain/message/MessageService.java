@@ -31,6 +31,21 @@ public class MessageService {
     return view(user, thread);
   }
 
+  public MessageThreadView threadWithUser(User user, Long otherUserId) {
+    MessageThread thread = messageThreadRepository.betweenUsers(user.getId(), otherUserId)
+      .orElseGet(() -> createMessageThreadWithUser(user, otherUserId));
+    return view(user, thread);
+  }
+
+  MessageThread createMessageThreadWithUser(User user, Long otherUserId) {
+    User otherUser = userService.user(otherUserId);
+    MessageThread messageThread = new MessageThread()
+      .setCreatedBy(user.getId())
+      .setParties(asList(new MessageThreadParty().setUser(user), new MessageThreadParty().setUser(otherUser)));
+
+    return messageThreadRepository.create(messageThread);
+  }
+
   public MessageThreadView thread(User user, Long threadId) {
     return messageThreadRepository.thread(threadId)
       .map(t -> checkAccess(user, t))

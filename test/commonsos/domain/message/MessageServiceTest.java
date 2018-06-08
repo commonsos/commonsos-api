@@ -26,6 +26,7 @@ import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +58,7 @@ public class MessageServiceTest {
   @Test
   public void threadForAd_createNewIfNotPresent() {
     User user = new User().setId(id("user id"));
-    when(messageThreadRepository.byAdId(user, id("ad-id"))).thenReturn(Optional.empty());
+    when(messageThreadRepository.byAdId(user, id("ad-id"))).thenReturn(empty());
 
     MessageThread newThread = new MessageThread();
     doReturn(newThread).when(service).createMessageThreadForAd(user, id("ad-id"));
@@ -70,6 +71,48 @@ public class MessageServiceTest {
 
 
     assertThat(result).isEqualTo(messageThreadView);
+  }
+
+  @Test
+  public void threadWithUser_existingThread() {
+    User user = new User().setId(id("my id"));
+    MessageThread existingThread = new MessageThread();
+    when(messageThreadRepository.betweenUsers(id("my id"), id("other user id"))).thenReturn(Optional.of(existingThread));
+    MessageThreadView messageThreadView = new MessageThreadView();
+    doReturn(messageThreadView).when(service).view(user, existingThread);
+
+    MessageThreadView result = service.threadWithUser(user, id("other user id"));
+
+    assertThat(result).isSameAs(messageThreadView);
+  }
+
+  @Test
+  public void threadWithUser_createNew() {
+    User user = new User().setId(id("my id"));
+    when(messageThreadRepository.betweenUsers(id("my id"), id("other user id"))).thenReturn(empty());
+    MessageThread createdThread = new MessageThread();
+    doReturn(createdThread).when(service).createMessageThreadWithUser(user, id("other user id"));
+    MessageThreadView messageThreadView = new MessageThreadView();
+    doReturn(messageThreadView).when(service).view(user, createdThread);
+
+    MessageThreadView result = service.threadWithUser(user, id("other user id"));
+
+    assertThat(result).isSameAs(messageThreadView);
+  }
+
+  @Test
+  public void createMessageThreadWithUser() {
+    User user = new User().setId(id("user id"));
+    User counterparty = new User().setId(id("counterparty id"));
+    MessageThread newThread = new MessageThread();
+    when(messageThreadRepository.create(any(MessageThread.class))).thenReturn(newThread);
+    when(userService.user(id("counterparty id"))).thenReturn(counterparty);
+
+    MessageThread result = service.createMessageThreadWithUser(user, id("counterparty id"));
+
+    assertThat(result).isEqualTo(newThread);
+    MessageThread messageThread = new MessageThread().setCreatedBy(id("user id")).setParties(asList(party(user), party(counterparty)));
+    verify(messageThreadRepository).create(messageThread);
   }
 
   @Test
@@ -97,7 +140,7 @@ public class MessageServiceTest {
 
   @Test(expected = BadRequestException.class)
   public void thread_notFound() {
-    when(messageThreadRepository.thread(id("thread-id"))).thenReturn(Optional.empty());
+    when(messageThreadRepository.thread(id("thread-id"))).thenReturn(empty());
 
     service.thread(new User().setId(id("user id")), id("thread-id"));
   }
@@ -249,7 +292,7 @@ public class MessageServiceTest {
 
   @Test(expected = BadRequestException.class)
   public void message_threadMustExist() {
-    when(messageThreadRepository.thread((id("thread id")))).thenReturn(Optional.empty());
+    when(messageThreadRepository.thread((id("thread id")))).thenReturn(empty());
 
     service.messages(new User().setId(id("me")), id("thread id"));
   }

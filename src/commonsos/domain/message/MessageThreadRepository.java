@@ -33,6 +33,24 @@ public class MessageThreadRepository extends Repository {
     }
   }
 
+  public Optional<MessageThread> betweenUsers(Long userId1, Long userId2) {
+    String sql = "SELECT * FROM message_threads mt " +
+      "WHERE mt.ad_id IS NULL AND " +
+            "mt.id IN (SELECT mtp.message_thread_id FROM message_thread_parties mtp WHERE mtp.user_id = :user1 AND mt.id = mtp.message_thread_id) AND " +
+            "mt.id IN (SELECT mtp.message_thread_id FROM message_thread_parties mtp WHERE mtp.user_id = :user2 AND mt.id = mtp.message_thread_id)";
+    try {
+      Object singleResult = em().createNativeQuery(sql, MessageThread.class)
+        .setParameter("user1", userId1)
+        .setParameter("user2", userId2)
+        .getSingleResult();
+
+      return Optional.of((MessageThread)singleResult);
+    }
+    catch (NoResultException e) {
+      return empty();
+    }
+  }
+
   public MessageThread create(MessageThread messageThread) {
     em().persist(messageThread);
     return messageThread;

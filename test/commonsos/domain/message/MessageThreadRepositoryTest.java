@@ -84,6 +84,30 @@ public class MessageThreadRepositoryTest extends DBTest {
   }
 
   @Test
+  public void byUserId() {
+    User user = inTransaction(() -> userRepository.create(new User()));
+    User otherUser1 = inTransaction(() -> userRepository.create(new User()));
+    User otherUser2 = inTransaction(() -> userRepository.create(new User()));
+
+    MessageThread thread1 = new MessageThread().setParties(asList(party(user), party(otherUser1)));
+    MessageThread thread2 = new MessageThread().setParties(asList(party(user), party(otherUser2)));
+    MessageThread thread3 = new MessageThread().setParties(asList(party(otherUser1), party(otherUser2)));
+    MessageThread thread4 = new MessageThread().setParties(asList(party(user), party(otherUser1))).setAdId(id("ad id"));
+
+    Long thread1Id = inTransaction(() -> repository.create(thread1).getId());
+    inTransaction(() -> repository.create(thread2).getId());
+    inTransaction(() -> repository.create(thread3).getId());
+    inTransaction(() -> repository.create(thread4).getId());
+
+
+    Optional<MessageThread> result = repository.betweenUsers(user.getId(), otherUser1.getId());
+
+
+    assertThat(result).isNotEmpty();
+    assertThat(result.get().getId()).isEqualTo(thread1Id);
+  }
+
+  @Test
   public void threadById() {
     User user = inTransaction(() -> userRepository.create(new User()));
     Long id = inTransaction(() -> repository.create(new MessageThread().setParties(asList(party(user)))).getId());
