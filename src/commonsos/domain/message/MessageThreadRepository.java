@@ -71,6 +71,10 @@ public class MessageThreadRepository extends Repository {
     em().merge(party);
   }
 
+  public void update(MessageThread messageThread) {
+    em().merge(messageThread);
+  }
+
   public List<Long> unreadMessageThreadIds(User user) {
     return em().createQuery(
       "SELECT mt.id " +

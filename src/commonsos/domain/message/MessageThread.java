@@ -17,8 +17,9 @@ public class MessageThread {
   private Long adId;
   private String title;
   private Long createdBy;
+  @Column(name = "is_group") private boolean group;
 
-  @OneToMany(cascade = CascadeType.PERSIST)
+  @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinColumn(name = "message_thread_id", referencedColumnName = "id")
   private List<MessageThreadParty> parties = new ArrayList<>();
 }

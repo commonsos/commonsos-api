@@ -10,10 +10,7 @@ import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
@@ -26,6 +23,7 @@ import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -41,6 +39,7 @@ public class MessageServiceTest {
   @Mock AdService adService;
   @Mock UserService userService;
   @InjectMocks @Spy MessageService service;
+  @Captor ArgumentCaptor<MessageThread> messageThreadArgumentCaptor;
 
   @Test
   public void threadForAd_findExisting() {
@@ -170,6 +169,7 @@ public class MessageServiceTest {
       .setId(id("thread id"))
       .setTitle("title")
       .setAdId(id("ad id"))
+      .setGroup(true)
       .setParties(asList(party(user), party(counterparty)));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
@@ -187,6 +187,7 @@ public class MessageServiceTest {
     assertThat(view.getParties()).containsExactly(conterpartyView);
     assertThat(view.getLastMessage()).isEqualTo(messageView);
     assertThat(view.isUnread()).isEqualTo(false);
+    assertThat(view.isGroup()).isEqualTo(true);
   }
 
   @Test
@@ -313,5 +314,86 @@ public class MessageServiceTest {
     int result = service.unreadMessageThreadCount(user);
 
     assertThat(result).isEqualTo(3);
+  }
+
+  @Test
+  public void group() {
+    User addedUser = new User().setId(id("addedUser"));
+    doReturn(asList(addedUser)).when(service).validatePartiesCommunity(id("community"), asList(id("addedUser")));
+
+    MessageThread createdThread = new MessageThread();
+    MessageThreadView threadView = new MessageThreadView();
+    when(messageThreadRepository.create(messageThreadArgumentCaptor.capture())).thenReturn(createdThread);
+
+    User creatingUser = new User().setId(id("creatingUser")).setCommunityId(id("community"));
+    doReturn(threadView).when(service).view(creatingUser, createdThread);
+
+
+    CreateGroupCommand command = new CreateGroupCommand().setTitle("hello").setMemberIds(asList(id("addedUser")));
+    MessageThreadView result = service.group(creatingUser, command);
+
+
+    assertThat(result).isSameAs(threadView);
+
+    MessageThread realThread = messageThreadArgumentCaptor.getValue();
+    assertThat(realThread.isGroup()).isTrue();
+    assertThat(realThread.getTitle()).isEqualTo("hello");
+    assertThat(realThread.getCreatedBy()).isEqualTo(id("creatingUser"));
+    assertThat(realThread.getParties()).extracting("user").containsExactly(addedUser, creatingUser);
+  }
+
+  @Test
+  public void groupMember() {
+    User addingUser = new User().setId(id("creatingUser")).setCommunityId(id("community"));
+    User addedUser = new User().setId(id("addedUser"));
+    doReturn(asList(addedUser)).when(service).validatePartiesCommunity(id("community"), list(id("addedUser")));
+
+    MessageThread updatedThread = new MessageThread().setGroup(true).setParties(list(new MessageThreadParty().setUser(addingUser)));
+    when(messageThreadRepository.thread(id("thread"))).thenReturn(Optional.of(updatedThread));
+
+
+    service.groupMember(addingUser, new AddGroupMemberCommand().setThreadId(id("thread")).setMemberIds(list(id("addedUser"))));
+
+
+    verify(messageThreadRepository).update(messageThreadArgumentCaptor.capture());
+    assertThat(messageThreadArgumentCaptor.getValue().getParties()).extracting("user").containsExactly(addingUser, addedUser);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void groupMember_groupThreadIsMandatory() {
+    User user = new User().setId(id("creatingUser")).setCommunityId(id("community"));
+
+    MessageThread updatedThread = new MessageThread().setGroup(false).setParties(list(new MessageThreadParty().setUser(user)));
+    when(messageThreadRepository.thread(id("thread"))).thenReturn(Optional.of(updatedThread));
+
+    service.groupMember(user, new AddGroupMemberCommand().setThreadId(id("thread")).setMemberIds(list(id("addedUser"))));
+  }
+
+  private <T> ArrayList<T> list(T... elements) {
+    return new ArrayList<T>(asList(elements));
+  }
+
+  @Test
+  public void validatePartiesCommunity() {
+    User user1 = new User().setCommunityId(id("community"));
+    User user2 = new User().setCommunityId(id("community"));
+    when(userService.user(id("user1"))).thenReturn(user1);
+    when(userService.user(id("user2"))).thenReturn(user2);
+
+    List<User> result = service.validatePartiesCommunity(id("community"), asList(id("user1"), id("user2")));
+
+    assertThat(result).containsExactly(user1, user2);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void validatePartiesCommunity_requiresSameCommunity() {
+    when(userService.user(id("user"))).thenReturn(new User().setCommunityId(id("other community")));
+
+    service.validatePartiesCommunity(id("community"), asList(id("user")));
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void validatePartiesCommunity_requiresUser() {
+    service.validatePartiesCommunity(id("community"), emptyList());
   }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE message_threads ADD COLUMN is_group BOOLEAN DEFAULT FALSE;

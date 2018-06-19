@@ -18,4 +18,5 @@ public class MessageThreadView {
   private List<UserView> parties;
   private MessageView lastMessage;
   private boolean unread;
+  private boolean group;
 }

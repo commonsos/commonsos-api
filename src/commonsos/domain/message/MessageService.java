@@ -8,10 +8,12 @@ import commonsos.domain.ad.AdView;
 import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
@@ -19,6 +21,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
+@Slf4j
 public class MessageService {
 
   @Inject private MessageThreadRepository messageThreadRepository;
@@ -44,6 +47,49 @@ public class MessageService {
       .setParties(asList(new MessageThreadParty().setUser(user), new MessageThreadParty().setUser(otherUser)));
 
     return messageThreadRepository.create(messageThread);
+  }
+
+  public MessageThreadView group(User user, CreateGroupCommand command) {
+    List<User> users = validatePartiesCommunity(user.getCommunityId(), command.getMemberIds());
+    List<MessageThreadParty> parties = usersToParties(users);
+    parties.add(new MessageThreadParty().setUser(user));
+
+    MessageThread messageThread = new MessageThread()
+      .setGroup(true)
+      .setTitle(command.title)
+      .setCreatedBy(user.getId())
+      .setParties(parties);
+    return view(user, messageThreadRepository.create(messageThread));
+  }
+
+  private List<MessageThreadParty> usersToParties(List<User> users) {
+    return users.stream().map(u -> new MessageThreadParty().setUser(u)).collect(Collectors.toList());
+  }
+
+  public MessageThreadView groupMember(User user, AddGroupMemberCommand command) {
+    MessageThread messageThread = messageThreadRepository.thread(command.threadId).orElseThrow(ForbiddenException::new);
+    if (!messageThread.isGroup()) throw new BadRequestException("Not a group message thread");
+
+    List<User> users = validatePartiesCommunity(user.getCommunityId(), command.getMemberIds());
+
+    List<MessageThreadParty> parties = usersToParties(users);
+
+    messageThread.getParties().addAll(parties);
+    messageThreadRepository.update(messageThread);
+
+    return view(user, messageThread);
+  }
+
+  List<User> validatePartiesCommunity(Long communityId, List<Long> memberIds) {
+    List<User> users = memberIds.stream().map(id -> userService.user(id)).collect(Collectors.toList());
+    if (users.isEmpty()) throw new BadRequestException("No group members specified");
+    users.forEach(user1 -> {
+      if (!communityId.equals(user1.getCommunityId())) {
+        String message = String.format("Tried to create group chat with user %s from different community", user1.getUsername());
+        throw new ForbiddenException(message);
+      }
+    });
+    return users;
   }
 
   public MessageThreadView thread(User user, Long threadId) {
@@ -85,6 +131,7 @@ public class MessageService {
       .setAd(ad)
       .setTitle(thread.getTitle())
       .setLastMessage(lastMessage)
+      .setGroup(thread.isGroup())
       .setParties(parties);
   }
 

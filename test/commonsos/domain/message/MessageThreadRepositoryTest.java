@@ -6,6 +6,7 @@ import commonsos.domain.auth.UserRepository;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -135,6 +136,29 @@ public class MessageThreadRepositoryTest extends DBTest {
 
     MessageThreadParty actual = em().find(MessageThreadParty.class, party.getId());
     assertThat(actual.getVisitedAt()).isCloseTo(now(), within(1, SECONDS));
+  }
+
+  @Test
+  public void updateThread() {
+    User user = inTransaction(() -> userRepository.create(new User().setUsername("first")));
+    MessageThread originalThread = new MessageThread().setParties(asList(new MessageThreadParty().setUser(user)));
+    Long threadId = inTransaction(() -> repository.create(originalThread).getId());
+
+    User user2 = inTransaction(() -> userRepository.create(new User().setUsername("second")));
+    MessageThread storedThread = repository.thread(threadId).orElseThrow(RuntimeException::new);
+
+    List<MessageThreadParty> parties = new ArrayList<>(originalThread.getParties());
+    parties.add(new MessageThreadParty().setUser(user2));
+    storedThread.setParties(parties);
+
+
+    inTransaction(() -> repository.update(storedThread));
+
+
+    MessageThread result = repository.thread(threadId).orElseThrow(RuntimeException::new);
+    assertThat(result.getParties()).hasSize(2);
+    assertThat(result.getParties().get(0).getUser()).isEqualTo(user);
+    assertThat(result.getParties().get(1).getUser()).isEqualTo(user2);
   }
 
   @Test
