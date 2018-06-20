@@ -44,6 +44,7 @@ public class MessageService {
     User otherUser = userService.user(otherUserId);
     MessageThread messageThread = new MessageThread()
       .setCreatedBy(user.getId())
+      .setCreatedAt(now())
       .setParties(asList(new MessageThreadParty().setUser(user), new MessageThreadParty().setUser(otherUser)));
 
     return messageThreadRepository.create(messageThread);
@@ -58,6 +59,7 @@ public class MessageService {
       .setGroup(true)
       .setTitle(command.title)
       .setCreatedBy(user.getId())
+      .setCreatedAt(now())
       .setParties(parties);
     return view(user, messageThreadRepository.create(messageThread));
   }
@@ -110,6 +112,7 @@ public class MessageService {
 
     MessageThread messageThread = new MessageThread()
       .setCreatedBy(user.getId())
+      .setCreatedAt(now())
       .setTitle(ad.getTitle()).setAdId(adId)
       .setParties(asList(new MessageThreadParty().setUser(adCreator), new MessageThreadParty().setUser(user)));
 
@@ -131,6 +134,7 @@ public class MessageService {
       .setAd(ad)
       .setTitle(thread.getTitle())
       .setLastMessage(lastMessage)
+      .setCreatedAt(thread.getCreatedAt())
       .setGroup(thread.isGroup())
       .setParties(parties);
   }
@@ -149,14 +153,17 @@ public class MessageService {
       .listByUser(user)
       .stream()
       .map(thread -> view(user, thread))
-      .filter(t -> t.getLastMessage() != null)
+      .filter(t -> t.getLastMessage() != null || t.isGroup())
       .map(p -> p.setUnread(unreadMessageThreadIds.contains(p.getId())))
       .collect(toList());
-    return sortThreadsByLastMessageTime(threadViews);
+    return sortAsNewestFirst(threadViews);
   }
 
-  List<MessageThreadView> sortThreadsByLastMessageTime(List<MessageThreadView> threadViews) {
-    threadViews.sort(comparing((MessageThreadView t) -> t.getLastMessage().getCreatedAt()).reversed());
+  List<MessageThreadView> sortAsNewestFirst(List<MessageThreadView> threadViews) {
+    threadViews.sort(comparing((MessageThreadView t) -> {
+      if (t.getLastMessage() == null) return t.getCreatedAt();
+      return t.getLastMessage().getCreatedAt();
+    }).reversed());
     return threadViews;
   }
 

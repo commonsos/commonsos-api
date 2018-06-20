@@ -104,14 +104,17 @@ public class MessageServiceTest {
     User user = new User().setId(id("user id"));
     User counterparty = new User().setId(id("counterparty id"));
     MessageThread newThread = new MessageThread();
-    when(messageThreadRepository.create(any(MessageThread.class))).thenReturn(newThread);
+    when(messageThreadRepository.create(messageThreadArgumentCaptor.capture())).thenReturn(newThread);
     when(userService.user(id("counterparty id"))).thenReturn(counterparty);
 
     MessageThread result = service.createMessageThreadWithUser(user, id("counterparty id"));
 
     assertThat(result).isEqualTo(newThread);
-    MessageThread messageThread = new MessageThread().setCreatedBy(id("user id")).setParties(asList(party(user), party(counterparty)));
-    verify(messageThreadRepository).create(messageThread);
+    MessageThread createdThread = messageThreadArgumentCaptor.getValue();
+    assertThat(createdThread.getCreatedBy()).isEqualTo(id("user id"));
+    assertThat(createdThread.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+    assertThat(createdThread.isGroup()).isFalse();
+    assertThat(createdThread.getParties()).extracting("user").containsExactly(user, counterparty);
   }
 
   @Test
@@ -150,14 +153,18 @@ public class MessageServiceTest {
     User counterparty = new User().setId(id("counterparty id"));
     when(adService.ad(id("ad-id"))).thenReturn(new Ad().setTitle("Title").setCreatedBy(id("ad publisher")));
     MessageThread newThread = new MessageThread();
-    when(messageThreadRepository.create(any(MessageThread.class))).thenReturn(newThread);
+    when(messageThreadRepository.create(messageThreadArgumentCaptor.capture())).thenReturn(newThread);
     when(userService.user(id("ad publisher"))).thenReturn(counterparty);
 
     MessageThread result = service.createMessageThreadForAd(user, id("ad-id"));
 
     assertThat(result).isEqualTo(newThread);
-    MessageThread messageThread = new MessageThread().setAdId(id("ad-id")).setCreatedBy(id("user id")).setTitle("Title").setParties(asList(party(counterparty), party(user)));
-    verify(messageThreadRepository).create(messageThread);
+    MessageThread createdThread = messageThreadArgumentCaptor.getValue();
+    assertThat(createdThread.getAdId()).isEqualTo(id("ad-id"));
+    assertThat(createdThread.getCreatedBy()).isEqualTo(id("user id"));
+    assertThat(createdThread.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+    assertThat(createdThread.isGroup()).isFalse();
+    assertThat(createdThread.getParties()).extracting("user").containsExactly(counterparty, user);
   }
 
   @Test
@@ -165,11 +172,13 @@ public class MessageServiceTest {
     User user = new User().setId(id("myself"));
     User counterparty = new User().setId(id("counterparty"));
     Message message = new Message().setId(33L);
+    Instant now = now();
     MessageThread messageThread = new MessageThread()
       .setId(id("thread id"))
       .setTitle("title")
       .setAdId(id("ad id"))
       .setGroup(true)
+      .setCreatedAt(now)
       .setParties(asList(party(user), party(counterparty)));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
@@ -188,6 +197,7 @@ public class MessageServiceTest {
     assertThat(view.getLastMessage()).isEqualTo(messageView);
     assertThat(view.isUnread()).isEqualTo(false);
     assertThat(view.isGroup()).isEqualTo(true);
+    assertThat(view.getCreatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -225,7 +235,7 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void threads_excludeWithoutMessages() {
+  public void threads_excludePrivateThreadsWithoutMessages() {
     User user = new User();
     MessageThread thread = new MessageThread();
     when(messageThreadRepository.listByUser(user)).thenReturn(asList(thread));
@@ -236,13 +246,36 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void ordersLatestThreadsFirst() {
+  public void threads_includesGroupThreadsWithoutMessages() {
+    User user = new User();
+    MessageThread thread = new MessageThread().setGroup(true);
+    when(messageThreadRepository.listByUser(user)).thenReturn(asList(thread));
+    MessageThreadView threadView = new MessageThreadView().setGroup(true);
+    doReturn(threadView).when(service).view(user, thread);
+
+    assertThat(service.threads(user)).isNotEmpty();
+  }
+
+  @Test
+  public void ordersNewestThreadsFirst() {
     MessageThreadView view1 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(2, HOURS)));
     MessageThreadView view2 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(1, HOURS)));
     MessageThreadView view3 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(3, HOURS)));
     List<MessageThreadView> data = new ArrayList<>(asList(view1, view2, view3));
 
-    service.sortThreadsByLastMessageTime(data);
+    service.sortAsNewestFirst(data);
+
+    assertThat(data).containsExactly(view2, view1, view3);
+  }
+
+  @Test
+  public void ordersNewestThreadsFirst_usesCreatedAtForGroupsWithoutMessages() {
+    MessageThreadView view1 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(2, HOURS)));
+    MessageThreadView view2 = new MessageThreadView().setCreatedAt(now().minus(1, HOURS)).setGroup(true);
+    MessageThreadView view3 = new MessageThreadView().setLastMessage(new MessageView().setCreatedAt(now().minus(3, HOURS)));
+    List<MessageThreadView> data = new ArrayList<>(asList(view1, view2, view3));
+
+    service.sortAsNewestFirst(data);
 
     assertThat(data).containsExactly(view2, view1, view3);
   }
@@ -338,6 +371,7 @@ public class MessageServiceTest {
     MessageThread realThread = messageThreadArgumentCaptor.getValue();
     assertThat(realThread.isGroup()).isTrue();
     assertThat(realThread.getTitle()).isEqualTo("hello");
+    assertThat(realThread.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
     assertThat(realThread.getCreatedBy()).isEqualTo(id("creatingUser"));
     assertThat(realThread.getParties()).extracting("user").containsExactly(addedUser, creatingUser);
   }

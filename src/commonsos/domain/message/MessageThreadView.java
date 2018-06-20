@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
@@ -19,4 +20,5 @@ public class MessageThreadView {
   private MessageView lastMessage;
   private boolean unread;
   private boolean group;
+  private Instant createdAt;
 }

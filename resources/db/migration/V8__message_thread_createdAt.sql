@@ -1,0 +1,1 @@
+ALTER TABLE message_threads ADD COLUMN created_at TIMESTAMP DEFAULT NOW();

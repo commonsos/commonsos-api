@@ -7,6 +7,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class MessageThread {
   private Long adId;
   private String title;
   private Long createdBy;
+  private Instant createdAt;
   @Column(name = "is_group") private boolean group;
 
   @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
