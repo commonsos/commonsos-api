@@ -404,7 +404,7 @@ public class MessageServiceTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void updateGroup_updaterMustBelongToGroup() {
+  public void updateGroup_updaterMustBelongToThread() {
     User notMemberUser = new User().setId(id("notMemberUser")).setCommunityId(id("community"));
     User existingUser = new User().setId(id("existingUser")).setCommunityId(id("community"));
     MessageThread originalThread = new MessageThread().setId(id("thread")).setGroup(true).setParties(list(party(existingUser)));

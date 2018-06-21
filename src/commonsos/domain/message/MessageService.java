@@ -70,9 +70,9 @@ public class MessageService {
   public MessageThreadView updateGroup(User user, GroupMessageThreadUpdateCommand command) {
     MessageThread messageThread = messageThreadRepository.thread(command.threadId).orElseThrow(ForbiddenException::new);
     if (!messageThread.isGroup()) throw new BadRequestException("Not a group message thread");
+    if (!isUserAllowedToAccessMessageThread(user, messageThread)) throw new ForbiddenException("Not a thread member");
 
     List<User> existingUsers = messageThread.getParties().stream().map(MessageThreadParty::getUser).collect(toList());
-    if (!existingUsers.contains(user)) throw new ForbiddenException("Not a group member");
     List<User> givenUsers = validatePartiesCommunity(user.getCommunityId(), command.getMemberIds());
     List<User> newUsers = givenUsers.stream()
       .filter(u -> !existingUsers.stream().anyMatch(eu -> eu.getId().equals(u.getId())))
