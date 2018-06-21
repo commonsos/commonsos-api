@@ -125,10 +125,15 @@ public class MessageService {
 
   public MessageThreadView view(User user, MessageThread thread) {
     List<UserView> parties = thread.getParties().stream()
-      .filter(p -> !p.getUser().equals(user))
+      .filter(p -> !p.getUser().getId().equals(thread.getCreatedBy()))
       .map(MessageThreadParty::getUser)
       .map(userService::view)
       .collect(toList());
+
+    UserView creator = thread.getParties().stream()
+      .filter(p -> p.getUser().getId().equals(thread.getCreatedBy()))
+      .map(MessageThreadParty::getUser)
+      .map(userService::view).findFirst().orElseThrow(RuntimeException::new);
 
     AdView ad = thread.getAdId() == null ? null : adService.view(user, thread.getAdId());
     MessageView lastMessage = messageRepository.lastMessage(thread.getId()).map(this::view).orElse(null);
@@ -140,6 +145,7 @@ public class MessageService {
       .setLastMessage(lastMessage)
       .setCreatedAt(thread.getCreatedAt())
       .setGroup(thread.isGroup())
+      .setCreator(creator)
       .setParties(parties);
   }
 

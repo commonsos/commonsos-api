@@ -40,6 +40,7 @@ public class MessageServiceTest {
   @Mock UserService userService;
   @InjectMocks @Spy MessageService service;
   @Captor ArgumentCaptor<MessageThread> messageThreadArgumentCaptor;
+  @Captor ArgumentCaptor<MessageThread> messageThreadArgumentCaptor2;
 
   @Test
   public void threadForAd_findExisting() {
@@ -179,9 +180,12 @@ public class MessageServiceTest {
       .setAdId(id("ad id"))
       .setGroup(true)
       .setCreatedAt(now)
+      .setCreatedBy(user.getId())
       .setParties(asList(party(user), party(counterparty)));
     UserView conterpartyView = new UserView();
     when(userService.view(counterparty)).thenReturn(conterpartyView);
+    UserView userView = new UserView();
+    when(userService.view(user)).thenReturn(userView);
     MessageView messageView = new MessageView();
     doReturn(messageView).when(service).view(message);
     when(messageRepository.lastMessage(id("thread id"))).thenReturn(Optional.of(message));
@@ -198,6 +202,7 @@ public class MessageServiceTest {
     assertThat(view.isUnread()).isEqualTo(false);
     assertThat(view.isGroup()).isEqualTo(true);
     assertThat(view.getCreatedAt()).isEqualTo(now);
+    assertThat(view.getCreator()).isEqualTo(userView);
   }
 
   @Test
@@ -385,6 +390,7 @@ public class MessageServiceTest {
     MessageThread originalThread = new MessageThread()
       .setId(id("thread"))
       .setGroup(true).setTitle("Hello")
+      .setCreatedBy(existingUser.getId())
       .setParties(list(party(existingUser)));
     when(messageThreadRepository.thread(id("thread"))).thenReturn(Optional.of(originalThread));
 
@@ -394,13 +400,19 @@ public class MessageServiceTest {
       .setTitle("Hola!")
       .setMemberIds(list(id("existingUser"), id("addedUser")));
 
-    service.updateGroup(existingUser, command);
+    MessageThreadView messageThreadView = new MessageThreadView();
+    doReturn(messageThreadView).when(service).view(eq(existingUser), messageThreadArgumentCaptor2.capture());
 
+    MessageThreadView result = service.updateGroup(existingUser, command);
+
+
+    assertThat(result).isSameAs(messageThreadView);
 
     verify(messageThreadRepository).update(messageThreadArgumentCaptor.capture());
     MessageThread updatedThread = messageThreadArgumentCaptor.getValue();
     assertThat(updatedThread.getTitle()).isEqualTo("Hola!");
     assertThat(updatedThread.getParties()).extracting("user").containsExactly(existingUser, addedUser);
+    assertThat(updatedThread).isSameAs(messageThreadArgumentCaptor2.getValue());
   }
 
   @Test(expected = ForbiddenException.class)
