@@ -82,7 +82,7 @@ public class Server {
     post("/message-threads/user/:userId", injector.getInstance(MessageThreadWithUserController.class), toJson);
 
     post("/message-threads/group", injector.getInstance(GroupMessageThreadController.class), toJson);
-    post("/message-threads/:id/members", injector.getInstance(GroupMessageThreadMemberController.class), toJson);
+    post("/message-threads/:id/group", injector.getInstance(GroupMessageThreadUpdateController.class), toJson);
 
     get("/message-threads/unread-count", injector.getInstance(MessageThreadUnreadCountController.class), toJson);
     get("/message-threads/:id", injector.getInstance(MessageThreadController.class), toJson);

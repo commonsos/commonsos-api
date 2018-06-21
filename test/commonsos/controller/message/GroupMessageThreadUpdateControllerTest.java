@@ -2,7 +2,7 @@ package commonsos.controller.message;
 
 import commonsos.GsonProvider;
 import commonsos.domain.auth.User;
-import commonsos.domain.message.AddGroupMemberCommand;
+import commonsos.domain.message.GroupMessageThreadUpdateCommand;
 import commonsos.domain.message.MessageService;
 import commonsos.domain.message.MessageThreadView;
 import org.junit.Before;
@@ -18,9 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupMessageThreadMemberControllerTest {
+public class GroupMessageThreadUpdateControllerTest {
 
-  @InjectMocks GroupMessageThreadMemberController controller;
+  @InjectMocks GroupMessageThreadUpdateController controller;
   @Mock Request request;
   @Mock MessageService service;
 
@@ -31,10 +31,11 @@ public class GroupMessageThreadMemberControllerTest {
 
   @Test
   public void handle() {
-    when(request.body()).thenReturn("{\"threadId\": 99, \"memberIds\": [11, 33]}");
+    when(request.params("id")).thenReturn("99");
+    when(request.body()).thenReturn("{\"title\": \"Hola!\", \"memberIds\": [11, 33]}");
     User user = new User();
     MessageThreadView view = new MessageThreadView();
-    when(service.groupMember(user, new AddGroupMemberCommand().setThreadId(99L).setMemberIds(asList(11, 33)))).thenReturn(view);
+    when(service.updateGroup(user, new GroupMessageThreadUpdateCommand().setThreadId(99L).setTitle("Hola!").setMemberIds(asList(11, 33)))).thenReturn(view);
 
     MessageThreadView result = controller.handle(user, request, null);
 

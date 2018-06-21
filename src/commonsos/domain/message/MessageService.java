@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
@@ -65,25 +64,30 @@ public class MessageService {
   }
 
   private List<MessageThreadParty> usersToParties(List<User> users) {
-    return users.stream().map(u -> new MessageThreadParty().setUser(u)).collect(Collectors.toList());
+    return users.stream().map(u -> new MessageThreadParty().setUser(u)).collect(toList());
   }
 
-  public MessageThreadView groupMember(User user, AddGroupMemberCommand command) {
+  public MessageThreadView updateGroup(User user, GroupMessageThreadUpdateCommand command) {
     MessageThread messageThread = messageThreadRepository.thread(command.threadId).orElseThrow(ForbiddenException::new);
     if (!messageThread.isGroup()) throw new BadRequestException("Not a group message thread");
 
-    List<User> users = validatePartiesCommunity(user.getCommunityId(), command.getMemberIds());
+    List<User> existingUsers = messageThread.getParties().stream().map(MessageThreadParty::getUser).collect(toList());
+    if (!existingUsers.contains(user)) throw new ForbiddenException("Not a group member");
+    List<User> givenUsers = validatePartiesCommunity(user.getCommunityId(), command.getMemberIds());
+    List<User> newUsers = givenUsers.stream()
+      .filter(u -> !existingUsers.stream().anyMatch(eu -> eu.getId().equals(u.getId())))
+      .collect(toList());
 
-    List<MessageThreadParty> parties = usersToParties(users);
-
-    messageThread.getParties().addAll(parties);
+    List<MessageThreadParty> newParties = usersToParties(newUsers);
+    messageThread.getParties().addAll(newParties);
+    messageThread.setTitle(command.getTitle());
     messageThreadRepository.update(messageThread);
 
     return view(user, messageThread);
   }
 
   List<User> validatePartiesCommunity(Long communityId, List<Long> memberIds) {
-    List<User> users = memberIds.stream().map(id -> userService.user(id)).collect(Collectors.toList());
+    List<User> users = memberIds.stream().map(id -> userService.user(id)).collect(toList());
     if (users.isEmpty()) throw new BadRequestException("No group members specified");
     users.forEach(user1 -> {
       if (!communityId.equals(user1.getCommunityId())) {

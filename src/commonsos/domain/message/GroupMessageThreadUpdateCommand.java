@@ -9,7 +9,8 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 @Getter @Setter @Accessors(chain=true) @EqualsAndHashCode @ToString
-public class AddGroupMemberCommand {
+public class GroupMessageThreadUpdateCommand {
   Long threadId;
+  String title;
   List<Long> memberIds;
 }

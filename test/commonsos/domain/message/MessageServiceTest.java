@@ -377,30 +377,51 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void groupMember() {
-    User addingUser = new User().setId(id("creatingUser")).setCommunityId(id("community"));
-    User addedUser = new User().setId(id("addedUser"));
-    doReturn(asList(addedUser)).when(service).validatePartiesCommunity(id("community"), list(id("addedUser")));
+  public void updateGroup() {
+    User existingUser = new User().setId(id("existingUser")).setCommunityId(id("community"));
+    User addedUser = new User().setId(id("addedUser")).setCommunityId(id("community"));
+    doReturn(asList(existingUser, addedUser)).when(service).validatePartiesCommunity(id("community"), list(id("existingUser"), id("addedUser")));
 
-    MessageThread updatedThread = new MessageThread().setGroup(true).setParties(list(new MessageThreadParty().setUser(addingUser)));
-    when(messageThreadRepository.thread(id("thread"))).thenReturn(Optional.of(updatedThread));
+    MessageThread originalThread = new MessageThread()
+      .setId(id("thread"))
+      .setGroup(true).setTitle("Hello")
+      .setParties(list(party(existingUser)));
+    when(messageThreadRepository.thread(id("thread"))).thenReturn(Optional.of(originalThread));
 
 
-    service.groupMember(addingUser, new AddGroupMemberCommand().setThreadId(id("thread")).setMemberIds(list(id("addedUser"))));
+    GroupMessageThreadUpdateCommand command = new GroupMessageThreadUpdateCommand()
+      .setThreadId(id("thread"))
+      .setTitle("Hola!")
+      .setMemberIds(list(id("existingUser"), id("addedUser")));
+
+    service.updateGroup(existingUser, command);
 
 
     verify(messageThreadRepository).update(messageThreadArgumentCaptor.capture());
-    assertThat(messageThreadArgumentCaptor.getValue().getParties()).extracting("user").containsExactly(addingUser, addedUser);
+    MessageThread updatedThread = messageThreadArgumentCaptor.getValue();
+    assertThat(updatedThread.getTitle()).isEqualTo("Hola!");
+    assertThat(updatedThread.getParties()).extracting("user").containsExactly(existingUser, addedUser);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void updateGroup_updaterMustBelongToGroup() {
+    User notMemberUser = new User().setId(id("notMemberUser")).setCommunityId(id("community"));
+    User existingUser = new User().setId(id("existingUser")).setCommunityId(id("community"));
+    MessageThread originalThread = new MessageThread().setId(id("thread")).setGroup(true).setParties(list(party(existingUser)));
+    when(messageThreadRepository.thread(id("thread"))).thenReturn(Optional.of(originalThread));
+
+    GroupMessageThreadUpdateCommand command = new GroupMessageThreadUpdateCommand().setThreadId(id("thread")).setMemberIds(list(id("existingUser")));
+    service.updateGroup(notMemberUser, command);
   }
 
   @Test(expected = BadRequestException.class)
-  public void groupMember_groupThreadIsMandatory() {
+  public void updateGroup_threadMustBeGroup() {
     User user = new User().setId(id("creatingUser")).setCommunityId(id("community"));
 
     MessageThread updatedThread = new MessageThread().setGroup(false).setParties(list(new MessageThreadParty().setUser(user)));
     when(messageThreadRepository.thread(id("thread"))).thenReturn(Optional.of(updatedThread));
 
-    service.groupMember(user, new AddGroupMemberCommand().setThreadId(id("thread")).setMemberIds(list(id("addedUser"))));
+    service.updateGroup(user, new GroupMessageThreadUpdateCommand().setThreadId(id("thread")).setMemberIds(list(id("addedUser"))));
   }
 
   private <T> ArrayList<T> list(T... elements) {
