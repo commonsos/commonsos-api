@@ -126,8 +126,7 @@ public class UserService {
   }
 
   public List<UserView> searchUsers(User user, String query) {
-    if (!user.isAdmin()) throw new ForbiddenException();
-    return repository.search(user.getCommunityId(), query).stream().map(this::view).collect(toList());
+    return repository.search(user.getCommunityId(), query).stream().filter(u -> !u.getId().equals(user.getId())).map(this::view).collect(toList());
   }
 
   public String updateAvatar(User user, InputStream image) {

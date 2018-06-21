@@ -267,19 +267,27 @@ public class UserServiceTest {
     service.view(id("invalid id"));
   }
 
-  @Test(expected=ForbiddenException.class)
-  public void searchUsers_forbidden() {
-    service.searchUsers(new User().setAdmin(false), "foobar");
-  }
-
   @Test
   public void searchUsers() {
-    User user = new User();
+    User user = new User().setId(1L);
     when(repository.search(user.getCommunityId(), "foobar")).thenReturn(asList(user));
     UserView userView = new UserView();
     when(service.view(user)).thenReturn(userView);
 
-    List<UserView> users = service.searchUsers(new User().setAdmin(true), "foobar");
+    List<UserView> users = service.searchUsers(new User().setId(2L), "foobar");
+
+    assertThat(users).isEqualTo(asList(userView));
+  }
+
+  @Test
+  public void searchUsers_excludesSearchingUser() {
+    User myself = new User().setId(id("myself"));
+    User other = new User().setId(id("other"));
+    when(repository.search(myself.getCommunityId(), "foobar")).thenReturn(asList(myself, other));
+    UserView userView = new UserView();
+    when(service.view(other)).thenReturn(userView);
+
+    List<UserView> users = service.searchUsers(myself, "foobar");
 
     assertThat(users).isEqualTo(asList(userView));
   }
