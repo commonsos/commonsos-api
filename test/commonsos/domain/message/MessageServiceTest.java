@@ -203,6 +203,7 @@ public class MessageServiceTest {
     assertThat(view.isGroup()).isEqualTo(true);
     assertThat(view.getCreatedAt()).isEqualTo(now);
     assertThat(view.getCreator()).isEqualTo(userView);
+    assertThat(view.getCounterParty()).isEqualTo(conterpartyView);
   }
 
   @Test

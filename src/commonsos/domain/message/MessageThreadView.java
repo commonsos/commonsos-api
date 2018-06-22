@@ -18,6 +18,7 @@ public class MessageThreadView {
   private String title;
   private List<UserView> parties;
   private UserView creator;
+  private UserView counterParty;
   private MessageView lastMessage;
   private boolean unread;
   private boolean group;

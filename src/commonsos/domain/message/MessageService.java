@@ -18,6 +18,8 @@ import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
 
 @Singleton
 @Slf4j
@@ -135,6 +137,11 @@ public class MessageService {
       .map(MessageThreadParty::getUser)
       .map(userService::view).findFirst().orElseThrow(RuntimeException::new);
 
+    UserView counterParty = concat(parties.stream(), of(creator))
+      .filter(uv -> uv.getId() != user.getId())
+      .findFirst()
+      .orElseThrow(RuntimeException::new);
+
     AdView ad = thread.getAdId() == null ? null : adService.view(user, thread.getAdId());
     MessageView lastMessage = messageRepository.lastMessage(thread.getId()).map(this::view).orElse(null);
 
@@ -146,6 +153,7 @@ public class MessageService {
       .setCreatedAt(thread.getCreatedAt())
       .setGroup(thread.isGroup())
       .setCreator(creator)
+      .setCounterParty(counterParty)
       .setParties(parties);
   }
 
