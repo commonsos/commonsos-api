@@ -98,11 +98,11 @@ public class UserRepositoryTest extends DBTest {
   }
 
   @Test
-  public void search_excludesAdminUser() {
-    inTransaction(() -> repository.create(new User().setCommunityId(id("community")).setFirstName("name").setLastName("name").setAdmin(true)));
+  public void search_includesAdminUser() {
+    User admin = inTransaction(() -> repository.create(new User().setCommunityId(id("community")).setFirstName("name").setLastName("name").setAdmin(true)));
     User user = inTransaction(() -> repository.create(new User().setCommunityId(id("community")).setFirstName("name").setLastName("name").setAdmin(false)));
 
-    assertThat(repository.search(id("community"), "name")).containsExactly(user);
+    assertThat(repository.search(id("community"), "name")).containsExactly(admin, user);
   }
 
   @Test

@@ -45,7 +45,7 @@ public class UserRepository extends Repository {
 
   public List<User> search(Long communityId, String query) {
     if (isBlank(query)) return emptyList();
-    return em().createQuery("FROM User WHERE admin = FALSE AND communityId = :communityId " +
+    return em().createQuery("FROM User WHERE communityId = :communityId " +
       "AND (LOWER(firstName) LIKE LOWER(:query) OR LOWER(lastName) LIKE LOWER(:query))", User.class)
       .setParameter("communityId", communityId)
       .setParameter("query", "%"+query+"%")
