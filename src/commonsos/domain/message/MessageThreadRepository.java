@@ -35,7 +35,7 @@ public class MessageThreadRepository extends Repository {
 
   public Optional<MessageThread> betweenUsers(Long userId1, Long userId2) {
     String sql = "SELECT * FROM message_threads mt " +
-      "WHERE mt.ad_id IS NULL AND " +
+      "WHERE mt.ad_id IS NULL AND mt.is_group = FALSE AND " +
             "mt.id IN (SELECT mtp.message_thread_id FROM message_thread_parties mtp WHERE mtp.user_id = :user1 AND mt.id = mtp.message_thread_id) AND " +
             "mt.id IN (SELECT mtp.message_thread_id FROM message_thread_parties mtp WHERE mtp.user_id = :user2 AND mt.id = mtp.message_thread_id)";
     try {

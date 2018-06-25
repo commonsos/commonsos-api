@@ -90,11 +90,13 @@ public class MessageThreadRepositoryTest extends DBTest {
     User otherUser1 = inTransaction(() -> userRepository.create(new User()));
     User otherUser2 = inTransaction(() -> userRepository.create(new User()));
 
-    MessageThread thread1 = new MessageThread().setParties(asList(party(user), party(otherUser1)));
+    MessageThread thread0 = new MessageThread().setParties(asList(party(user), party(otherUser1))).setGroup(true);
+    MessageThread thread1 = new MessageThread().setParties(asList(party(user), party(otherUser1))).setGroup(false);
     MessageThread thread2 = new MessageThread().setParties(asList(party(user), party(otherUser2)));
     MessageThread thread3 = new MessageThread().setParties(asList(party(otherUser1), party(otherUser2)));
     MessageThread thread4 = new MessageThread().setParties(asList(party(user), party(otherUser1))).setAdId(id("ad id"));
 
+    inTransaction(() -> repository.create(thread0).getId());
     Long thread1Id = inTransaction(() -> repository.create(thread1).getId());
     inTransaction(() -> repository.create(thread2).getId());
     inTransaction(() -> repository.create(thread3).getId());
