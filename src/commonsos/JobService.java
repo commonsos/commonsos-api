@@ -41,4 +41,9 @@ public class JobService {
       }
     });
   }
+
+  public void execute(Runnable task) {
+    injector.injectMembers(task);
+    task.run();
+  }
 }

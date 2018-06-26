@@ -90,6 +90,7 @@ public class DemoData {
         .setLocation("Shibuya, Tokyo, Japan")
         .setDescription("I am an Engineer, currently unemployed. I like helping elderly people, I can help with daily chores.")
         .setCommunityId(community.getId())
+        .setWaitUntilCompleted(true)
       )
       .setAvatarUrl("https://image.jimcdn.com/app/cms/image/transf/none/path/s09a03e3ad80f8a02/image/i788e42d25ed4115e/version/1493969515/image.jpg")
     );
@@ -103,6 +104,7 @@ public class DemoData {
         .setLocation("Kaga, Ishikawa Prefecture, Japan")
         .setDescription("I'm a retired person. I need personal assistance daily basis.")
         .setCommunityId(community.getId())
+        .setWaitUntilCompleted(true)
       )
       .setAvatarUrl("https://i.pinimg.com/originals/df/5c/70/df5c70b3b4895c4d9424de3845771182.jpg")
     );
@@ -116,6 +118,7 @@ public class DemoData {
         .setLocation("Kaga, Ishikawa Prefecture, Japan")
         .setDescription("Just jump in and lets play poker!")
         .setCommunityId(community.getId())
+        .setWaitUntilCompleted(true)
       )
       .setAvatarUrl("https://qph.fs.quoracdn.net/main-qimg-42b85e5f162e21ce346da83e8fa569bd-c")
     );
@@ -214,9 +217,5 @@ public class DemoData {
     String value = System.getenv(variable);
     if (value == null) throw new RuntimeException(String.format("Environment variable %s not defined", variable));
     return value;
-  }
-
-  public static void main(String[] args) {
-    System.out.println(new BigInteger("30").multiply(TOKEN_TRANSFER_GAS_LIMIT).multiply(GAS_PRICE));
   }
 }

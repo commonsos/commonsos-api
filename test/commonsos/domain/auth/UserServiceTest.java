@@ -165,6 +165,25 @@ public class UserServiceTest {
   }
 
   @Test
+  public void create_executesDelegateWalletSynchronously() {
+    AccountCreateCommand command = new AccountCreateCommand()
+      .setCommunityId(id("community"))
+      .setWaitUntilCompleted(true);
+    doNothing().when(service).validate(command);
+    when(blockchainService.isConnected()).thenReturn(true);
+    Community community = new Community().setId(id("community"));
+    when(communityService.community(id("community"))).thenReturn(community);
+    when(repository.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(blockchainService.credentials(any(), any())).thenReturn(mock(Credentials.class));
+    User communityAdmin = new User().setAdmin(true);
+    when(repository.findAdminByCommunityId(id("community"))).thenReturn(communityAdmin);
+
+    User result = service.create(command);
+
+    verify(jobsService).execute(new DelegateWalletTask(result, communityAdmin));
+  }
+
+  @Test
   public void create_failFastIfBlockchainIsDown() {
     AccountCreateCommand command = new AccountCreateCommand();
     doNothing().when(service).validate(command);

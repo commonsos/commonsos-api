@@ -64,12 +64,11 @@ public class UserService {
   public User create(AccountCreateCommand command) {
     validate(command);
     if (!blockchainService.isConnected()) throw new RuntimeException("Cannot create user, technical error with blockchain");
-    Community community = null;
     if (repository.findByUsername(command.getUsername()).isPresent()) throw new DisplayableException("error.usernameTaken");
+    Community community = null;
     if (command.getCommunityId() != null) {
       community = community(command);
     }
-
     User user = new User()
       .setCommunityId(command.getCommunityId())
       .setUsername(command.getUsername())
@@ -87,7 +86,11 @@ public class UserService {
 
     if (community != null) {
       User admin = walletUser(community);
-      jobService.submit(user, new DelegateWalletTask(user, admin));
+      DelegateWalletTask task = new DelegateWalletTask(user, admin);
+      if (command.isWaitUntilCompleted())
+        jobService.execute(task);
+      else
+        jobService.submit(user, task);
     }
 
     return repository.create(user);
