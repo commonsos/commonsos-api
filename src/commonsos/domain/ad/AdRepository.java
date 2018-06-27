@@ -30,8 +30,12 @@ public class AdRepository extends Repository {
 
   public List<Ad> ads(Long communityId, String filter) {
     return em()
-      .createQuery("FROM Ad WHERE communityId = :communityId " +
-        "AND (LOWER(description) LIKE LOWER(:filter) OR LOWER(title) LIKE LOWER(:filter))", Ad.class)
+      .createQuery("SELECT a FROM Ad a JOIN User u ON a.createdBy = u.id " +
+        "WHERE a.communityId = :communityId " +
+        "AND (" +
+          "LOWER(a.description) LIKE LOWER(:filter) OR LOWER(a.title) LIKE LOWER(:filter) " +
+          "OR LOWER(u.firstName) LIKE LOWER(:filter) OR LOWER(u.lastName) LIKE LOWER(:filter) " +
+        ")", Ad.class)
       .setParameter("communityId", communityId)
       .setParameter("filter", "%"+filter+"%")
       .getResultList();
