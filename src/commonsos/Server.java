@@ -15,7 +15,6 @@ import commonsos.controller.transaction.TransactionListController;
 import commonsos.domain.blockchain.BlockchainEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.http.HttpService;
 import spark.Request;
 
 import static java.util.Arrays.asList;
@@ -42,7 +41,7 @@ public class Server {
     Module module = new AbstractModule() {
       @Override protected void configure() {
         bind(Gson.class).toProvider(GsonProvider.class);
-        bind(Web3j.class).toInstance(Web3j.build(new HttpService("http://localhost:8545/")));
+        bind(Web3j.class).toProvider(Web3jProvider.class);
         bind(ObjectMapper.class).toInstance(new ObjectMapper());
       }
     };

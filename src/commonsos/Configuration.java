@@ -29,6 +29,10 @@ public class Configuration {
     return environmentVariable("DATABASE_PASSWORD", "commonsos");
   }
 
+  public String ethererumUrl() {
+    return environmentVariable("ETHEREUM_URL", "http://localhost:8545/");
+  }
+
   String environmentVariable(String key) {
     return environmentVariable(key, null);
   }
