@@ -12,17 +12,25 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 @Singleton
 public class EntityManagerService {
   private Logger logger = LoggerFactory.getLogger(EntityManagerService.class);
+
+  @Inject Configuration configuration;
 
   EntityManagerFactory entityManagerFactory;
   ThreadLocal<EntityManager> em = new ThreadLocal<>();
 
   @Inject
   public void init() {
-    this.entityManagerFactory = Persistence.createEntityManagerFactory("commonsos");
+    Map<String, String> config = new HashMap<>();
+    config.put("hibernate.connection.url", configuration.databaseUrl());
+    config.put("hibernate.connection.username", configuration.databaseUsername());
+    config.put("hibernate.connection.password", configuration.databasePassword());
+    this.entityManagerFactory = Persistence.createEntityManagerFactory("commonsos", config);
   }
 
   public EntityManager get() {

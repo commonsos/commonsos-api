@@ -23,9 +23,6 @@
       <property name="hibernate.connection.driver_class" value="org.postgresql.Driver"/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect" />
       <property name="hibernate.hbm2ddl.auto" value="none" />
-      <property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/commonsos" />
-      <property name="hibernate.connection.username" value="commonsos" />
-      <property name="hibernate.connection.password" value="commonsos" />
       <property name="hibernate.physical_naming_strategy" value="commonsos.PhysicalNamingStrategyImpl"/>
       <property name="hibernate.show_sql" value="false" />
       <property name="hibernate.format_sql" value="true" />

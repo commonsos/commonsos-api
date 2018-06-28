@@ -17,6 +17,18 @@ public class Configuration {
     return environmentVariable("AWS_S3_BUCKET_NAME", "commonsos-app");
   }
 
+  public String databaseUrl() {
+    return environmentVariable("DATABASE_URL", "jdbc:postgresql://localhost:5432/commonsos");
+  }
+
+  public String databaseUsername() {
+    return environmentVariable("DATABASE_USERNAME", "commonsos");
+  }
+
+  public String databasePassword() {
+    return environmentVariable("DATABASE_PASSWORD", "commonsos");
+  }
+
   String environmentVariable(String key) {
     return environmentVariable(key, null);
   }
