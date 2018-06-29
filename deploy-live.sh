@@ -1,22 +1,14 @@
 #!/bin/bash
+set -e
+set -x
 
-wget https://github.com/commonsos/commonsos-api/archive/master.zip
-unzip -o master.zip
-rm master.zip
+DISTRIBUTION_FILE='commonsos-api.zip'
+GIT_REVISION=$1
+BUILD_NUMBER=$2
 
-pushd commonsos-api-master
-./gradlew clean test bundle
-DISTRIBUTION_FILE=`readlink -f build/distributions/commonsos-api.zip`
-echo "Freshly built distribution file $DISTRIBUTION_FILE"
-popd
-
-
-TAG=`date +"%Y-%m-%d_%T"`
-VERSIONED_FOLDER="$HOME/commonsos-api-$TAG/"
+VERSIONED_FOLDER="$HOME/commonsos-api-$BUILD_NUMBER-$GIT_REVISIION/"
 
 echo "Unpacking to $VERSIONED_FOLDER"
-
-
 #mkdir "$VERSIONED_FOLDER"
 unzip "$DISTRIBUTION_FILE" -d /tmp/
 mv /tmp/commonsos-api "$VERSIONED_FOLDER"

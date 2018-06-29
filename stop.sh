@@ -1,2 +1,4 @@
 #!/bin/bash
-killall java
+PID=`cat pid`
+echo "Stopping pid $PID"
+kill -9 $PID
