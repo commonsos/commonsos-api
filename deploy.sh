@@ -4,12 +4,11 @@ set -x
 
 DISTRIBUTION_FILE='commonsos-api.zip'
 BUILD_NUMBER=$1
-GIT_REVISION=$2
+GIT_COMMIT=$2
 
-VERSIONED_FOLDER="$HOME/commonsos-api-$BUILD_NUMBER-$GIT_REVISIION"
+VERSIONED_FOLDER="$HOME/commonsos-api-$BUILD_NUMBER-$GIT_COMMIT"
 
 echo "Unpacking to $VERSIONED_FOLDER"
-#mkdir "$VERSIONED_FOLDER"
 unzip "$DISTRIBUTION_FILE" -d /tmp/
 mv /tmp/commonsos-api "$VERSIONED_FOLDER"
 
