@@ -7,3 +7,4 @@ fi
 PID=`cat pid`
 echo "Stopping pid $PID"
 kill -9 $PID
+exit 0
