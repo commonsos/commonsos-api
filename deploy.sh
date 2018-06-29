@@ -16,10 +16,8 @@ echo "Linking current installation to $VERSIONED_FOLDER"
 ln -sfv "${VERSIONED_FOLDER}" ~/commonsos-api
 
 pushd ~/commonsos-api
-./stop.sh
+./stop.sh || true
 ./start.sh
 popd
 
 echo "Done"
-
-
