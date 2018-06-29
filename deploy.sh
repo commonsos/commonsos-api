@@ -1,22 +1,26 @@
 #!/bin/bash
-
 set -e
 set -x
 
-JENKINS_WORKSPACE="$( cd "$(dirname "$0")" ; pwd -P )"
+DISTRIBUTION_FILE='commonsos-api.zip'
+BUILD_NUMBER=$1
+GIT_REVISION=$2
 
-cd /home/commonsos
+VERSIONED_FOLDER="$HOME/commonsos-api-$BUILD_NUMBER-$GIT_REVISIION"
 
-. .local_environment
+echo "Unpacking to $VERSIONED_FOLDER"
+#mkdir "$VERSIONED_FOLDER"
+unzip "$DISTRIBUTION_FILE" -d /tmp/
+mv /tmp/commonsos-api "$VERSIONED_FOLDER"
 
-[ -d logs ] || mkdir -p logs
+echo "Linking current installation to $VERSIONED_FOLDER"
+ln -sfv "${VERSIONED_FOLDER}" ~/commonsos-api
 
-rm -rf commonsos-api
-mkdir -p commonsos-api
-unzip $JENKINS_WORKSPACE/build/distributions/commonsos-api.zip
-
-killall java || echo "No previous instance running"
-
-pushd commonsos-api
-java -Xmx1024m -Dmode=production -Dfile.encoding=UTF-8 -jar commonsos-api.jar  >> ../logs/stdouterr.log 2>&1 &
+pushd ~/commonsos-api
+./stop.sh
+./start.sh
 popd
+
+echo "Done"
+
+
