@@ -13,7 +13,8 @@ unzip "$DISTRIBUTION_FILE" -d /tmp/
 mv /tmp/commonsos-api "$VERSIONED_FOLDER"
 
 echo "Linking current installation to $VERSIONED_FOLDER"
-ln -sfv "${VERSIONED_FOLDER}" ~/commonsos-api
+rm commonsos-api || true
+ln -sfv "${VERSIONED_FOLDER}" commonsos-api
 
 pushd ~/commonsos-api
 ./stop.sh || true
