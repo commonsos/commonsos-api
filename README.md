@@ -1,5 +1,6 @@
 # Environment
 
+## Install java and gradle
 ```
 sudo add-apt-repository ppa:webupd8team/java
 sudo apt-get update
@@ -14,7 +15,7 @@ sudo apt-get install gradle
 sudo apt-get install postgresql
 ``` 
 
-###Create user and database
+### Create user and database
 ```
 sudo -u postgres createuser -D -A -P commonsos
 sudo -u postgres createdb -O commonsos commonsos
@@ -22,7 +23,7 @@ sudo -u postgres createdb -O commonsos commonsos
 
 ## Apache configuration
 
-### install
+### Install
 ```bash
 sudo apt-get install apache2
 
@@ -66,58 +67,44 @@ sudo a2enmod headers
 </VirtualHost>
 ```
 
-## Ethereum network
+## Setup Ethereum network
 
-- Install binary
-```bash
+### Install
+```
 sudo add-apt-repository ppa:ethereum/ethereum
 sudo apt-get update
 sudo apt install ethereum
 ```
 
 ### Setup boot node key
+It's easier to use ready one
+- blockchain/scripts/boot.key
 
-- Generate key for boot node 
-```bash
+or generate new key for boot node and update scripts to use correct bootnode uri enode://... 
+```
 bootnode --genkey=boot.key
 ```
 
-#### or use ready one
-```bash
-echo 'd388c8346f156c9be0baee8a95abb3c3e755335d955d87b1f2164ff5a5b13767' > boot.key
+### Generate initial state for member and miner nodes
+e.g. from blockchain/scripts/genesis.json
 ```
-
-### Start boot node
-```bash
-bootnode --nodekey=boot.key
-```
-
-### Generate initial state for member node
-e.g. from blockchain/genesis.json
-```bash
 geth init --datadir=member genesis.json
+geth init --datadir=miner genesis.json
 ```
-
-
 ### Create or import administrator/miner wallet
 
-#### create new wallet 
-```bash
-geth --datadir=[node-folder] account new
 ```
-
-#### import existing wallet
-//e.g. from file UTC--2018-05-08T11-02-19.418361911Z--14063fb2a2e24cf80081a946953159d86e88c36c
-```bash
-cp [PATH_TO_YOUR_WALLET_FILE] member1/keystore/
+geth --datadir=miner account new
 ```
+NB! Change --etherbase param in blockchain/scripts/miner.sh to use miner wallet address 
 
-### Start node with RPC to support REMIX and unlock main account
-geth --datadir=member1 --port 30303 --rpc --rpcport 8545 --rpccorsdomain "*" --rpcapi "eth,net,web3,personal" --ipcdisable --bootnodes=enode://4ac77627e4236535c8778b66b0e1c440b190642eb7bd01a18c49f6a0893ebc8009f3d1712d7a5f61322c26be2f888e3baf5c713a394f7b6d7bfd67fa2f6e1dfd@[127.0.0.1]:30301 --verbosity 1 --unlock 0x14063fb2a2e24cf80081a946953159d86e88c36c console
-### Start miner node
-geth --datadir=miner1  --port 30399 --mine --minerthreads=1 --etherbase=0x14063fb2a2e24cf80081a946953159d86e88c36c --ipcdisable --bootnodes=enode://4ac77627e4236535c8778b66b0e1c440b190642eb7bd01a18c49f6a0893ebc8009f3d1712d7a5f61322c26be2f888e3baf5c713a394f7b6d7bfd67fa2f6e1dfd@[127.0.0.1]:30301
+### Start network
+Use `blockchain/scripts/*`
 
-### geth cheat sheet
+- `blockchain/scripts/startall.sh` to start boot, miner and member nodes
+- `blockchain/scripts/stop.sh` to stop everything
+
+### geth console usage examples
 
 ```javascript
 var account1 = '0x3c4bdc4464a35e34a3f330aaa697cfba7b94f566'
@@ -128,29 +115,31 @@ accounts.forEach(function(account){
   eth.sendTransaction({from:eth.coinbase, to:account, value: 48600000000000000})
 })
 
+````
+#### Access contract
+
+```
 var abi = [ { "constant": true, "inputs": [], "name": "name", "outputs": [ { "name": "", "type": "string" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" } ], "name": "approve", "outputs": [ { "name": "success", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "totalSupply", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_from", "type": "address" }, { "name": "_to", "type": "address" }, { "name": "_value", "type": "uint256" } ], "name": "transferFrom", "outputs": [ { "name": "success", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "decimals", "outputs": [ { "name": "", "type": "uint8" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_value", "type": "uint256" } ], "name": "burn", "outputs": [ { "name": "success", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "name": "", "type": "address" } ], "name": "balanceOf", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_from", "type": "address" }, { "name": "_value", "type": "uint256" } ], "name": "burnFrom", "outputs": [ { "name": "success", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "symbol", "outputs": [ { "name": "", "type": "string" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_to", "type": "address" }, { "name": "_value", "type": "uint256" } ], "name": "transfer", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }, { "name": "_extraData", "type": "bytes" } ], "name": "approveAndCall", "outputs": [ { "name": "success", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "name": "", "type": "address" }, { "name": "", "type": "address" } ], "name": "allowance", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [ { "name": "initialSupply", "type": "uint256" }, { "name": "tokenName", "type": "string" }, { "name": "tokenSymbol", "type": "string" } ], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": true, "name": "from", "type": "address" }, { "indexed": true, "name": "to", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "name": "from", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" } ], "name": "Burn", "type": "event" } ]
 var contract = eth.contract(abi).at('0xcb89e20da9edc83bc56b5f1b540c8b3b08a38a59')
 
 contract.balanceOf('account1')
 ``` 
 
-# Building
+# Building, deployment and running
 
+- Build commons-api.zip
 ```
 ./build.sh
 ```
 
-# Running
+- Copy commons-api.zip to target server
+- Copy deploy.sh to target server and execute it with version and git revision parameters
 
-```
-./start.sh
-./stop.sh
-
-```
-
+This will redeploy app into versioned folder and restart it.
+ 
 # Development
 
-## Token Contract
+## Ethereum Token Contract
 
 ### Compile Solidity contract code 
 
