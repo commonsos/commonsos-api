@@ -127,6 +127,11 @@ contract.balanceOf('account1')
 
 # Building, deployment and running
 
+- Install gradle
+```
+sudo apt-get install gradle
+``` 
+
 - Build commons-api.zip
 ```
 ./build.sh
