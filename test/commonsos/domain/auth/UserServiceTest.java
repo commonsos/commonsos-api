@@ -365,4 +365,13 @@ public class UserServiceTest {
 
     verify(repository).update(new User().setFirstName("John").setLastName("Doe").setDescription("About me").setLocation("Nice place"));
   }
+
+  @Test
+  public void updateMobileDevice() {
+    MobileDeviceUpdateCommand command = new MobileDeviceUpdateCommand().setPushNotificationToken("12345");
+
+    service.updateMobileDevice(new User(), command);
+
+    verify(repository).update(new User().setPushNotificationToken("12345"));
+  }
 }

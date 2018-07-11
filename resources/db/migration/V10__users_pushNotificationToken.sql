@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN push_notification_token TEXT;

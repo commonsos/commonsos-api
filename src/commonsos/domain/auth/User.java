@@ -28,4 +28,5 @@ public class User {
   String avatarUrl;
   String wallet;
   String walletAddress;
+  String pushNotificationToken;
 }

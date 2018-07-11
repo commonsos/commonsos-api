@@ -147,12 +147,16 @@ public class UserService {
   }
 
   public User updateUser(User user, UserUpdateCommand command) {
-    log.info(command.toString());
     user.setFirstName(command.getFirstName());
     user.setLastName(command.getLastName());
     user.setDescription(command.getDescription());
     user.setLocation(command.getLocation());
     repository.update(user);
     return user;
+  }
+
+  public void updateMobileDevice(User user, MobileDeviceUpdateCommand command) {
+    user.pushNotificationToken = command.getPushNotificationToken();
+    repository.update(user);
   }
 }

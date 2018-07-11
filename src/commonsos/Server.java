@@ -65,6 +65,7 @@ public class Server {
     get("/users/:id", injector.getInstance(UserController.class), toJson);
     post("/users/:id", injector.getInstance(UserUpdateController.class), toJson);
     post("/users/:id/avatar", injector.getInstance(UserAvatarUpdateController.class), toJson);
+    post("/users/:id/mobile-device", injector.getInstance(UserMobileDeviceUpdateController.class), toJson);
     get("/users", injector.getInstance(UserSearchController.class), toJson);
 
     post("/ads", injector.getInstance(AdCreateController.class), toJson);
