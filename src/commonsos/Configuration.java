@@ -37,6 +37,10 @@ public class Configuration {
     return environmentVariable(key, null);
   }
 
+  public String firebaseCredentialsFile() {
+    return environmentVariable("FIREBASE_CREDENTIALS");
+  }
+
   String environmentVariable(String key, String defaultValue) {
     String value = System.getenv(key);
     if (value == null && defaultValue != null) return defaultValue;

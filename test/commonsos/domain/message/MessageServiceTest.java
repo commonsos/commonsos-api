@@ -38,6 +38,7 @@ public class MessageServiceTest {
   @Mock MessageRepository messageRepository;
   @Mock AdService adService;
   @Mock UserService userService;
+  @Mock PushNotificationService pushNotificationService;
   @InjectMocks @Spy MessageService service;
   @Captor ArgumentCaptor<MessageThread> messageThreadArgumentCaptor;
   @Captor ArgumentCaptor<MessageThread> messageThreadArgumentCaptor2;
@@ -305,6 +306,20 @@ public class MessageServiceTest {
     assertThat(message.getCreatedBy()).isEqualTo(id("user id"));
     assertThat(message.getText()).isEqualTo("message text");
     assertThat(message.getCreatedAt()).isCloseTo(now(), within(1, SECONDS));
+  }
+
+  @Test
+  public void postMessage_notifiesParties() {
+    User sendingUser = new User().setId(id("user id")).setUsername("sender").setPushNotificationToken("sending user token");
+    User otherUser = new User().setId(id("user id")).setPushNotificationToken("other user token");
+    List<MessageThreadParty> parties = asList(party(sendingUser), party(otherUser));
+    when(messageThreadRepository.thread(id("thread id"))).thenReturn(Optional.of(new MessageThread().setParties(parties)));
+    when(messageRepository.create(any())).thenReturn(new Message().setText("Hello"));
+
+    service.postMessage(sendingUser, new MessagePostCommand().setThreadId(id("thread id")).setText("message text"));
+
+    verify(pushNotificationService).send(otherUser, "New message from sender: Hello");
+    verifyNoMoreInteractions(pushNotificationService);
   }
 
   @Test(expected = ForbiddenException.class)

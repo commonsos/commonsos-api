@@ -41,6 +41,8 @@ dependencies {
 
   compile 'org.web3j:core:3.4.0'
 
+  compile 'com.google.firebase:firebase-admin:6.2.0'
+
   testCompile 'junit:junit:4.12'
   testCompile 'org.mockito:mockito-core:2.15.0'
   testCompile 'org.assertj:assertj-core:3.9.1'

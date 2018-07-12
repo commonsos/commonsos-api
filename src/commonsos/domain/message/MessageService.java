@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
+import static java.lang.String.format;
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
@@ -29,6 +30,7 @@ public class MessageService {
   @Inject private MessageRepository messageRepository;
   @Inject private AdService adService;
   @Inject private UserService userService;
+  @Inject PushNotificationService pushNotificationService;
 
   public MessageThreadView threadForAd(User user, Long adId) {
     MessageThread thread = messageThreadRepository.byAdId(user, adId).orElseGet(() -> createMessageThreadForAd(user, adId));
@@ -93,7 +95,7 @@ public class MessageService {
     if (users.isEmpty()) throw new BadRequestException("No group members specified");
     users.forEach(user1 -> {
       if (!communityId.equals(user1.getCommunityId())) {
-        String message = String.format("Tried to create group chat with user %s from different community", user1.getUsername());
+        String message = format("Tried to create group chat with user %s from different community", user1.getUsername());
         throw new ForbiddenException(message);
       }
     });
@@ -186,13 +188,22 @@ public class MessageService {
   }
 
   public MessageView postMessage(User user, MessagePostCommand command) {
-    messageThreadRepository.thread(command.getThreadId()).map(thread -> checkAccess(user, thread));
+    MessageThread messageThread = messageThreadRepository.thread(command.getThreadId()).map(thread -> checkAccess(user, thread)).get();
     Message message = messageRepository.create(new Message()
       .setCreatedBy(user.getId())
       .setCreatedAt(now())
       .setThreadId(command.getThreadId())
       .setText(command.getText()));
+
+    notifiyThreadParties(user, messageThread, message);
+
     return view(message);
+  }
+
+  private void notifiyThreadParties(User senderUser, MessageThread messageThread, Message message) {
+    messageThread.getParties().stream()
+      .filter(p -> !p.getUser().equals(senderUser))
+      .forEach(p -> pushNotificationService.send(p.getUser(), format("New message from %s: %s", senderUser.getUsername(), message.getText())));
   }
 
   public List<MessageView> messages(User user, Long threadId) {

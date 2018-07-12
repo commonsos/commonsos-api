@@ -32,6 +32,13 @@ public class ConfigurationTest {
     assertThat(configuration.awsS3BucketName()).isEqualTo("value3");
   }
 
+  @Test
+  public void firebaseCredentialsFile() {
+    doReturn("file.name").when(configuration).environmentVariable("FIREBASE_CREDENTIALS");
+
+    assertThat(configuration.firebaseCredentialsFile()).isEqualTo("file.name");
+  }
+
   @Test(expected = RuntimeException.class)
   public void environmentVariable_notFound() {
     configuration.environmentVariable("RANDOM_KEY");
