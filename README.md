@@ -171,3 +171,99 @@ Download latest release as ```.tar``` file from https://github.com/web3j/web3j/r
 ```
 web3j solidity generate --javaTypes build/token/TokenERC20.bin build/token/TokenERC20.abi -o src/ -p commonsos.domain.blockchain
 ```
+
+## Mobile app development
+
+***Cordova*** (https://cordova.apache.org/) is used to build multi-platform mobile app. Minimum version for platforms:
+- android 7.1.0
+- ios 4.5.4
+
+
+### Android specific setup
+
+- Install Android Studio containing Android SDK
+
+https://developer.android.com/studio/
+
+```
+cordova build android
+
+```
+
+### iOS specific setup
+
+https://cordova.apache.org/docs/en/latest/guide/platforms/ios/
+- Install Xcode
+- Install CocoaPods
+
+
+## Install Cordova 
+
+```
+sudo npm install -g cordova
+```
+
+Determine missing dependencies / requirements. In Cordova project root folder execute 
+```
+cordova requirements 
+```
+
+### Push notifications
+
+On mobile app Cordova plugin ***phonegap-plugin-push*** (https://github.com/phonegap/phonegap-plugin-push) is used to support 
+push notification functionality.
+
+See `https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/INSTALLATION.md` for more details
+
+To set up mobile app project locally it's required to add Firebase configuration files to Cordova project root folder.
+
+Firebase configuration is platform dependent. 
+- google-services.json for Android
+- GoogleService-Info.plist for iOS
+
+Download configuration files from Firebase console https://console.firebase.google.com. 
+- Firebase project must have separate apps defined for Android and iOS. 
+- Select desired app (platform), find download link having required file name as title. 
+
+
+On server side Firebase Cloud Messaging (https://console.firebase.google.com) is used to communicate with Apple APN and Google Push Notifications.
+To setup server locally you need to download and configure Firebase service account key. Open your project on Firebase, go to Settings, select Service Accounts tab.
+On Firebase Admin SDK selection click on *Generate new private key* and download it. Define environment variable FIREBASE_CREDENTIALS with value pointing to absolute path of credentials file.
+
+It's possible to test push notification directly on Firebase console. Goto Firebase, open your project, 
+select Grow -> Cloud Messaging on the left menu. To send message to concrete device you need to know it's push notification token. You can grab it from server logs.
+
+### Building application
+
+Check out commonsos-web project to the folder containing commonsos-mobile. Make sure it's build script executes well.
+```
+npm run build-mobile
+```
+
+- On Cordova project root folder execute ***build.sh***. It copies latest web resources into Cordova project and builds mobile platforms.
+If you like to build specific platform, execute ***build.sh ios*** or ***build.sh android***
+
+- Run built target in emulator or physical device
+
+List available targets
+```
+cordova run --list
+adb devices   # android only 
+```
+
+```
+cordova run ios                  # concrete platform on any available target
+cordova run android --device     # concrete platform on physical device
+cordova run --device             # current platform on physical device
+cordova run --emulator           # current platform on available emulator
+cordova run --target target_id   # current platform on specific device or emulator
+```
+  
+#### iOS specific 
+XCode -> open Commons OS.xcworkspace (NOT .Commons OS.xcodeproj)
+
+Configure code signing cert -> run app
+
+Also, configure Firebase to proxy push messages to Apple APN
+- Create APN authenticationkey https://developer.clevertap.com/docs/how-to-create-an-ios-apns-auth-key
+- Upload it to Firebase project iOS app section https://firebase.google.com/docs/cloud-messaging/ios/certs
