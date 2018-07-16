@@ -267,3 +267,20 @@ Configure code signing cert -> run app
 Also, configure Firebase to proxy push messages to Apple APN
 - Create APN authenticationkey https://developer.clevertap.com/docs/how-to-create-an-ios-apns-auth-key
 - Upload it to Firebase project iOS app section https://firebase.google.com/docs/cloud-messaging/ios/certs
+
+ 
+# SSL with LetsEncrypt
+
+- install
+```
+yum install python27-devel git
+git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
+/etc/letsencrypt$ /opt/letsencrypt/letsencrypt-auto --debug
+```
+
+- automatic certificate renewal
+include into /etc/crontab
+```
+27  19  *  *  *  root     /opt/letsencrypt/letsencrypt-auto --no-bootstrap renew
+57  19  *  *  *  root     apachectl -k restart > /dev/null 2>&1
+```
