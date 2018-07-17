@@ -57,7 +57,7 @@ public class UserService {
     return privateView(user);
   }
 
-  private String fullName(User user) {
+  public String fullName(User user) {
     return String.format("%s %s", user.getLastName(), user.getFirstName());
   }
 

@@ -315,10 +315,11 @@ public class MessageServiceTest {
     List<MessageThreadParty> parties = asList(party(sendingUser), party(otherUser));
     when(messageThreadRepository.thread(id("thread id"))).thenReturn(Optional.of(new MessageThread().setParties(parties)));
     when(messageRepository.create(any())).thenReturn(new Message().setText("Hello"));
+    when(userService.fullName(sendingUser)).thenReturn("John Doe");
 
     service.postMessage(sendingUser, new MessagePostCommand().setThreadId(id("thread id")).setText("message text"));
 
-    verify(pushNotificationService).send(otherUser, "New message from sender: Hello");
+    verify(pushNotificationService).send(otherUser, "John Doe:\n\nHello");
     verifyNoMoreInteractions(pushNotificationService);
   }
 

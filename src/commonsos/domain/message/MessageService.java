@@ -200,10 +200,10 @@ public class MessageService {
     return view(message);
   }
 
-  private void notifiyThreadParties(User senderUser, MessageThread messageThread, Message message) {
+    private void notifiyThreadParties(User senderUser, MessageThread messageThread, Message message) {
     messageThread.getParties().stream()
       .filter(p -> !p.getUser().equals(senderUser))
-      .forEach(p -> pushNotificationService.send(p.getUser(), format("New message from %s: %s", senderUser.getUsername(), message.getText())));
+      .forEach(p -> pushNotificationService.send(p.getUser(), format("%s:\n\n%s", userService.fullName(senderUser), message.getText())));
   }
 
   public List<MessageView> messages(User user, Long threadId) {
