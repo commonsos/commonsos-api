@@ -61,16 +61,16 @@ task copyCompileDependencies(type: Sync) {
   into "build/libs"
 }
 
-task createTokenDeployerScript() {
-  new File("$projectDir/deploy_token.sh").text =
-    """java -cp ${configurations.compile.collect {it.getName()}.join(':')}:commonsos-api.jar commonsos.domain.blockchain.TokenERC20Deployer \$1"""
+task createAddCommunityScript() {
+  new File("$projectDir/add_community.sh").text =
+    """java -cp ${configurations.compile.collect {it.getName()}.join(':')}:commonsos-api.jar commonsos.tools.AddCommunity \$1"""
 }
 
-task bundle(type: Zip, dependsOn: [jar, copyCompileDependencies, createTokenDeployerScript]) {
+task bundle(type: Zip, dependsOn: [jar, copyCompileDependencies, createAddCommunityScript]) {
   archiveName "commonsos-api.zip"
   from new File(buildDir, "libs")
   from ('start.sh')
   from ('stop.sh')
-  from ('deploy_token.sh')
+  from ('add_community.sh')
   into "commonsos-api"
 }
