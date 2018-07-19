@@ -67,6 +67,32 @@ sudo a2enmod headers
 </VirtualHost>
 ```
 
+## Monitoring and Mail sending configuration
+```
+sudo apt install monit
+
+```
+
+TODO: monit conf
+
+Install mailutils that will install postfix as well 
+```
+sudo apt-get update
+sudo apt-get install mailutils
+```
+
+Modify /etc/postfix/main.cf line `inet_interfaces = all` to be `inet_interfaces = loopback-only` 
+
+Restart postfix 
+```
+sudo systemctl restart postfix
+```
+
+Test email sending
+```
+echo "test mail body" | mail -s "test mail subject" your@email.address
+```
+
 ## Setup Ethereum network
 
 ### Install
