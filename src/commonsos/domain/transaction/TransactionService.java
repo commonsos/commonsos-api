@@ -8,6 +8,7 @@ import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
 import commonsos.domain.blockchain.BlockchainService;
+import commonsos.domain.message.PushNotificationService;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ public class TransactionService {
   @Inject BlockchainService blockchainService;
   @Inject UserService userService;
   @Inject AdService adService;
+  @Inject PushNotificationService pushNotificationService;
 
   public BigDecimal balance(User user) {
     BigDecimal tokenBalance = blockchainService.tokenBalance(user);
@@ -109,6 +111,10 @@ public class TransactionService {
 
     transaction.setBlockchainCompletedAt(now());
     repository.update(transaction);
+
+    User beneficiary = userService.user(transaction.getBeneficiaryId());
+    String remitterName = userService.fullName(userService.user(transaction.getRemitterId()));
+    pushNotificationService.send(beneficiary, format("%s\n+%.2f %s", remitterName, transaction.getAmount(), transaction.getDescription()));
 
     log.info(format("Transaction %s marked completed", transaction.getBlockchainTransactionHash()));
   }

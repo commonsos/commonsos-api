@@ -8,6 +8,7 @@ import commonsos.domain.auth.User;
 import commonsos.domain.auth.UserService;
 import commonsos.domain.auth.UserView;
 import commonsos.domain.blockchain.BlockchainService;
+import commonsos.domain.message.PushNotificationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -35,6 +36,7 @@ public class TransactionServiceTest {
   @Mock BlockchainService blockchainService;
   @Captor ArgumentCaptor<Transaction> captor;
   @Mock TransactionRepository repository;
+  @Mock PushNotificationService pushNotificationService;
   @InjectMocks @Spy TransactionService service;
 
   @Test
@@ -204,13 +206,27 @@ public class TransactionServiceTest {
 
   @Test
   public void markTransactionCompleted() {
-    Transaction transaction = new Transaction();
+    Transaction transaction = new Transaction()
+      .setRemitterId(id("remitter id"))
+      .setBeneficiaryId(id("beneficiary id"))
+      .setAmount(new BigDecimal("100.005"))
+      .setDescription("Gift");
     when(repository.findByBlockchainTransactionHash("hash")).thenReturn(of(transaction));
+
+    User remitter = new User();
+    when(userService.user(id("remitter id"))).thenReturn(remitter);
+    when(userService.fullName(remitter)).thenReturn("John Doe");
+
+    User beneficiary = new User();
+    when(userService.user(id("beneficiary id"))).thenReturn(beneficiary);
+
 
     service.markTransactionCompleted("hash");
 
+
     assertThat(transaction.getBlockchainCompletedAt()).isCloseTo(now(), within(1, SECONDS));
     verify(repository).update(transaction);
+    verify(pushNotificationService).send(beneficiary, "John Doe\n+100.01 Gift");
   }
 
   @Test
