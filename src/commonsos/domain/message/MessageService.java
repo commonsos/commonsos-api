@@ -1,5 +1,6 @@
 package commonsos.domain.message;
 
+import com.google.common.collect.ImmutableMap;
 import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static java.time.Instant.now;
@@ -195,15 +197,21 @@ public class MessageService {
       .setThreadId(command.getThreadId())
       .setText(command.getText()));
 
-    notifiyThreadParties(user, messageThread, message);
+    notifyThreadParties(user, messageThread, message);
 
     return view(message);
   }
 
-    private void notifiyThreadParties(User senderUser, MessageThread messageThread, Message message) {
+    private void notifyThreadParties(User senderUser, MessageThread messageThread, Message message) {
     messageThread.getParties().stream()
       .filter(p -> !p.getUser().equals(senderUser))
-      .forEach(p -> pushNotificationService.send(p.getUser(), format("%s:\n\n%s", userService.fullName(senderUser), message.getText())));
+      .forEach(p -> {
+        String messageText = format("%s:\n\n%s", userService.fullName(senderUser), message.getText());
+        Map<String, String> params = ImmutableMap.of(
+          "type", "new_message",
+          "threadId", Long.toString(messageThread.getId()));
+        pushNotificationService.send(p.getUser(), messageText, params);
+      });
   }
 
   public List<MessageView> messages(User user, Long threadId) {

@@ -13,6 +13,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.FileInputStream;
 import java.time.Duration;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
 
 @Singleton
 @Slf4j
@@ -36,12 +39,16 @@ public class PushNotificationService {
   }
 
   public void send(User recipient, String message) {
-    if (recipient.getPushNotificationToken() == null) return;
-    log.info(String.format("Sending push notification to %s %s", recipient.getUsername(), recipient.getPushNotificationToken()));
-    send(recipient.getPushNotificationToken(), message);
+    send(recipient, message, emptyMap());
   }
 
-  private void send(String clientToken, String messageBody) {
+  public void send(User recipient, String message, Map<String, String> params) {
+    if (recipient.getPushNotificationToken() == null) return;
+    log.info(String.format("Sending push notification to user: %s, token: %s", recipient.getUsername(), recipient.getPushNotificationToken()));
+    send(recipient.getPushNotificationToken(), message, params);
+  }
+
+  private void send(String clientToken, String messageBody, Map<String, String> params) {
     AndroidConfig androidConfig = AndroidConfig.builder()
       .setTtl(Duration.ofMinutes(2).toMillis()).setCollapseKey("personal")
       .setPriority(AndroidConfig.Priority.HIGH)
@@ -52,17 +59,26 @@ public class PushNotificationService {
       .setAps(Aps.builder().setCategory("personal").setThreadId("personal").build())
       .build();
 
-    com.google.firebase.messaging.Message message = Message.builder().setToken(clientToken)
+    com.google.firebase.messaging.Message message = messageBuilder().setToken(clientToken)
       .setApnsConfig(apnsConfig).setAndroidConfig(androidConfig)
       .setNotification(new Notification("", messageBody))
+      .putAllData(params)
       .build();
 
     try {
-      String response = FirebaseMessaging.getInstance().send(message);
+      String response = getInstance().send(message);
       log.info("Successfully sent message: " + response);
     }
     catch (FirebaseMessagingException e) {
       log.warn(String.format("Failed to send push notification to %s", clientToken), e);
     }
+  }
+
+  Message.Builder messageBuilder() {
+    return Message.builder();
+  }
+
+  FirebaseMessaging getInstance() {
+    return FirebaseMessaging.getInstance();
   }
 }

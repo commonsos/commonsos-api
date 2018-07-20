@@ -1,5 +1,6 @@
 package commonsos.domain.message;
 
+import com.google.common.collect.ImmutableMap;
 import commonsos.BadRequestException;
 import commonsos.ForbiddenException;
 import commonsos.domain.ad.Ad;
@@ -313,13 +314,14 @@ public class MessageServiceTest {
     User sendingUser = new User().setId(id("user id")).setUsername("sender").setPushNotificationToken("sending user token");
     User otherUser = new User().setId(id("user id")).setPushNotificationToken("other user token");
     List<MessageThreadParty> parties = asList(party(sendingUser), party(otherUser));
-    when(messageThreadRepository.thread(id("thread id"))).thenReturn(Optional.of(new MessageThread().setParties(parties)));
+    when(messageThreadRepository.thread(id("thread id"))).thenReturn(Optional.of(new MessageThread().setId(id("thread id")).setParties(parties)));
     when(messageRepository.create(any())).thenReturn(new Message().setText("Hello"));
     when(userService.fullName(sendingUser)).thenReturn("John Doe");
 
     service.postMessage(sendingUser, new MessagePostCommand().setThreadId(id("thread id")).setText("message text"));
 
-    verify(pushNotificationService).send(otherUser, "John Doe:\n\nHello");
+    ImmutableMap<String, String> params = ImmutableMap.of("type", "new_message", "threadId", Long.toString(id("thread id")));
+    verify(pushNotificationService).send(otherUser, "John Doe:\n\nHello", params);
     verifyNoMoreInteractions(pushNotificationService);
   }
 
