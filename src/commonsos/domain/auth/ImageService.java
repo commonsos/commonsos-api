@@ -41,7 +41,7 @@ public class ImageService {
     s3client.putObject(new PutObjectRequest(bucketName, filename, inputStream, null)
       .withMetadata(metadata())
       .withCannedAcl(CannedAccessControlList.PublicRead));
-    return "https://s3-us-east-2.amazonaws.com/" + bucketName + "/" + filename;
+    return "https://" + bucketName + ".s3.amazonaws.com/" + filename;
   }
 
   private ObjectMetadata metadata() {
