@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.web3j.protocol.Web3j;
 import spark.Request;
 
+import java.util.stream.Stream;
+
 import static java.util.Arrays.asList;
 import static spark.Spark.*;
 
@@ -28,13 +30,17 @@ public class Server {
   @Inject private DemoData demoData;
   @Inject private BlockchainEventService blockchainEventService;
 
-  private void start() {
+  private void start(String[] args) {
     Injector injector = initDependencies();
     databaseMigrator.execute();
     CookieSecuringEmbeddedJettyFactory.register();
     initRoutes(injector);
     blockchainEventService.listenEvents();
-    demoData.install();
+    if (demoDataEnabled(args)) demoData.install();
+  }
+
+  private boolean demoDataEnabled(String[] args) {
+    return Stream.of(args).map(String::toLowerCase).anyMatch(s -> s.equals("--demodata"));
   }
 
   private Injector initDependencies() {
@@ -127,7 +133,7 @@ public class Server {
 
   public static void main(String[] args) {
     try {
-      new Server().start();
+      new Server().start(args);
     }
     catch (Throwable e) {
       e.printStackTrace();
