@@ -63,7 +63,8 @@ sudo a2enmod headers
     RequestHeader set X-Request-Id %{UNIQUE_ID}e
 
     ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    LogFormat "%t[%{UNIQUE_ID}e][%{X-AUTHENTICATED-USER}o] %h - %>s \"%r\" \"%{User-agent}i\" %b %{ms}T" request
+    CustomLog /[YOUR_HOME_FOLDER]/logs/request.log request
 </VirtualHost>
 ```
 
