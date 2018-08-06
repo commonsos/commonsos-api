@@ -14,13 +14,17 @@ import spark.route.Routes;
 import spark.staticfiles.StaticFilesConfiguration;
 
 public class CookieSecuringEmbeddedJettyFactory extends EmbeddedJettyFactory {
+  public static final int MAX_SESSION_AGE_IN_SECONDS = 3600 * 24 * 31 * 12;
+
   @Override
   public EmbeddedServer create(Routes routeMatcher, StaticFilesConfiguration staticFilesConfiguration, boolean hasMultipleHandler) {
     MatcherFilter matcherFilter = new MatcherFilter(routeMatcher, staticFilesConfiguration, false, hasMultipleHandler);
     matcherFilter.init(null);
 
-    JettyHandler handler = new JettyHandler(matcherFilter);
-    handler.setHttpOnly(true);
+    JettyHandler handler = new JettyHandler(matcherFilter) {{
+      _maxCookieAge = MAX_SESSION_AGE_IN_SECONDS;
+      setHttpOnly(true);
+    }};
 
     return new EmbeddedJettyServer(new JettyServerFactory() {
       @Override

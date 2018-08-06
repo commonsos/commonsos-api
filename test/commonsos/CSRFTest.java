@@ -26,7 +26,7 @@ public class CSRFTest {
 
     csrf.setToken(request, response);
 
-    verify(response).cookie("/", CSRF_TOKEN_COOKIE_NAME, "random value", -1, false);
+    verify(response).cookie("/", CSRF_TOKEN_COOKIE_NAME, "random value", 3600 * 24 * 31 * 12, false);
     verify(session).attribute(CSRF.CSRF_TOKEN_SESSION_ATTRIBUTE_NAME, "random value");
   }
 
