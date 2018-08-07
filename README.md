@@ -74,7 +74,27 @@ sudo apt install monit
 
 ```
 
-TODO: monit conf
+Example monit config to monitor/alert/restart app:
+```
+SET mail-format {
+        from: monit@app.test.commons.love
+        subject: monit alert: $SERVICE $EVENT $DATE
+        message: $DESCRIPTION
+}
+
+SET ALERT [email1@example.com]
+SET ALERT [email2@example.com]
+
+CHECK PROCESS geth_miner WITH PIDFILE /home/ubuntu/eth/miner/pid
+        START PROGRAM = "/bin/bash -c 'cd /home/ubuntu/eth && ./miner.sh'" AS UID ubuntu AND GID ubuntu
+        if failed
+                unixsocket /home/ubuntu/eth/miner/geth.ipc
+                WITH TIMEOUT 10 SECONDS
+                FOR 2 CYCLES
+                then RESTART
+
+
+```
 
 Install mailutils that will install postfix as well 
 ```
